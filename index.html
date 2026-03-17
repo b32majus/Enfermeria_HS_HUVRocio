@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Enfermería EPA - HS | HUV Rocío</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #005e85;
+            --secondary-color: #0488b8;
+            --accent-color: #e67e22;
+            --bg-color: #f0f4f8;
+            --text-color: #334155;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+            --border-radius: 8px;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* TAB BAR */
+        .tab-bar {
+            background: #1e293b;
+            display: flex;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 18px 20px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active-pv {
+            color: white;
+            border-bottom-color: #005e85;
+            background: rgba(0, 94, 133, 0.15);
+        }
+
+        .tab-btn.active-sg {
+            color: white;
+            border-bottom-color: #0d9488;
+            background: rgba(13, 148, 136, 0.15);
+        }
+
+        .tab-btn.active-cx {
+            color: white;
+            border-bottom-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .tab-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .tab-badge-pv {
+            background: #005e85;
+            color: white;
+        }
+
+        .tab-badge-sg {
+            background: #0d9488;
+            color: white;
+        }
+
+        .tab-badge-cx {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        /* COMMON FORM STYLES */
+        .header {
+            background: var(--white);
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header .subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .visit-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .date-container input {
+            padding: 10px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-weight: 600;
+            background: #f8fafc;
+        }
+
+        .section {
+            background: var(--white);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(to right, #f8fafc, #fff);
+            padding: 15px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s;
+            font-size: 1.05rem;
+        }
+
+        .section-header:hover {
+            background: #f1f5f9;
+        }
+
+        .section-header i {
+            margin-right: 10px;
+            opacity: 0.8;
+        }
+
+        .caret {
+            transition: transform 0.3s;
+        }
+
+        .section-header.collapsed .caret {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 25px;
+            display: block;
+        }
+
+        .section-content.hidden {
+            display: none;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+
+        @media(max-width:768px) {
+
+            .grid-2,
+            .grid-3,
+            .grid-4,
+            .grid-5 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(4, 136, 184, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        .toggle-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+
+        .toggle-card:hover {
+            background: #fff;
+            border-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .toggle-card.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 94, 133, 0.2);
+        }
+
+        .comorb-group {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .comorb-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .accordion-wrapper {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .accordion-header {
+            background: #f8fafc;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .accordion-header:hover {
+            background: #f1f5f9;
+            color: var(--primary-color);
+        }
+
+        .accordion-content {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .accordion-content.open {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .clean-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .clean-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border-color);
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .clean-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: top;
+        }
+
+        .radio-cell {
+            text-align: center;
+            width: 60px;
+        }
+
+        .region-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .region-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 5px;
+        }
+
+        .counter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .c-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            width: 25px;
+        }
+
+        .c-nod {
+            color: #f59e0b;
+        }
+
+        .c-abs {
+            color: #ef4444;
+        }
+
+        .c-fis {
+            color: #7c3aed;
+        }
+
+        .counter-ctl {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .c-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #64748b;
+            transition: all 0.1s;
+        }
+
+        .c-btn:hover {
+            background: var(--white);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .c-btn:active {
+            transform: scale(0.95);
+        }
+
+        .c-val {
+            width: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .hurley-card {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .hurley-card:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .hurley-card.active {
+            border-color: var(--primary-color);
+            background: #e0f2fe;
+        }
+
+        .hurley-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .hurley-card p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .adherence-card {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .adherence-card:hover {
+            border-color: #0d9488;
+        }
+
+        .adherence-card.active {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+
+        .adherence-card.active.good {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .adherence-card.active.partial {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .adherence-card.active.bad {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .time-card {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .time-card h4 {
+            color: #7c3aed;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .time-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .time-option {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .time-option:hover {
+            border-color: #7c3aed;
+            background: #faf5ff;
+        }
+
+        .time-option.selected {
+            background: #ede9fe;
+            border-color: #7c3aed;
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        .eva-slider {
+            width: 100%;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .eva-value {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .alert-box {
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            display: block;
+        }
+
+        .score-display {
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .subsection-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+            margin: 20px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .subsection-title:first-child {
+            margin-top: 0;
+        }
+
+        .info-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .fab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: #64748b;
+        }
+
+        .btn-outline:hover {
+            border-color: #94a3b8;
+            color: #334155;
+        }
+
+        .btn-excel {
+            background: #107c41;
+            color: white;
+        }
+
+        .btn-excel:hover {
+            background: #059669;
+        }
+
+        .scale-note {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 12px 0 16px;
+            font-size: 0.82rem;
+            color: #475569;
+        }
+
+        .scale-chip {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-weight: 600;
+        }
+
+        .stack-sm {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .inline-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .inline-row .btn {
+            padding: 10px 14px;
+            white-space: nowrap;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            flex: 0 0 auto;
+        }
+
+        .icon-btn-add {
+            background: #16a34a;
+            color: white;
+        }
+
+        .icon-btn-remove {
+            background: #dc2626;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA DE PESTAÑAS -->
+    <div class="tab-bar">
+        <button class="tab-btn active-pv" id="btn-pv" onclick="switchTab('pv')">
+            <i class="fas fa-user-nurse"></i> Primera Visita <span class="tab-badge tab-badge-pv">1ª</span>
+        </button>
+        <button class="tab-btn" id="btn-sg" onclick="switchTab('sg')">
+            <i class="fas fa-clipboard-check"></i> Seguimiento <span class="tab-badge tab-badge-sg">SEG</span>
+        </button>
+        <button class="tab-btn" id="btn-cx" onclick="switchTab('cx')">
+            <i class="fas fa-band-aid"></i> Cura Post-Qx <span class="tab-badge tab-badge-cx">QX</span>
+        </button>
+    </div>
+
+    <!-- TAB 1: PRIMERA VISITA -->
+    <div class="tab-content active" id="tab-pv">
+        <div style="display:flex; gap:15px; align-items:center;">
+            <span class="visit-badge">1ª VISITA</span>
+            <div class="date-container"><input type="date" id="pv_fechaVisita"></div>
+        </div>
+
+
+        <!-- 1. FILIACIÓN E HISTORIA HS -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-filiacion')">
+                <span><i class="fas fa-user-circle fa-icon"></i> 1. FILIACIÓN E HISTORIA DE LA HS</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-filiacion" class="section-content">
+                <div class="subsection-title">Datos del paciente</div>
+                <div class="grid-4">
+                    <div class="form-group"><label>NUHSA <span style="color:red">*</span></label><input type="text"
+                            id="pv_nuhsa" placeholder="AN..."></div>
+                    <div class="form-group"><label>Edad</label><input type="number" id="pv_edad" placeholder="Años">
+                    </div>
+                    <div class="form-group"><label>Sexo</label>
+                        <select id="pv_sexo">
+                            <option value="">Seleccionar</option>
+                            <option>Mujer</option>
+                            <option>Hombre</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Situación laboral</label>
+                        <select id="pv_laboral">
+                            <option value="">Seleccionar</option>
+                            <option>Activo/a</option>
+                            <option>Baja laboral</option>
+                            <option>Desempleo</option>
+                            <option>Incapacidad</option>
+                            <option>Estudiante</option>
+                            <option>Jubilado/a</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="subsection-title">Historia de la enfermedad</div>
+                <div class="grid-4">
+                    <div class="form-group"><label>Año inicio síntomas</label><input type="number" id="pv_anio_ini"
+                            placeholder="Ej: 2015"></div>
+                    <div class="form-group"><label>Año diagnóstico</label><input type="number" id="pv_anio_dx"
+                            placeholder="Ej: 2020"></div>
+                    <div class="form-group"><label>Retraso diagnóstico</label><input type="text" id="pv_retraso_dx"
+                            readonly style="background:#eee; font-weight:700;" placeholder="Auto"></div>
+                    <div class="form-group"><label>Nº médicos previos</label><input type="number" id="pv_n_medicos"
+                            placeholder="Antes del Dx"></div>
+                </div>
+                <div class="grid-3" style="margin-top:15px;">
+                    <div class="form-group"><label>Urgencias por HS (último año)</label><input type="number"
+                            id="pv_n_urgencias" placeholder="Nº visitas"></div>
+                    <div class="form-group"><label>Cirugías previas por HS</label><input type="number"
+                            id="pv_n_cirugias" placeholder="Nº intervenciones"></div>
+                    <div class="form-group"><label>Tratamientos biológicos previos</label>
+                        <select id="pv_bio_previo">
+                            <option value="No">No</option>
+                            <option value="Adalimumab">Adalimumab</option>
+                            <option value="Secukinumab">Secukinumab</option>
+                            <option value="Bimekizumab">Bimekizumab</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Tratamientos previos relevantes</label>
+                    <textarea id="pv_tx_previos" rows="2"
+                        placeholder="ATB previos, otros fármacos, tratamientos tópicos..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. HÁBITOS Y ESTILO DE VIDA -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-habitos')">
+                <span><i class="fas fa-smoking fa-icon"></i> 2. HÁBITOS Y ESTILO DE VIDA</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-habitos" class="section-content">
+                <div class="subsection-title"><i class="fas fa-smoking" style="color:#ef4444;margin-right:6px;"></i>
+                    Tabaco
+                </div>
+                <div class="grid-4">
+                    <div class="form-group"><label>Estado tabáquico</label>
+                        <select id="pv_tabaco" onchange="toggleTabacoDetail_pv()">
+                            <option value="No">No Fumador</option>
+                            <option value="Ex">Ex-Fumador</option>
+                            <option value="Activo">Fumador Activo</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="pv_tabaco-detail-1" style="display:none;">
+                        <label>Cigarrillos/día</label><input type="number" id="pv_cig_dia" placeholder="Nº/día">
+                    </div>
+                    <div class="form-group" id="pv_tabaco-detail-2" style="display:none;"><label>Años
+                            fumando</label><input type="number" id="pv_anios_fumando" placeholder="Años"></div>
+                    <div class="form-group" id="pv_tabaco-detail-3" style="display:none;"><label>Intentos previos de
+                            cesación</label>
+                        <select id="pv_cesacion_previa">
+                            <option value="No">No</option>
+                            <option value="1">1 intento</option>
+                            <option value="2-3">2-3 intentos</option>
+                            <option value=">3">>3 intentos</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="pv_tabaco-consejo" class="alert-box alert-warning" style="margin-top:10px;">
+                    <i class="fas fa-info-circle"></i> <strong>Consejo breve antitabáquico:</strong> El tabaco es el
+                    factor
+                    modificable más importante en HS. Ofrecer consejo IN SITU (55% rechazan si se derivan externamente).
+                </div>
+
+                <div class="subsection-title" style="margin-top:25px;"><i class="fas fa-utensils"
+                        style="color:#f59e0b;margin-right:6px;"></i> Nutrición y ejercicio</div>
+                <div class="grid-3">
+                    <div class="form-group"><label>Patrón alimentario</label>
+                        <select id="pv_dieta">
+                            <option value="">Seleccionar</option>
+                            <option>Mediterránea</option>
+                            <option>Occidental (predominio procesados)</option>
+                            <option>Rica en lácteos/azúcares</option>
+                            <option>Vegetariana/Vegana</option>
+                            <option>Sin patrón definido</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Actividad física</label>
+                        <select id="pv_ejercicio">
+                            <option value="">Seleccionar</option>
+                            <option>Sedentario</option>
+                            <option>Ligera (paseos)</option>
+                            <option>Moderada (3-5h/sem)</option>
+                            <option>Intensa (>5h/sem)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Calidad del sueño</label>
+                        <select id="pv_sueno">
+                            <option value="">Seleccionar</option>
+                            <option>Buena</option>
+                            <option>Regular (despertares)</option>
+                            <option>Mala (dolor nocturno)</option>
+                            <option>Insomnio</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:15px;">
+                    <div class="form-group"><label>Alcohol</label>
+                        <select id="pv_alcohol">
+                            <option value="No">No</option>
+                            <option>Ocasional</option>
+                            <option>Habitual</option>
+                            <option>Riesgo</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Suplementos actuales</label><input type="text" id="pv_suplementos"
+                            placeholder="Ej: Zinc, Vitamina D, Omega-3..."></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CLINIMETRÍA Y COMORBILIDADES -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-comorb')">
+                <span><i class="fas fa-heartbeat fa-icon"></i> 3. CLINIMETRÍA Y COMORBILIDADES</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-comorb" class="section-content">
+                <div class="grid-5"
+                    style="background:#f8fafc; padding:20px; border-radius:8px; margin-bottom:25px; border:1px solid #e2e8f0;">
+                    <div><label>Peso (kg)</label><input type="number" id="pv_peso" onchange="calcIMC_pv()"></div>
+                    <div><label>Talla (m)</label><input type="number" id="pv_talla" step="0.01" onchange="calcIMC_pv()">
+                    </div>
+                    <div><label>IMC</label><input type="text" id="pv_imc" readonly
+                            style="background:#eee; font-weight:700;">
+                    </div>
+                    <div><label>P. Abdominal (cm)</label><input type="number" id="pv_perimetro"
+                            placeholder="S. Metabólico">
+                    </div>
+                    <div><label>TA (mmHg)</label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
+                </div>
+                <div id="pv_imc-alert" class="alert-box alert-warning"><i class="fas fa-weight"></i> <strong>IMC
+                        ≥30:</strong>
+                    Pérdida del 5-10% puede reducir brotes. Considerar derivar a Nutrición.</div>
+
+                <div class="grid-4">
+                    <div class="comorb-group">
+                        <div class="comorb-title" style="color:#ef4444;"><i class="fas fa-fire-alt"></i> Metabólico
+                        </div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)">Diabetes II</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">
+                            Hipertensión
+                        </div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Dislipemia
+                        </div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Obesidad
+                            (IMC≥30)</div>
+                    </div>
+                    <div class="comorb-group">
+                        <div class="comorb-title" style="color:#f59e0b;"><i class="fas fa-exclamation-triangle"></i>
+                            Inflamatorio</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)">EII (Digestivo)</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">EspA
+                            (Articular)</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Sinus
+                            Pilonidal
+                        </div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Acné grave
+                        </div>
+                    </div>
+                    <div class="comorb-group">
+                        <div class="comorb-title" style="color:#8b5cf6;"><i class="fas fa-brain"></i> Salud Mental</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)">Ansiedad Dx</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Depresión
+                            Dx
+                        </div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)"
+                            style="margin-top:10px;border-color:#ef4444;color:#ef4444;">Malestar Emocional Alto</div>
+                    </div>
+                    <div class="comorb-group">
+                        <div class="comorb-title" style="color:#0d9488;"><i class="fas fa-venus"></i> Ginecológico</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)">SOP</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Brotes
+                            perimenstr.</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">ACO actual
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. HURLEY BASAL -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-hurley')">
+                <span><i class="fas fa-layer-group fa-icon"></i> 4. CLASIFICACIÓN HURLEY (BASAL)</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-hurley" class="section-content">
+                <p class="info-text">Clasificación estática de severidad. Se registra en la primera visita como
+                    referencia
+                    basal.</p>
+                <div class="grid-3">
+                    <div class="hurley-card" onclick="selectHurley(this,'pv_', 'I')">
+                        <h3>Hurley I — Leve</h3>
+                        <p>Nódulos y abscesos aislados, sin fístulas ni cicatrización.</p>
+                    </div>
+                    <div class="hurley-card" onclick="selectHurley(this,'pv_', 'II')">
+                        <h3>Hurley II — Moderado</h3>
+                        <p>Abscesos recurrentes con fístulas y cicatrización. Lesiones separadas por piel sana.</p>
+                    </div>
+                    <div class="hurley-card" onclick="selectHurley(this,'pv_', 'III')">
+                        <h3>Hurley III — Grave</h3>
+                        <p>Afectación difusa con múltiples fístulas interconectadas y cicatrización. Sin piel sana
+                            intermedia.</p>
+                    </div>
+                </div>
+                <input type="hidden" id="pv_hurley_val" value="">
+            </div>
+        </div>
+
+        <!-- 5. MAPA IHS4 -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-ihs4')">
+                <span><i class="fas fa-map-marker-alt fa-icon"></i> 5. MAPA DE ACTIVIDAD (IHS4)</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-ihs4" class="section-content">
+                <p class="info-text">IHS4 = Nódulos×1 + Abscesos×2 + Fístulas drenantes×4 | Leve &lt;4 | Moderado 4-10 |
+                    Grave &gt;10</p>
+                <div class="grid-4" id="pv_regions-container"></div>
+                <div class="score-display">
+                    <div style="font-size:1.1rem;">
+                        <span style="margin-right:20px;"><i class="fas fa-circle"
+                                style="color:#f59e0b;font-size:0.8rem;"></i> Nódulos: <b id="pv_tot_n">0</b></span>
+                        <span style="margin-right:20px;"><i class="fas fa-circle"
+                                style="color:#ef4444;font-size:0.8rem;"></i> Abscesos: <b id="pv_tot_a">0</b></span>
+                        <span><i class="fas fa-circle" style="color:#7c3aed;font-size:0.8rem;"></i> Fístulas: <b
+                                id="pv_tot_f">0</b></span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="score-label">IHS4 Score</span>
+                        <div class="score-value" id="pv_final_ihs4" style="color:#10b981;">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. PROMs E IMPACTO VITAL -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-proms')">
+                <span><i class="fas fa-poll-h fa-icon"></i> 6. PROMs E IMPACTO VITAL</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-proms" class="section-content">
+                <!-- Resumen Visual -->
+                <div class="grid-5" style="margin-bottom:25px;">
+                    <div class="form-group"><label>DLQI Total</label><input type="text" id="pv_dlqi_display" readonly
+                            value="0" style="background:#f1f5f9; font-weight:700; color:var(--primary-color);"></div>
+                    <div class="form-group"><label>HSQoL-24</label><input type="text" id="pv_hsqol_display" readonly
+                            value="0" style="background:#f0fdf4; font-weight:700; color:#166534; border-color:#bbf7d0;">
+                    </div>
+                    <div class="form-group"><label>HADS Ansiedad</label><input type="text" id="pv_hads_a_display"
+                            readonly value="0"
+                            style="background:#fff7ed; font-weight:700; color:#d97706; border-color:#fed7aa;">
+                    </div>
+                    <div class="form-group"><label>HADS Depresión</label><input type="text" id="pv_hads_d_display"
+                            readonly value="0"
+                            style="background:#f0f9ff; font-weight:700; color:#0369a1; border-color:#bae6fd;">
+                    </div>
+                    <div class="form-group"><label>EVA Dolor (0-10)</label><input type="number" id="pv_eva_dolor"
+                            min="0" max="10" placeholder="0-10"></div>
+                </div>
+                <!-- ACORDEÓN DLQI -->
+                <div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="toggleAccordion('pv_acc-dlqi')">
+                        <span><i class="fas fa-list-alt" style="margin-right:8px;color:#64748b;"></i> Cuestionario DLQI
+                            (10
+                            ítems — Calidad de Vida)</span>
+                        <span
+                            style="font-size:0.85rem; background:#e2e8f0; padding:4px 10px; border-radius:4px; font-weight:600;"><i
+                                class="fas fa-angle-down"></i> Desplegar</span>
+                    </div>
+                    <div id="pv_acc-dlqi" class="accordion-content">
+                        <table class="clean-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60%">Pregunta (Últimos 7 días)</th>
+                                    <th class="radio-cell">+++</th>
+                                    <th class="radio-cell">++</th>
+                                    <th class="radio-cell">+</th>
+                                    <th class="radio-cell">0</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pv_dlqi-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ACORDEÓN HADS -->
+                <div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="toggleAccordion('pv_acc-hads')">
+                        <span><i class="fas fa-brain" style="margin-right:8px;color:#64748b;"></i> Cuestionario HADS (14
+                            ítems — Ansiedad/Depresión)</span>
+                        <span
+                            style="font-size:0.85rem; background:#e2e8f0; padding:4px 10px; border-radius:4px; font-weight:600;"><i
+                                class="fas fa-angle-down"></i> Desplegar</span>
+                    </div>
+                    <div id="pv_acc-hads" class="accordion-content">
+                        <div class="grid-2">
+                            <div>
+                                <h4 style="color:#d97706; margin-bottom:15px;">Ansiedad (A)</h4>
+                                <table class="clean-table" id="pv_hads-a-table"></table>
+                            </div>
+                            <div>
+                                <h4 style="color:var(--primary-color); margin-bottom:15px;">Depresión (D)</h4>
+                                <table class="clean-table" id="pv_hads-d-table"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACORDEÓN HSQoL-24 -->
+                <div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="toggleAccordion('pv_acc-hsqol')">
+                        <span><i class="fas fa-star" style="margin-right:8px;color:#166534;"></i> HSQoL-24 (24 &iacute;tems -
+                            Calidad de vida específica HS)</span>
+                        <span
+                            style="font-size:0.85rem; background:#e2e8f0; padding:4px 10px; border-radius:4px; font-weight:600;"><i
+                                class="fas fa-angle-down"></i> Desplegar</span>
+                    </div>
+                    <div id="pv_acc-hsqol" class="accordion-content">
+                        <p class="info-text">Periodo de recuerdo: últimas 4 semanas. El formulario calcula la
+                            puntuaci&oacute;n autom&aacute;ticamente. Puntos de corte: sin impacto 0-24 | leve 25-31 | moderado 32-43
+                            | severo &ge;44.</p>
+                        <div class="scale-note">
+                            <span class="scale-chip">Nunca = 0</span>
+                            <span class="scale-chip">Raramente = 1</span>
+                            <span class="scale-chip">A veces = 2</span>
+                            <span class="scale-chip">A menudo = 3</span>
+                            <span class="scale-chip">Siempre = 4</span>
+                        </div>
+                        <table class="clean-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:52%">Item</th>
+                                    <th class="radio-cell">Nunca</th>
+                                    <th class="radio-cell">Raramente</th>
+                                    <th class="radio-cell">A veces</th>
+                                    <th class="radio-cell">A menudo</th>
+                                    <th class="radio-cell">Siempre</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pv_hsqol-body"></tbody>
+                        </table>
+                        <div class="grid-2" style="margin-top:20px;">
+                            <div class="form-group"><label>Puntuación total HSQoL-24</label><input type="text"
+                                    id="pv_hsqol_score" readonly style="background:#eee; font-weight:700;">
+                            </div>
+                            <div class="form-group"><label>Interpretación</label><input type="text" id="pv_hsqol_interp"
+                                    readonly style="background:#eee; font-weight:700;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impacto sexual -->
+                <div class="grid-2" style="margin-top:25px;">
+                    <div class="form-group"><label>Impacto Salud Sexual</label>
+                        <select id="pv_sexual">
+                            <option>No afectado</option>
+                            <option>Leve</option>
+                            <option>Moderado</option>
+                            <option>Grave / Evitación</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Aislamiento social</label>
+                        <select id="pv_aislamiento">
+                            <option>No</option>
+                            <option>Leve (evita piscina/playa)</option>
+                            <option>Moderado (limita vida social)</option>
+                            <option>Grave (no sale de casa)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="pv_hads-alert" class="alert-box alert-danger"><i class="fas fa-exclamation-triangle"></i>
+                    <strong>HADS
+                        ≥8:</strong> Derivar a Salud Mental.
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. EDUCACIÓN SANITARIA REALIZADA -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-educa')">
+                <span><i class="fas fa-chalkboard-teacher fa-icon"></i> 7. EDUCACIÓN SANITARIA REALIZADA</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-educa" class="section-content">
+                <p class="info-text">Marcar las intervenciones educativas realizadas en esta primera visita.</p>
+                <div class="grid-3">
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-info-circle"
+                            style="margin-right:6px;"></i>Qué es la HS</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-smoking-ban"
+                            style="margin-right:6px;color:#ef4444;"></i>Consejo antitabáquico</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-weight"
+                            style="margin-right:6px;color:#f59e0b;"></i>Nutrición / Peso</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-shower"
+                            style="margin-right:6px;color:#0d9488;"></i>Higiene y ropa</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-band-aid"
+                            style="margin-right:6px;color:#7c3aed;"></i>Autocuidado heridas</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-pills"
+                            style="margin-right:6px;color:#0369a1;"></i>Educación terapéutica</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-running"
+                            style="margin-right:6px;color:#059669;"></i>Ejercicio físico</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-hands-helping"
+                            style="margin-right:6px;color:#8b5cf6;"></i>ASENDHI (asociación)</div>
+                    <div class="toggle-card edu-item" onclick="toggleActive(this)"><i class="fas fa-file-alt"
+                            style="margin-right:6px;"></i>Material entregado</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. PLAN Y SEGUIMIENTO -->
+        <div class="section" style="border: 2px solid var(--primary-color);">
+            <div class="section-header" onclick="toggleSection('pv_sec-plan')" style="background:#e0f2fe;">
+                <span style="color:#0369a1;"><i class="fas fa-user-nurse fa-icon"></i> 8. PLAN Y SEGUIMIENTO</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-plan" class="section-content">
+                <p class="info-text">Sección reducida para evitar duplicidad con la educación sanitaria registrada en el
+                    apartado anterior.</p>
+                <div class="grid-2" style="margin-top:20px;">
+                    <div class="form-group"><label>Derivaciones solicitadas</label>
+                        <textarea id="pv_derivaciones" rows="2"
+                            placeholder="Ej: Nutrición, Psicología, Tabaquismo, Cirugía..."></textarea>
+                    </div>
+                    <div class="form-group"><label>Próxima cita enfermería</label>
+                        <input type="date" id="pv_prox_cita">
+                    </div>
+                </div>
+                <label style="margin-top:20px;">Notas de Evolución / Plan de Cuidados:</label>
+                <textarea id="pv_notas" rows="4"
+                    placeholder="Valoración global, plan de cuidados, objetivos para próxima visita..."></textarea>
+            </div>
+        </div>
+
+        <!-- BARRA FLOTANTE -->
+
+    </div>
+
+    <!-- TAB 2: SEGUIMIENTO -->
+    <div class="tab-content" id="tab-sg">
+
+
+        <!-- 1. IDENTIFICACIÓN RÁPIDA -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('sg_sec-id')">
+                <span><i class="fas fa-user-circle" style="margin-right:10px;"></i> 1. IDENTIFICACIÓN</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-id" class="section-content grid-5">
+                <div><label>NUHSA <span style="color:red">*</span></label><input type="text" id="sg_nuhsa"
+                        placeholder="AN...">
+                </div>
+                <div><label>Fecha visita</label><input type="date" id="sg_fechaVisita"></div>
+                <div><label>Nº Visita seguimiento</label><input type="number" id="sg_n_visita" placeholder="Ej: 2">
+                </div>
+                <div><label>Hurley basal</label>
+                    <select id="sg_hurley">
+                        <option value="">—</option>
+                        <option>I</option>
+                        <option>II</option>
+                        <option>III</option>
+                    </select>
+                </div>
+                <div><label>IHS4 previo</label><input type="number" id="sg_ihs4_previo" placeholder="Último IHS4"></div>
+            </div>
+        </div>
+
+        <!-- 2. IHS4 ACTUAL -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('sg_sec-ihs4')">
+                <span><i class="fas fa-map-marker-alt" style="margin-right:10px;"></i> 2. ACTIVIDAD ACTUAL (IHS4)</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-ihs4" class="section-content">
+                <div class="grid-4" id="sg_regions-container"></div>
+                <div class="score-display">
+                    <div style="font-size:1.1rem;">
+                        <span style="margin-right:20px;"><i class="fas fa-circle"
+                                style="color:#f59e0b;font-size:0.8rem;"></i> Nódulos: <b id="sg_tot_n">0</b></span>
+                        <span style="margin-right:20px;"><i class="fas fa-circle"
+                                style="color:#ef4444;font-size:0.8rem;"></i> Abscesos: <b id="sg_tot_a">0</b></span>
+                        <span><i class="fas fa-circle" style="color:#7c3aed;font-size:0.8rem;"></i> Fístulas: <b
+                                id="sg_tot_f">0</b></span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="score-label">IHS4 Score</span>
+                        <div class="score-value" id="sg_final_ihs4" style="color:#10b981;">0</div>
+                    </div>
+                </div>
+                <div id="sg_ihs4-change" class="alert-box" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <!-- 3. DOLOR Y ESTADO GENERAL -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('sg_sec-dolor')">
+                <span><i class="fas fa-thermometer-half" style="margin-right:10px;"></i> 3. DOLOR Y ESTADO
+                    GENERAL</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-dolor" class="section-content">
+                <div class="grid-5">
+                    <div><label>EVA Dolor actual (0-10)</label><input type="number" id="sg_eva_dolor" min="0" max="10"
+                            placeholder="0-10"></div>
+                    <div><label>Peso actual (kg)</label><input type="number" id="sg_peso" onchange="calcIMC_sg()"></div>
+                    <div><label>Talla (m)</label><input type="number" id="sg_talla" step="0.01" onchange="calcIMC_sg()">
+                    </div>
+                    <div><label>IMC</label><input type="text" id="sg_imc" readonly
+                            style="background:#eee; font-weight:700;">
+                    </div>
+                    <div><label>Brotes desde última visita</label><input type="number" id="sg_n_brotes"
+                            placeholder="Nº brotes"></div>
+                </div>
+                <div class="grid-3" style="margin-top:15px;">
+                    <div><label>Tabaco (estado actual)</label>
+                        <select id="sg_tabaco">
+                            <option value="No">No Fumador</option>
+                            <option value="Ex">Ex-Fumador</option>
+                            <option value="Activo">Sigue fumando</option>
+                            <option value="Reducido">Ha reducido</option>
+                        </select>
+                    </div>
+                    <div><label>Ejercicio</label>
+                        <select id="sg_ejercicio">
+                            <option>Sin cambio</option>
+                            <option>Ha mejorado</option>
+                            <option>Ha empeorado</option>
+                        </select>
+                    </div>
+                    <div><label>Sueño</label>
+                        <select id="sg_sueno">
+                            <option>Sin cambio</option>
+                            <option>Ha mejorado</option>
+                            <option>Ha empeorado</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TRATAMIENTO ACTIVO -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('sg_sec-tx')">
+                <span><i class="fas fa-pills" style="margin-right:10px;"></i> 4. TRATAMIENTO ACTIVO Y ADHERENCIA</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-tx" class="section-content">
+                <div class="subsection-title">Tratamiento actual</div>
+                <div class="stack-sm">
+                    <div class="inline-row">
+                        <select id="sg_farmaco_ppal">
+                            <option value="">Seleccionar</option>
+                            <option>Adalimumab</option>
+                            <option>Secukinumab</option>
+                            <option>Bimekizumab</option>
+                            <option>Doxiciclina</option>
+                            <option>Clindamicina + Rifampicina</option>
+                            <option>Ertapenem IV</option>
+                            <option>Resorcinol 15%</option>
+                            <option>Metformina</option>
+                            <option>Espironolactona</option>
+                            <option>ACO hormonal</option>
+                            <option>Analogo GLP-1</option>
+                            <option>Otro</option>
+                            <option>Ninguno</option>
+                        </select>
+                        <button type="button" class="icon-btn icon-btn-add" onclick="addDrugSelect_sg()" aria-label="Anadir tratamiento">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="sg_farmacos_container"></div>
+                </div>
+
+                <div class="subsection-title">Adherencia - Morisky Green</div>
+                <p class="info-text">Responder seg&uacute;n el patr&oacute;n real del paciente. El formulario calcula la
+                    adherencia autom&aacute;ticamente.</p>
+                <div class="grid-3" style="margin-bottom:18px;">
+                    <div><label>Puntuaci&oacute;n Morisky Green</label><input type="text" id="sg_morisky_score" readonly
+                            value="0" style="background:#f1f5f9; font-weight:700; color:var(--primary-color);"></div>
+                    <div><label>Interpretaci&oacute;n</label><input type="text" id="sg_adherencia_val" readonly
+                            style="background:#eee; font-weight:700;"></div>
+                    <div><label>Patr&oacute;n</label><input type="text" id="sg_morisky_pattern" readonly
+                            style="background:#eee; font-weight:700;"></div>
+                </div>
+                <table class="clean-table">
+                    <thead>
+                        <tr>
+                            <th style="width:68%">Pregunta</th>
+                            <th class="radio-cell">S&iacute;</th>
+                            <th class="radio-cell">No</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. &iquest;Olvida alguna vez tomar la medicaci&oacute;n?</td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg0" value="0"
+                                    onchange="calcMorisky_sg()"></td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg0" value="1"
+                                    onchange="calcMorisky_sg()"></td>
+                        </tr>
+                        <tr>
+                            <td>2. &iquest;Toma la medicaci&oacute;n a las horas indicadas?</td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg1" value="1"
+                                    onchange="calcMorisky_sg()"></td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg1" value="0"
+                                    onchange="calcMorisky_sg()"></td>
+                        </tr>
+                        <tr>
+                            <td>3. Cuando se encuentra bien, &iquest;deja de tomar la medicaci&oacute;n?</td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg2" value="0"
+                                    onchange="calcMorisky_sg()"></td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg2" value="1"
+                                    onchange="calcMorisky_sg()"></td>
+                        </tr>
+                        <tr>
+                            <td>4. Si alguna vez le sienta mal, &iquest;deja de tomarla?</td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg3" value="0"
+                                    onchange="calcMorisky_sg()"></td>
+                            <td class="radio-cell"><input type="radio" name="sg_mg3" value="1"
+                                    onchange="calcMorisky_sg()"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title">Efectos adversos</div>
+                <div class="grid-4">
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Infecci&oacute;n</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Candidiasis oral</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Reacci&oacute;n punto inyecci&oacute;n</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">GI (n&aacute;useas, diarrea)</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Cefalea</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Fatiga</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Fotosensibilidad</div>
+                    <div class="toggle-card ea-item" onclick="toggleActive(this)">Otro</div>
+                </div>
+                <div style="margin-top:15px;"><label>Detalle EA / motivo de no adherencia</label>
+                    <textarea id="sg_ea_detalle" rows="2" placeholder="Describir si procede..."></textarea>
+                </div>
+
+                <div class="subsection-title">Biol&oacute;gico (si aplica)</div>
+                <div class="grid-3">
+                    <div><label>Autoinyecci&oacute;n</label>
+                        <select id="sg_autoinyec">
+                            <option value="">No aplica</option>
+                            <option>S&iacute;, aut&oacute;nomo</option>
+                            <option>Necesita supervisi&oacute;n</option>
+                            <option>La administra enfermer&iacute;a</option>
+                        </select>
+                    </div>
+                    <div><label>Punto inyecci&oacute;n rotado</label>
+                        <select id="sg_rotacion">
+                            <option value="">No aplica</option>
+                            <option>S&iacute;</option>
+                            <option>No (mismo sitio)</option>
+                        </select>
+                    </div>
+                    <div><label>Almacenamiento correcto</label>
+                        <select id="sg_almacen">
+                            <option value="">No aplica</option>
+                            <option>S&iacute; (nevera 2-8C)</option>
+                            <option>No (corregir)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. PROMS E IMPACTO VITAL -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('sg_sec-proms')">
+                <span><i class="fas fa-poll-h" style="margin-right:10px;"></i> 5. PROMs e impacto vital</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-proms" class="section-content">
+                <div class="grid-3" style="margin-bottom:25px;">
+                    <div><label>DLQI Total</label><input type="text" id="sg_dlqi_display" readonly value="0"
+                            style="background:#f1f5f9; font-weight:700; color:var(--primary-color);"></div>
+                    <div><label>HSQoL-24</label><input type="text" id="sg_hsqol_display" readonly value="0"
+                            style="background:#f0fdf4; font-weight:700; color:#166534; border-color:#bbf7d0;"></div>
+                    <div><label>HADS Total</label><input type="text" id="sg_hads_total_display" readonly value="A 0 | D 0"
+                            style="background:#fff7ed; font-weight:700; color:#9a3412;"></div>
+                </div>
+
+                <div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="toggleAccordion('sg_acc-dlqi')">
+                        <span><i class="fas fa-list-alt" style="margin-right:8px;color:#64748b;"></i> Cuestionario DLQI
+                            (10 items)</span>
+                        <span
+                            style="font-size:0.85rem; background:#e2e8f0; padding:4px 10px; border-radius:4px; font-weight:600;"><i
+                                class="fas fa-angle-down"></i> Desplegar</span>
+                    </div>
+                    <div id="sg_acc-dlqi" class="accordion-content">
+                        <table class="clean-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60%">Pregunta (ultimos 7 dias)</th>
+                                    <th class="radio-cell">+++</th>
+                                    <th class="radio-cell">++</th>
+                                    <th class="radio-cell">+</th>
+                                    <th class="radio-cell">0</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sg_dlqi-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="toggleAccordion('sg_acc-hads')">
+                        <span><i class="fas fa-brain" style="margin-right:8px;color:#64748b;"></i> Cuestionario HADS (14
+                            items)</span>
+                        <span
+                            style="font-size:0.85rem; background:#e2e8f0; padding:4px 10px; border-radius:4px; font-weight:600;"><i
+                                class="fas fa-angle-down"></i> Desplegar</span>
+                    </div>
+                    <div id="sg_acc-hads" class="accordion-content">
+                        <div class="grid-2">
+                            <div>
+                                <h4 style="color:#d97706; margin-bottom:15px;">Ansiedad (A)</h4>
+                                <table class="clean-table" id="sg_hads-a-table"></table>
+                            </div>
+                            <div>
+                                <h4 style="color:var(--primary-color); margin-bottom:15px;">Depresion (D)</h4>
+                                <table class="clean-table" id="sg_hads-d-table"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-wrapper">
+                    <div class="accordion-header" onclick="toggleAccordion('sg_acc-hsqol')">
+                        <span><i class="fas fa-star" style="margin-right:8px;color:#166534;"></i> HSQoL-24 (24 items)</span>
+                        <span
+                            style="font-size:0.85rem; background:#e2e8f0; padding:4px 10px; border-radius:4px; font-weight:600;"><i
+                                class="fas fa-angle-down"></i> Desplegar</span>
+                    </div>
+                    <div id="sg_acc-hsqol" class="accordion-content">
+                        <p class="info-text">Periodo de recuerdo: ultimas 4 semanas. Calculo automatico del total.</p>
+                        <div class="scale-note">
+                            <span class="scale-chip">Nunca = 0</span>
+                            <span class="scale-chip">Raramente = 1</span>
+                            <span class="scale-chip">A veces = 2</span>
+                            <span class="scale-chip">A menudo = 3</span>
+                            <span class="scale-chip">Siempre = 4</span>
+                        </div>
+                        <table class="clean-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:52%">Item</th>
+                                    <th class="radio-cell">Nunca</th>
+                                    <th class="radio-cell">Raramente</th>
+                                    <th class="radio-cell">A veces</th>
+                                    <th class="radio-cell">A menudo</th>
+                                    <th class="radio-cell">Siempre</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sg_hsqol-body"></tbody>
+                        </table>
+                        <div class="grid-2" style="margin-top:20px;">
+                            <div><label>Puntuacion total HSQoL-24</label><input type="text" id="sg_hsqol_score" readonly
+                                    style="background:#eee; font-weight:700;"></div>
+                            <div><label>Interpretacion</label><input type="text" id="sg_hsqol_interp" readonly
+                                    style="background:#eee; font-weight:700;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="sg_hads-alert" class="alert-box alert-danger"><i class="fas fa-exclamation-triangle"></i>
+                    <strong>HADS
+                        ≥8:</strong> Derivar a Salud Mental.
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. CURA (SI PROCEDE) -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('sg_sec-cura')">
+                <span><i class="fas fa-band-aid" style="margin-right:10px;"></i> 6. CURA LOCAL (si procede)</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-cura" class="section-content">
+                <div class="grid-3">
+                    <div><label>¿Precisa cura hoy?</label>
+                        <select id="sg_cura_hoy" onchange="toggleCuraDetail_sg()">
+                            <option value="No">No</option>
+                            <option value="Si">Sí</option>
+                        </select>
+                    </div>
+                    <div id="sg_cura-tipo" style="display:none;"><label>Tipo herida</label>
+                        <select id="sg_tipo_herida">
+                            <option>Nódulo inflamado</option>
+                            <option>Absceso drenado</option>
+                            <option>Fístula drenante</option>
+                            <option>Postquirúrgica</option>
+                            <option>Otra</option>
+                        </select>
+                    </div>
+                    <div id="sg_cura-aposito" style="display:none;"><label>Apósito utilizado</label>
+                        <input type="text" id="sg_aposito" placeholder="Ej: Alginato + espuma">
+                    </div>
+                </div>
+                <div id="sg_cura-notas" style="display:none; margin-top:15px;">
+                    <label>Notas de la cura</label>
+                    <textarea id="sg_notas_cura" rows="2" placeholder="Exudado, olor, evolución, HS-TIME..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. PLAN Y SEGUIMIENTO -->
+        <div class="section" style="border: 2px solid #0d9488;">
+            <div class="section-header" onclick="toggleSection('sg_sec-plan')" style="background:#f0fdfa;">
+                <span style="color:#0f766e;"><i class="fas fa-user-nurse" style="margin-right:10px;"></i> 7.
+                    PLAN Y SEGUIMIENTO</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="sg_sec-plan" class="section-content">
+                <p class="info-text">Seccion resumida para evitar redundancia con la valoracion ya registrada en los
+                    apartados previos.</p>
+                <div class="grid-2" style="margin-top:20px;">
+                    <div><label>Derivaciones</label><textarea id="sg_derivaciones" rows="2"
+                            placeholder="Nutrición, Psicología, Cirugía..."></textarea></div>
+                    <div><label>Próxima cita enfermería</label><input type="date" id="sg_prox_cita"></div>
+                </div>
+                <label style="margin-top:20px;">Notas de Evolución / Plan:</label>
+                <textarea id="sg_notas" rows="4"
+                    placeholder="Evolución respecto a visita anterior, cambios, objetivos..."></textarea>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- TAB 3: CURA POSTQUIRÚRGICA -->
+    <div class="tab-content" id="tab-cx">
+
+
+        <!-- 1. IDENTIFICACIÓN -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('cx_sec-id')">
+                <span><i class="fas fa-user-circle" style="margin-right:10px;"></i> 1. IDENTIFICACIÓN Y CIRUGÍA</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-id" class="section-content">
+                <div class="grid-4">
+                    <div><label>NUHSA <span style="color:red">*</span></label><input type="text" id="cx_nuhsa"
+                            placeholder="AN..."></div>
+                    <div><label>Nº Cura</label><input type="number" id="cx_n_cura" placeholder="Ej: 3"></div>
+                    <div><label>Fecha intervención</label><input type="date" id="cx_fecha_qx"></div>
+                    <div><label>Cirujano</label><input type="text" id="cx_cirujano" placeholder="Nombre"></div>
+                </div>
+                <div class="grid-3" style="margin-top:15px;">
+                    <div><label>Tipo intervención</label>
+                        <select id="cx_tipo_qx">
+                            <option value="">Seleccionar</option>
+                            <option>Deroofing</option>
+                            <option>Escisión amplia</option>
+                            <option>STEEP (Skin-Tissue-sparing Excision)</option>
+                            <option>SWC (Skin Wound Care)</option>
+                            <option>Incisión y drenaje</option>
+                            <option>Colgajo local</option>
+                            <option>Injerto</option>
+                            <option>Fenolización</option>
+                            <option>Láser CO₂</option>
+                            <option>Otra</option>
+                        </select>
+                    </div>
+                    <div><label>Tipo cierre</label>
+                        <select id="cx_tipo_cierre">
+                            <option value="">Seleccionar</option>
+                            <option>Segunda intención</option>
+                            <option>Cierre primario</option>
+                            <option>Colgajo</option>
+                            <option>Injerto</option>
+                            <option>Marsupialización</option>
+                        </select>
+                    </div>
+                    <div><label>Localización</label>
+                        <select id="cx_localizacion">
+                            <option value="">Seleccionar</option>
+                            <option>Axilar derecha</option>
+                            <option>Axilar izquierda</option>
+                            <option>Inguinal derecha</option>
+                            <option>Inguinal izquierda</option>
+                            <option>Glútea derecha</option>
+                            <option>Glútea izquierda</option>
+                            <option>Perineal</option>
+                            <option>Perianal</option>
+                            <option>Submamaria</option>
+                            <option>Genital</option>
+                            <option>Muslo</option>
+                            <option>Otra</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. EVA DOLOR -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('cx_sec-dolor')">
+                <span><i class="fas fa-thermometer-half" style="margin-right:10px;"></i> 2. DOLOR (EVA)</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-dolor" class="section-content">
+                <div class="grid-2">
+                    <div style="text-align:center;">
+                        <label>EVA Pre-cura</label>
+                        <input type="range" id="cx_eva_pre" min="0" max="10" value="0" class="eva-slider"
+                            oninput="document.getElementById('cx_eva_pre_val').innerText=this.value; colorEva('cx_eva_pre_val',this.value)">
+                        <div class="eva-value" id="cx_eva_pre_val" style="color:#10b981;">0</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <label>EVA Post-cura</label>
+                        <input type="range" id="cx_eva_post" min="0" max="10" value="0" class="eva-slider"
+                            oninput="document.getElementById('cx_eva_post_val').innerText=this.value; colorEva('cx_eva_post_val',this.value)">
+                        <div class="eva-value" id="cx_eva_post_val" style="color:#10b981;">0</div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:15px;">
+                    <div><label>Analgesia usada pre-cura</label>
+                        <select id="cx_analgesia">
+                            <option value="">Ninguna</option>
+                            <option>Paracetamol</option>
+                            <option>Ibuprofeno/AINE</option>
+                            <option>Tramadol</option>
+                            <option>Lidocaína tópica</option>
+                            <option>Combinada</option>
+                        </select>
+                    </div>
+                    <div><label>Anestesia local durante cura</label>
+                        <select id="cx_anestesia_local">
+                            <option value="No">No</option>
+                            <option>Lidocaína 2% infiltrada</option>
+                            <option>EMLA tópica</option>
+                            <option>Frío (cloruro de etilo)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. HS-TIME -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('cx_sec-hstime')">
+                <span><i class="fas fa-clock" style="margin-right:10px;"></i> 3. VALORACIÓN HS-TIME</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-hstime" class="section-content">
+                <p class="info-text">Modelo HS-TIME adaptado de las particularidades de la herida por HS. Seleccione una
+                    opción en cada componente.</p>
+                <div class="grid-4">
+                    <!-- T: Tissue -->
+                    <div class="time-card">
+                        <h4><span
+                                style="background:#ef4444;color:white;padding:2px 8px;border-radius:4px;font-size:0.85rem;">T</span>
+                            Tejido</h4>
+                        <div class="time-options" data-group="cx_time-t">
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-t')">Granulación sana
+                                (rojo)</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-t')">Esfacelo / fibrina
+                                (amarillo)
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-t')">Necrótico (negro)
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-t')">Epitelización (rosa)
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-t')">Tunelizado/fistuloso
+                            </div>
+                        </div>
+                    </div>
+                    <!-- I: Infection/Inflammation -->
+                    <div class="time-card">
+                        <h4><span
+                                style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:0.85rem;">I</span>
+                            Infección</h4>
+                        <div class="time-options" data-group="cx_time-i">
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-i')">Sin signos infección
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-i')">Colonización crítica
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-i')">Infección local
+                                (calor,
+                                rubor)</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-i')">Infección sistémica
+                                (fiebre)
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-i')">Biofilm sospechado
+                            </div>
+                        </div>
+                    </div>
+                    <!-- M: Moisture -->
+                    <div class="time-card">
+                        <h4><span
+                                style="background:#0d9488;color:white;padding:2px 8px;border-radius:4px;font-size:0.85rem;">M</span>
+                            Humedad</h4>
+                        <div class="time-options" data-group="cx_time-m">
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-m')">Equilibrada</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-m')">Seca</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-m')">Exudado leve</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-m')">Exudado moderado</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-m')">Exudado abundante
+                            </div>
+                        </div>
+                    </div>
+                    <!-- E: Edge -->
+                    <div class="time-card">
+                        <h4><span
+                                style="background:#7c3aed;color:white;padding:2px 8px;border-radius:4px;font-size:0.85rem;">E</span>
+                            Bordes</h4>
+                        <div class="time-options" data-group="cx_time-e">
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-e')">Avance epitelial
+                                activo</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-e')">Bordes enrollados
+                            </div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-e')">Macerados</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-e')">Socavados /
+                                tunelizados</div>
+                            <div class="time-option" onclick="selectTimeOption(this,'cx_time-e')">Dehiscencia</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. HERIDA -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('cx_sec-herida')">
+                <span><i class="fas fa-ruler-combined" style="margin-right:10px;"></i> 4. VALORACIÓN DE LA HERIDA</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-herida" class="section-content">
+                <div class="grid-4">
+                    <div><label>Largo (cm)</label><input type="number" id="cx_h_largo" step="0.1"></div>
+                    <div><label>Ancho (cm)</label><input type="number" id="cx_h_ancho" step="0.1"></div>
+                    <div><label>Profundidad (cm)</label><input type="number" id="cx_h_prof" step="0.1"></div>
+                    <div><label>Color del lecho</label>
+                        <select id="cx_h_color">
+                            <option>Rojo (granulación)</option>
+                            <option>Amarillo (esfacelo)</option>
+                            <option>Negro (necrosis)</option>
+                            <option>Rosa (epitelización)</option>
+                            <option>Mixto</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-3" style="margin-top:15px;">
+                    <div><label>Olor</label>
+                        <select id="cx_h_olor">
+                            <option>Ausente</option>
+                            <option>Leve</option>
+                            <option>Moderado</option>
+                            <option>Intenso / Fétido</option>
+                        </select>
+                    </div>
+                    <div><label>Piel perilesional</label>
+                        <select id="cx_h_peri">
+                            <option>Íntegra</option>
+                            <option>Macerada</option>
+                            <option>Eritematosa</option>
+                            <option>Descamativa</option>
+                            <option>Excoriada</option>
+                        </select>
+                    </div>
+                    <div><label>Sangrado</label>
+                        <select id="cx_h_sangrado">
+                            <option>No</option>
+                            <option>Leve</option>
+                            <option>Moderado</option>
+                            <option>Abundante</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. APÓSITO -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('cx_sec-aposito')">
+                <span><i class="fas fa-layer-group" style="margin-right:10px;"></i> 5. TRATAMIENTO LOCAL /
+                    APÓSITO</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-aposito" class="section-content">
+                <div class="subsection-title">Limpieza</div>
+                <div class="grid-3">
+                    <div><label>Solución de limpieza</label>
+                        <select id="cx_limpieza">
+                            <option>Suero fisiológico</option>
+                            <option>Polihexanida (Prontosan)</option>
+                            <option>Agua oxigenada diluida</option>
+                            <option>Clorhexidina acuosa</option>
+                            <option>Superoxidada</option>
+                        </select>
+                    </div>
+                    <div><label>Desbridamiento</label>
+                        <select id="cx_desbrid">
+                            <option>No precisa</option>
+                            <option>Autolítico (hidrogel)</option>
+                            <option>Mecánico (gasa húmeda)</option>
+                            <option>Cortante</option>
+                            <option>Enzimático</option>
+                        </select>
+                    </div>
+                    <div><label>Lavado H₂O₂ 1% (fístula)</label>
+                        <select id="cx_lavado_h2o2">
+                            <option value="No">No</option>
+                            <option value="Si">Sí</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="subsection-title">Apósitos</div>
+                <div class="grid-3">
+                    <div><label>Apósito primario (contacto)</label>
+                        <select id="cx_apos_prim">
+                            <option value="">Seleccionar</option>
+                            <option>Alginato cálcico</option>
+                            <option>Hidrofibra (Aquacel)</option>
+                            <option>Malla de silicona</option>
+                            <option>Carbón activado/plata</option>
+                            <option>Hidrogel</option>
+                            <option>Espuma con plata</option>
+                            <option>Apósito miel (Medihoney)</option>
+                            <option>Gasa parafinada</option>
+                            <option>Ninguno</option>
+                        </select>
+                    </div>
+                    <div><label>Apósito secundario</label>
+                        <select id="cx_apos_sec">
+                            <option value="">Seleccionar</option>
+                            <option>Espuma absorbente</option>
+                            <option>Espuma con borde adhesivo</option>
+                            <option>Gasa + venda</option>
+                            <option>Film transparente</option>
+                            <option>Ninguno</option>
+                        </select>
+                    </div>
+                    <div><label>Fijación</label>
+                        <select id="cx_fijacion">
+                            <option>Adhesivo del apósito</option>
+                            <option>Esparadrapo papel</option>
+                            <option>Malla tubular</option>
+                            <option>Venda cohesiva</option>
+                            <option>Ropa interior compresiva</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top:15px;">
+                    <label>TPN (Terapia Presión Negativa)</label>
+                    <select id="cx_tpn" style="width:auto;">
+                        <option value="No">No</option>
+                        <option>Sí (PICO/Prevena)</option>
+                        <option>Sí (VAC convencional)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. COMPLICACIONES -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('cx_sec-complic')">
+                <span><i class="fas fa-exclamation-triangle" style="margin-right:10px;"></i> 6. COMPLICACIONES</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-complic" class="section-content">
+                <div class="grid-4">
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)"
+                        style="border-color:#ef4444;color:#ef4444;">Sangrado activo</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)"
+                        style="border-color:#ef4444;color:#ef4444;">Infección herida</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)">Dehiscencia</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)">Granulación excesiva</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)">Maceración perilesional</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)">Dolor no controlado</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)">Olor intenso</div>
+                    <div class="toggle-card comp-item" onclick="toggleActive(this)">Retraso cicatrización</div>
+                </div>
+                <div style="margin-top:15px;"><label>Detalle complicaciones</label>
+                    <textarea id="cx_complic_detalle" rows="2" placeholder="Describir si procede..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. REGISTRO Y PLAN -->
+        <div class="section" style="border: 2px solid var(--primary-color);">
+            <div class="section-header" onclick="toggleSection('cx_sec-plan')" style="background:#faf5ff;">
+                <span style="color:#6d28d9;"><i class="fas fa-clipboard-check" style="margin-right:10px;"></i> 7.
+                    REGISTRO Y
+                    PLAN</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="cx_sec-plan" class="section-content">
+                <div class="grid-3">
+                    <div><label>Foto clínica realizada</label>
+                        <select id="cx_foto">
+                            <option value="No">No</option>
+                            <option>Sí (consentida)</option>
+                        </select>
+                    </div>
+                    <div><label>Próxima cura</label><input type="date" id="cx_prox_cura"></div>
+                    <div><label>Frecuencia propuesta</label>
+                        <select id="cx_freq_cura">
+                            <option>Diaria</option>
+                            <option>Cada 48h</option>
+                            <option>2 veces/semana</option>
+                            <option>Semanal</option>
+                            <option>Según evolución</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top:15px;"><label>Evolución y notas</label>
+                    <textarea id="cx_notas" rows="4"
+                        placeholder="Evolución respecto a cura anterior, cambios de pauta, instrucciones al paciente..."></textarea>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- BARRA INFERIOR -->
+    <div class="fab-bar">
+        <button class="btn btn-outline" onclick="location.reload()"><i class="fas fa-trash-alt"></i> Limpiar</button>
+        <button class="btn btn-excel" onclick="exportActiveTab()"><i class="fas fa-file-excel"></i> Copiar
+            Excel</button>
+        <button class="btn btn-primary" onclick="copyActiveReport()"><i class="fas fa-file-medical"></i> Copiar
+            Informe</button>
+    </div>
+
+    <script>
+        // === SISTEMA DE PESTAÑAS ===
+        let activeTab = 'pv';
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => { el.className = 'tab-btn'; });
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('btn-' + tab).classList.add('active-' + tab);
+            activeTab = tab;
+        }
+
+        // === FUNCIONES COMUNES ===
+        function toggleSection(id) { const el = document.getElementById(id); if (el) { el.classList.toggle('hidden'); el.previousElementSibling.classList.toggle('collapsed'); } }
+        function toggleAccordion(id) { const el = document.getElementById(id); if (el) el.classList.toggle('open'); }
+        function toggleActive(el) { el.classList.toggle('active'); }
+        function initializeCollapsedSections() {
+            document.querySelectorAll('.section-content').forEach(function (el) { el.classList.add('hidden'); });
+            document.querySelectorAll('.section-header').forEach(function (el) { el.classList.add('collapsed'); });
+        }
+        function selectTimeOption(el, group) {
+            el.closest('.time-options').querySelectorAll('.time-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+        function colorEva(id, val) {
+            const el = document.getElementById(id); val = parseInt(val);
+            if (val <= 3) el.style.color = '#10b981'; else if (val <= 6) el.style.color = '#f59e0b'; else el.style.color = '#ef4444';
+        }
+        function exportActiveTab() {
+            if (activeTab === 'pv') exportData_pv();
+            else if (activeTab === 'sg') exportData_sg();
+            else exportData_cx();
+        }
+        function copyActiveReport() {
+            if (activeTab === 'pv') copyReport_pv();
+            else if (activeTab === 'sg') copyReport_sg();
+            else copyReport_cx();
+        }
+
+        // Hurley selector (pv)
+        function selectHurley(el, prefix, val) {
+            document.querySelectorAll('#tab-pv .hurley-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(prefix + 'hurley_val').value = val;
+        }
+        // Adherence selector (sg)
+        function selectAdherence(el, prefix, val) {
+            document.querySelectorAll('#tab-sg .adherence-card').forEach(c => { c.classList.remove('active', 'good', 'partial', 'bad'); });
+            el.classList.add('active');
+            if (val === 'Buena') el.classList.add('good'); if (val === 'Parcial') el.classList.add('partial'); if (val === 'Mala') el.classList.add('bad');
+            document.getElementById(prefix + 'adherencia_val').value = val;
+        }
+
+        // =============================================
+        // === PRIMERA VISITA SCRIPTS ===
+        // =============================================
+        document.getElementById('pv_fechaVisita').valueAsDate = new Date();
+
+        // IMC (PV)
+        function calcIMC_pv() {
+            var w = parseFloat(document.getElementById('pv_peso').value);
+            var h = parseFloat(document.getElementById('pv_talla').value);
+            if (w && h) {
+                var imc = (w / (h * h)).toFixed(1);
+                document.getElementById('pv_imc').value = imc;
+                document.getElementById('pv_imc-alert').style.display = imc >= 30 ? 'block' : 'none';
+            }
+        }
+
+        // Retraso diagnóstico
+        document.getElementById('pv_anio_ini').addEventListener('change', calcRetraso_pv);
+        document.getElementById('pv_anio_dx').addEventListener('change', calcRetraso_pv);
+        function calcRetraso_pv() {
+            var ini = parseInt(document.getElementById('pv_anio_ini').value);
+            var dx = parseInt(document.getElementById('pv_anio_dx').value);
+            if (ini && dx) document.getElementById('pv_retraso_dx').value = (dx - ini) + ' años';
+        }
+
+        // Tabaco (PV)
+        function toggleTabacoDetail_pv() {
+            var val = document.getElementById('pv_tabaco').value;
+            var show = val === 'Activo' || val === 'Ex';
+            ['pv_tabaco-detail-1', 'pv_tabaco-detail-2', 'pv_tabaco-detail-3'].forEach(function (id) {
+                document.getElementById(id).style.display = show ? 'block' : 'none';
+            });
+            document.getElementById('pv_tabaco-consejo').style.display = val === 'Activo' ? 'block' : 'none';
+        }
+
+        // IHS4 (PV)
+        var pv_regions = ["Axilas(D)", "Axilas(I)", "Ingles(D)", "Ingles(I)", "Glúteo(D)", "Glúteo(I)", "Muslos(D)", "Muslos(I)", "Mamas(D)", "Mamas(I)", "Intermamaria", "Genital", "Perianal", "Otras"];
+        var pv_ihsData = pv_regions.map(function () { return { n: 0, a: 0, f: 0 }; });
+        var pv_rCont = document.getElementById('pv_regions-container');
+        pv_regions.forEach(function (r, i) {
+            pv_rCont.innerHTML += '<div class="region-card"><div class="region-title">' + r + '</div>' +
+                '<div class="counter-row"><span class="c-label c-nod">N</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'n\',-1)">-</div><div class="c-val" id="pv_r' + i + 'n">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'n\',1)">+</div></div></div>' +
+                '<div class="counter-row"><span class="c-label c-abs">A</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'a\',-1)">-</div><div class="c-val" id="pv_r' + i + 'a">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'a\',1)">+</div></div></div>' +
+                '<div class="counter-row"><span class="c-label c-fis">F</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'f\',-1)">-</div><div class="c-val" id="pv_r' + i + 'f">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'f\',1)">+</div></div></div></div>';
+        });
+        function updIHS_pv(i, t, d) { var v = pv_ihsData[i][t] + d; if (v < 0) v = 0; pv_ihsData[i][t] = v; document.getElementById('pv_r' + i + t).innerText = v; calcTotalIHS_pv(); }
+        function calcTotalIHS_pv() {
+            var n = 0, a = 0, f = 0;
+            pv_ihsData.forEach(function (o) { n += o.n; a += o.a; f += o.f; });
+            document.getElementById('pv_tot_n').innerText = n;
+            document.getElementById('pv_tot_a').innerText = a;
+            document.getElementById('pv_tot_f').innerText = f;
+            var score = n + (a * 2) + (f * 4);
+            var el = document.getElementById('pv_final_ihs4');
+            el.innerText = score;
+            el.style.color = score < 4 ? '#10b981' : score <= 10 ? '#f59e0b' : '#ef4444';
+        }
+
+        // DLQI (PV)
+        var dlqiQs = ["1. Picor/Dolor", "2. Vergüenza", "3. Compras/Casa", "4. Ropa", "5. Social", "6. Deporte", "7. Trabajo", "8. Relaciones", "9. Sexualidad", "10. Tratamiento"];
+        var dlqiBody = document.getElementById('pv_dlqi-body');
+        dlqiQs.forEach(function (q, i) {
+            dlqiBody.innerHTML += '<tr><td>' + q + '</td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="3" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="2" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="1" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="0" onchange="calcDLQI_pv()"></td></tr>';
+        });
+        function calcDLQI_pv() {
+            var t = 0;
+            for (var i = 0; i < 10; i++) {
+                document.getElementsByName('pv_d' + i).forEach(function (e) { if (e.checked) t += parseInt(e.value); });
+            }
+            document.getElementById('pv_dlqi_display').value = t;
+        }
+
+        // HADS (PV)
+        var hadsItems = [
+            { q: "1. Tenso", t: 'A', i: false }, { q: "2. Disfruto", t: 'D', i: true }, { q: "3. Miedo", t: 'A', i: false }, { q: "4. Reír", t: 'D', i: true },
+            { q: "5. Preocup.", t: 'A', i: false }, { q: "6. Alegre", t: 'D', i: true }, { q: "7. Tranquilo", t: 'A', i: true }, { q: "8. Lento", t: 'D', i: false },
+            { q: "9. Estómago", t: 'A', i: false }, { q: "10. Aspecto", t: 'D', i: false }, { q: "11. Inquieto", t: 'A', i: false }, { q: "12. Ilusión", t: 'D', i: true },
+            { q: "13. Pánico", t: 'A', i: false }, { q: "14. Libros", t: 'D', i: true }
+        ];
+        hadsItems.forEach(function (x, i) {
+            var row = '<tr><td>' + x.q + '</td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 0 : 3) + '" onchange="calcHADS_pv()"></td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 1 : 2) + '" onchange="calcHADS_pv()"></td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 2 : 1) + '" onchange="calcHADS_pv()"></td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 3 : 0) + '" onchange="calcHADS_pv()"></td></tr>';
+            document.getElementById(x.t === 'A' ? 'pv_hads-a-table' : 'pv_hads-d-table').innerHTML += row;
+        });
+        function calcHADS_pv() {
+            var a = 0, d = 0;
+            hadsItems.forEach(function (x, i) {
+                document.getElementsByName('pv_h' + i).forEach(function (e) {
+                    if (e.checked) { if (x.t === 'A') a += parseInt(e.value); else d += parseInt(e.value); }
+                });
+            });
+            document.getElementById('pv_hads_a_display').value = a;
+            document.getElementById('pv_hads_d_display').value = d;
+            document.getElementById('pv_hads-alert').style.display = (a >= 8 || d >= 8) ? 'block' : 'none';
+        }
+
+        // HSQoL-24 (PV)
+        var hsqolPvItems = [
+            { q: "1. La HS afecta a mi estado de ánimo.", reverse: false },
+            { q: "2. La HS empeora con el estrés.", reverse: false },
+            { q: "3. Me he resignado a convivir con la HS.", reverse: false },
+            { q: "4. Me preocupa la poca eficacia del tratamiento.", reverse: false },
+            { q: "5. Me siento solo/a o aislado/a por la HS.", reverse: false },
+            { q: "6. Tener información sobre la HS me ayuda a aceptarla.", reverse: true },
+            { q: "7. La HS me ha llevado a pensar en hacerme daño o suicidarme.", reverse: false },
+            { q: "8. Me preocupa que alguno de mis hijos pueda tener HS.", reverse: false },
+            { q: "9. Me preocupa el mal olor causado por la HS.", reverse: false },
+            { q: "10. Evito hablar de mi HS.", reverse: false },
+            { q: "11. Me preocupa ser rechazado/a por mi HS.", reverse: false },
+            { q: "12. Me siento avergonzado/a por mi HS.", reverse: false },
+            { q: "13. Me preocupa el coste del tratamiento.", reverse: false },
+            { q: "14. La HS me dificulta realizar mi trabajo.", reverse: false },
+            { q: "15. Me preocupa perder mi empleo por la HS.", reverse: false },
+            { q: "16. La HS afecta a mis relaciones personales.", reverse: false },
+            { q: "17. Mi familia es mi principal apoyo frente a la HS.", reverse: true },
+            { q: "18. Me preocupa tener que renunciar a ciertas actividades por la HS.", reverse: false },
+            { q: "19. La HS supone un problema en mis relaciones íntimas.", reverse: false },
+            { q: "20. El agua (baño o ducha) empeora mis lesiones.", reverse: false },
+            { q: "21. La HS afecta a mi sueño.", reverse: false },
+            { q: "22. Valoro positivamente las iniciativas de los profesionales para mejorar mi HS.", reverse: true },
+            { q: "23. A veces me resulta difícil seguir los tratamientos y revisiones de la HS.", reverse: false },
+            { q: "24. Me preocupan los efectos adversos de los tratamientos para la HS.", reverse: false }
+        ];
+        var hsqolScalePv = [
+            { label: 'Nunca', value: 0 },
+            { label: 'Raramente', value: 1 },
+            { label: 'A veces', value: 2 },
+            { label: 'A menudo', value: 3 },
+            { label: 'Siempre', value: 4 }
+        ];
+        var hsqolPvBody = document.getElementById('pv_hsqol-body');
+        hsqolPvItems.forEach(function (item, i) {
+            var cells = hsqolScalePv.map(function (opt) {
+                var val = item.reverse ? (4 - opt.value) : opt.value;
+                return '<td class="radio-cell"><input type="radio" name="pv_qol' + i + '" value="' + val + '" onchange="updateHSQoL_pv()"></td>';
+            }).join('');
+            hsqolPvBody.innerHTML += '<tr><td>' + item.q + (item.reverse ? ' <span style="color:#64748b;">(puntuación inversa)</span>' : '') + '</td>' + cells + '</tr>';
+        });
+        function updateHSQoL_pv() {
+            var sc = 0;
+            for (var i = 0; i < hsqolPvItems.length; i++) {
+                document.getElementsByName('pv_qol' + i).forEach(function (e) {
+                    if (e.checked) sc += parseInt(e.value);
+                });
+            }
+            document.getElementById('pv_hsqol_score').value = sc;
+            document.getElementById('pv_hsqol_display').value = sc;
+            var interp = '';
+            if (sc <= 24) interp = 'Sin impacto';
+            else if (sc <= 31) interp = 'Leve';
+            else if (sc <= 43) interp = 'Moderado';
+            else interp = 'Severo';
+            document.getElementById('pv_hsqol_interp').value = interp;
+        }
+
+        // Export / Report (PV)
+        function exportData_pv() {
+            var coms = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return e.innerText; }).join('; ');
+            var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return e.innerText.replace(/^.*?\s/, ''); }).join('; ');
+            var row = [
+                document.getElementById('pv_fechaVisita').value,
+                document.getElementById('pv_nuhsa').value,
+                'PRIMERA VISITA',
+                document.getElementById('pv_edad').value,
+                document.getElementById('pv_sexo').value,
+                document.getElementById('pv_hurley_val').value,
+                document.getElementById('pv_final_ihs4').innerText,
+                document.getElementById('pv_imc').value,
+                document.getElementById('pv_tabaco').value,
+                document.getElementById('pv_dlqi_display').value,
+                document.getElementById('pv_hsqol_display').value,
+                document.getElementById('pv_hads_a_display').value,
+                document.getElementById('pv_hads_d_display').value,
+                document.getElementById('pv_eva_dolor').value,
+                coms, edus,
+                document.getElementById('pv_derivaciones').value,
+                document.getElementById('pv_prox_cita').value
+            ].join('\t');
+            navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel con Ctrl+V)"); });
+        }
+
+        function copyReport_pv() {
+            var coms = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return '• ' + e.innerText; }).join('\n');
+            var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return '• ' + e.innerText.replace(/^.*?\s/, ''); }).join('\n');
+            var retraso = document.getElementById('pv_retraso_dx').value;
+            var ihs4 = document.getElementById('pv_final_ihs4').innerText;
+            var ihs4_sev = parseInt(ihs4) < 4 ? 'LEVE' : parseInt(ihs4) <= 10 ? 'MODERADO' : 'GRAVE';
+            var txt = 'PRIMERA VISITA — ENFERMERÍA EPA HS\n===================================\nHospital Universitario Virgen del Rocío\nFecha: ' + document.getElementById('pv_fechaVisita').value +
+                '\n\n1. IDENTIFICACIÓN\nPaciente: ' + document.getElementById('pv_nuhsa').value +
+                '\nEdad: ' + document.getElementById('pv_edad').value + ' | Sexo: ' + document.getElementById('pv_sexo').value +
+                '\nSituación laboral: ' + document.getElementById('pv_laboral').value +
+                '\n\n2. HISTORIA HS\nInicio síntomas: ' + document.getElementById('pv_anio_ini').value + ' | Dx: ' + document.getElementById('pv_anio_dx').value + ' | Retraso: ' + retraso +
+                '\nNº médicos previos: ' + document.getElementById('pv_n_medicos').value + ' | Urgencias/año: ' + document.getElementById('pv_n_urgencias').value +
+                '\nCirugías previas HS: ' + document.getElementById('pv_n_cirugias').value + ' | Biológico previo: ' + document.getElementById('pv_bio_previo').value +
+                '\nTratamientos previos: ' + (document.getElementById('pv_tx_previos').value || 'No referidos') +
+                '\n\n3. HÁBITOS\nTabaco: ' + document.getElementById('pv_tabaco').value +
+                '\nDieta: ' + document.getElementById('pv_dieta').value + ' | Ejercicio: ' + document.getElementById('pv_ejercicio').value +
+                '\nAlcohol: ' + document.getElementById('pv_alcohol').value + ' | Sueño: ' + document.getElementById('pv_sueno').value +
+                '\n\n4. CLINIMETRÍA\nPeso: ' + document.getElementById('pv_peso').value + ' kg | Talla: ' + document.getElementById('pv_talla').value + ' m | IMC: ' + document.getElementById('pv_imc').value +
+                '\nP. Abdominal: ' + document.getElementById('pv_perimetro').value + ' cm | TA: ' + document.getElementById('pv_ta').value +
+                '\nCOMORBILIDADES:\n' + (coms || 'Ninguna registrada') +
+                '\n\n5. CLASIFICACIÓN\nHurley: ' + (document.getElementById('pv_hurley_val').value || 'No clasificado') +
+                '\n\n6. ACTIVIDAD (IHS4: ' + ihs4 + ' — ' + ihs4_sev + ')' +
+                '\nNódulos: ' + document.getElementById('pv_tot_n').innerText + ' | Abscesos: ' + document.getElementById('pv_tot_a').innerText + ' | Fístulas: ' + document.getElementById('pv_tot_f').innerText +
+                '\n\n7. PROMs\nDLQI: ' + document.getElementById('pv_dlqi_display').value + '/30' +
+                '\nHSQoL-24: ' + document.getElementById('pv_hsqol_display').value + ' (' + (document.getElementById('pv_hsqol_interp').value || 'No evaluado') + ')' +
+                '\nHADS: Ansiedad ' + document.getElementById('pv_hads_a_display').value + '/21 | Depresión ' + document.getElementById('pv_hads_d_display').value + '/21' +
+                '\nEVA Dolor: ' + (document.getElementById('pv_eva_dolor').value || 'NR') + '/10' +
+                '\nImpacto sexual: ' + document.getElementById('pv_sexual').value +
+                '\nAislamiento social: ' + document.getElementById('pv_aislamiento').value +
+                '\n\n8. EDUCACIÓN SANITARIA REALIZADA\n' + (edus || 'Ninguna registrada') +
+                '\n\n9. PLAN Y SEGUIMIENTO' +
+                '\nDerivaciones: ' + (document.getElementById('pv_derivaciones').value || 'Ninguna') +
+                '\nNotas de evolución: ' + (document.getElementById('pv_notas').value || 'Sin notas') +
+                '\nPróxima cita: ' + (document.getElementById('pv_prox_cita').value || 'Pendiente') +
+                '\n===================================';
+            navigator.clipboard.writeText(txt).then(function () { alert("Informe clínico copiado al portapapeles"); });
+        }
+
+        initializeCollapsedSections();
+
+        // =============================================
+        // === SEGUIMIENTO SCRIPTS ===
+        // =============================================
+        // Note: sg_fechaVisita is inside the tab body section
+        (function () {
+            var el = document.getElementById('sg_fechaVisita');
+            if (el) el.valueAsDate = new Date();
+        })();
+
+        var sgDrugOptions = [
+            'Seleccionar',
+            'Adalimumab',
+            'Secukinumab',
+            'Bimekizumab',
+            'Doxiciclina',
+            'Clindamicina + Rifampicina',
+            'Ertapenem IV',
+            'Resorcinol 15%',
+            'Metformina',
+            'Espironolactona',
+            'ACO hormonal',
+            'Analogo GLP-1',
+            'Otro',
+            'Ninguno'
+        ];
+        function getDrugSelectHtml_sg() {
+            var options = sgDrugOptions.map(function (label, i) {
+                var value = i === 0 ? '' : label;
+                return '<option value="' + value + '">' + label + '</option>';
+            }).join('');
+            return '<div class="inline-row" style="margin-bottom:10px;"><select class="sg-drug-select">' + options + '</select><button type="button" class="icon-btn icon-btn-remove" onclick="removeDrugSelect_sg(this)" aria-label="Quitar tratamiento"><i class="fas fa-minus"></i></button></div>';
+        }
+        function addDrugSelect_sg() {
+            var container = document.getElementById('sg_farmacos_container');
+            container.insertAdjacentHTML('beforeend', getDrugSelectHtml_sg());
+        }
+        function removeDrugSelect_sg(btn) {
+            var row = btn.closest('.inline-row');
+            if (row) row.remove();
+        }
+        function getSelectedDrugs_sg() {
+            return Array.from(document.querySelectorAll('#sg_farmaco_ppal, #sg_farmacos_container .sg-drug-select'))
+                .map(function (el) { return el.value; })
+                .filter(function (value) { return value; });
+        }
+
+        function calcIMC_sg() {
+            var w = parseFloat(document.getElementById('sg_peso').value);
+            var h = parseFloat(document.getElementById('sg_talla').value);
+            if (w && h) document.getElementById('sg_imc').value = (w / (h * h)).toFixed(1);
+            else document.getElementById('sg_imc').value = '';
+        }
+
+        function toggleCuraDetail_sg() {
+            var el = document.getElementById('sg_cura_hoy');
+            var show = el && el.value === 'Si';
+            ['sg_cura-tipo', 'sg_cura-aposito', 'sg_cura-notas'].forEach(function (id) {
+                var e = document.getElementById(id);
+                if (e) e.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        function calcMorisky_sg() {
+            var score = 0;
+            var answered = 0;
+            for (var i = 0; i < 4; i++) {
+                document.getElementsByName('sg_mg' + i).forEach(function (e) {
+                    if (e.checked) {
+                        answered += 1;
+                        score += parseInt(e.value);
+                    }
+                });
+            }
+            document.getElementById('sg_morisky_score').value = score;
+            document.getElementById('sg_morisky_pattern').value = answered === 4 ? 'Completo' : 'Incompleto';
+            var interp = '';
+            if (answered < 4) interp = 'Pendiente';
+            else if (score === 4) interp = 'Alta';
+            else if (score >= 2) interp = 'Intermedia';
+            else interp = 'Baja';
+            document.getElementById('sg_adherencia_val').value = interp;
+        }
+
+        // IHS4 (SG)
+        var sg_regions = ["Axilas(D)", "Axilas(I)", "Ingles(D)", "Ingles(I)", "Glúteo(D)", "Glúteo(I)", "Muslos(D)", "Muslos(I)", "Mamas(D)", "Mamas(I)", "Intermamaria", "Genital", "Perianal", "Otras"];
+        var sg_ihsData = sg_regions.map(function () { return { n: 0, a: 0, f: 0 }; });
+        var sg_rCont = document.getElementById('sg_regions-container');
+        sg_regions.forEach(function (r, i) {
+            sg_rCont.innerHTML += '<div class="region-card"><div class="region-title">' + r + '</div>' +
+                '<div class="counter-row"><span class="c-label c-nod">N</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_sg(' + i + ',\'n\',-1)">-</div><div class="c-val" id="sg_r' + i + 'n">0</div><div class="c-btn" onclick="updIHS_sg(' + i + ',\'n\',1)">+</div></div></div>' +
+                '<div class="counter-row"><span class="c-label c-abs">A</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_sg(' + i + ',\'a\',-1)">-</div><div class="c-val" id="sg_r' + i + 'a">0</div><div class="c-btn" onclick="updIHS_sg(' + i + ',\'a\',1)">+</div></div></div>' +
+                '<div class="counter-row"><span class="c-label c-fis">F</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_sg(' + i + ',\'f\',-1)">-</div><div class="c-val" id="sg_r' + i + 'f">0</div><div class="c-btn" onclick="updIHS_sg(' + i + ',\'f\',1)">+</div></div></div></div>';
+        });
+        function updIHS_sg(i, t, d) { var v = sg_ihsData[i][t] + d; if (v < 0) v = 0; sg_ihsData[i][t] = v; document.getElementById('sg_r' + i + t).innerText = v; calcTotalIHS_sg(); }
+        function calcTotalIHS_sg() {
+            var n = 0, a = 0, f = 0;
+            sg_ihsData.forEach(function (o) { n += o.n; a += o.a; f += o.f; });
+            document.getElementById('sg_tot_n').innerText = n;
+            document.getElementById('sg_tot_a').innerText = a;
+            document.getElementById('sg_tot_f').innerText = f;
+            var score = n + (a * 2) + (f * 4);
+            var el = document.getElementById('sg_final_ihs4');
+            el.innerText = score;
+            el.style.color = score < 4 ? '#10b981' : score <= 10 ? '#f59e0b' : '#ef4444';
+            // Compare with previous
+            var prev = parseInt(document.getElementById('sg_ihs4_previo').value);
+            if (prev) {
+                var pct = ((score - prev) / prev * 100).toFixed(0);
+                var alertEl = document.getElementById('sg_ihs4-change');
+                if (score < prev) { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-down"></i> <strong>Mejoría:</strong> IHS4 ' + prev + ' → ' + score + ' (' + pct + '%)'; }
+                else if (score > prev) { alertEl.className = 'alert-box alert-warning'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-up"></i> <strong>Empeoramiento:</strong> IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)'; }
+                else { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-equals"></i> <strong>Estable:</strong> IHS4 sin cambios (' + score + ')'; }
+            }
+        }
+
+        // PROMs (SG)
+        var sgDlqiBody = document.getElementById('sg_dlqi-body');
+        dlqiQs.forEach(function (q, i) {
+            sgDlqiBody.innerHTML += '<tr><td>' + q + '</td><td class="radio-cell"><input type="radio" name="sg_d' + i + '" value="3" onchange="calcDLQI_sg()"></td><td class="radio-cell"><input type="radio" name="sg_d' + i + '" value="2" onchange="calcDLQI_sg()"></td><td class="radio-cell"><input type="radio" name="sg_d' + i + '" value="1" onchange="calcDLQI_sg()"></td><td class="radio-cell"><input type="radio" name="sg_d' + i + '" value="0" onchange="calcDLQI_sg()"></td></tr>';
+        });
+        function calcDLQI_sg() {
+            var t = 0;
+            for (var i = 0; i < 10; i++) {
+                document.getElementsByName('sg_d' + i).forEach(function (e) { if (e.checked) t += parseInt(e.value); });
+            }
+            document.getElementById('sg_dlqi_display').value = t;
+        }
+
+        hadsItems.forEach(function (x, i) {
+            var row = '<tr><td>' + x.q + '</td><td class="radio-cell"><input type="radio" name="sg_h' + i + '" value="' + (x.i ? 0 : 3) + '" onchange="calcHADS_sg()"></td><td class="radio-cell"><input type="radio" name="sg_h' + i + '" value="' + (x.i ? 1 : 2) + '" onchange="calcHADS_sg()"></td><td class="radio-cell"><input type="radio" name="sg_h' + i + '" value="' + (x.i ? 2 : 1) + '" onchange="calcHADS_sg()"></td><td class="radio-cell"><input type="radio" name="sg_h' + i + '" value="' + (x.i ? 3 : 0) + '" onchange="calcHADS_sg()"></td></tr>';
+            document.getElementById(x.t === 'A' ? 'sg_hads-a-table' : 'sg_hads-d-table').innerHTML += row;
+        });
+        function calcHADS_sg() {
+            var a = 0, d = 0;
+            hadsItems.forEach(function (x, i) {
+                document.getElementsByName('sg_h' + i).forEach(function (e) {
+                    if (e.checked) { if (x.t === 'A') a += parseInt(e.value); else d += parseInt(e.value); }
+                });
+            });
+            document.getElementById('sg_hads_total_display').value = 'A ' + a + ' | D ' + d;
+            document.getElementById('sg_hads-alert').style.display = (a >= 8 || d >= 8) ? 'block' : 'none';
+        }
+
+        var sgHsqolBody = document.getElementById('sg_hsqol-body');
+        hsqolPvItems.forEach(function (item, i) {
+            var cells = hsqolScalePv.map(function (opt) {
+                var val = item.reverse ? (4 - opt.value) : opt.value;
+                return '<td class="radio-cell"><input type="radio" name="sg_qol' + i + '" value="' + val + '" onchange="updateHSQoL_sg()"></td>';
+            }).join('');
+            sgHsqolBody.innerHTML += '<tr><td>' + item.q + (item.reverse ? ' <span style="color:#64748b;">(puntuacion inversa)</span>' : '') + '</td>' + cells + '</tr>';
+        });
+        function updateHSQoL_sg() {
+            var sc = 0;
+            for (var i = 0; i < hsqolPvItems.length; i++) {
+                document.getElementsByName('sg_qol' + i).forEach(function (e) {
+                    if (e.checked) sc += parseInt(e.value);
+                });
+            }
+            document.getElementById('sg_hsqol_score').value = sc;
+            document.getElementById('sg_hsqol_display').value = sc;
+            var interp = '';
+            if (sc <= 24) interp = 'Sin impacto';
+            else if (sc <= 31) interp = 'Leve';
+            else if (sc <= 43) interp = 'Moderado';
+            else interp = 'Severo';
+            document.getElementById('sg_hsqol_interp').value = interp;
+        }
+
+        // Export / Report (SG)
+        function exportData_sg() {
+            var eas = Array.from(document.querySelectorAll('#tab-sg .ea-item.active')).map(function (e) { return e.innerText; }).join('; ');
+            var drugs = getSelectedDrugs_sg().join('; ');
+            var row = [
+                document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '',
+                document.getElementById('sg_nuhsa').value,
+                'SEGUIMIENTO',
+                document.getElementById('sg_n_visita').value,
+                document.getElementById('sg_final_ihs4').innerText,
+                document.getElementById('sg_ihs4_previo').value,
+                document.getElementById('sg_eva_dolor').value,
+                drugs,
+                document.getElementById('sg_adherencia_val').value,
+                eas,
+                document.getElementById('sg_dlqi_display').value,
+                document.getElementById('sg_hsqol_display').value,
+                document.getElementById('sg_hads_total_display').value,
+                document.getElementById('sg_tabaco').value,
+                document.getElementById('sg_derivaciones').value,
+                document.getElementById('sg_prox_cita').value
+            ].join('\t');
+            navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel)"); });
+        }
+
+        function copyReport_sg() {
+            var eas = Array.from(document.querySelectorAll('#tab-sg .ea-item.active')).map(function (e) { return '• ' + e.innerText; }).join('\n');
+            var drugs = getSelectedDrugs_sg();
+            var ihs4 = document.getElementById('sg_final_ihs4').innerText;
+            var sev = parseInt(ihs4) < 4 ? 'LEVE' : parseInt(ihs4) <= 10 ? 'MODERADO' : 'GRAVE';
+            var txt = 'SEGUIMIENTO — ENFERMERÍA EPA HS\n================================\nHospital Universitario Virgen del Rocío' +
+                '\nFecha: ' + (document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '') +
+                '\nPaciente: ' + document.getElementById('sg_nuhsa').value + ' | Visita nº: ' + document.getElementById('sg_n_visita').value +
+                '\n\n1. ACTIVIDAD\nIHS4 actual: ' + ihs4 + ' (' + sev + ') | IHS4 previo: ' + (document.getElementById('sg_ihs4_previo').value || 'NR') +
+                '\nNódulos: ' + document.getElementById('sg_tot_n').innerText + ' | Abscesos: ' + document.getElementById('sg_tot_a').innerText + ' | Fístulas: ' + document.getElementById('sg_tot_f').innerText +
+                '\nEVA Dolor: ' + (document.getElementById('sg_eva_dolor').value || 'NR') + '/10' +
+                '\nBrotes desde última visita: ' + (document.getElementById('sg_n_brotes').value || 'NR') +
+                '\n\n2. TRATAMIENTO\nFarmacos: ' + (drugs.length ? drugs.join(', ') : 'NR') +
+                '\nAdherencia Morisky Green: ' + (document.getElementById('sg_adherencia_val').value || 'NR') + ' (' + document.getElementById('sg_morisky_score').value + '/4)' +
+                '\nAutoinyección: ' + (document.getElementById('sg_autoinyec') ? document.getElementById('sg_autoinyec').value : 'N/A') +
+                '\nEfectos adversos:\n' + (eas || 'Ninguno') +
+                (document.getElementById('sg_ea_detalle').value ? '\nDetalle: ' + document.getElementById('sg_ea_detalle').value : '') +
+                '\n\n3. HÁBITOS\nTabaco: ' + document.getElementById('sg_tabaco').value + ' | Ejercicio: ' + document.getElementById('sg_ejercicio').value + ' | Sueño: ' + document.getElementById('sg_sueno').value +
+                '\n\n4. PROMs\nDLQI: ' + document.getElementById('sg_dlqi_display').value + '/30 | HSQoL-24: ' + document.getElementById('sg_hsqol_display').value + ' (' + (document.getElementById('sg_hsqol_interp').value || 'No evaluado') + ')' +
+                '\nHADS: ' + document.getElementById('sg_hads_total_display').value +
+                '\n\n5. CURA\n' + (document.getElementById('sg_cura_hoy') && document.getElementById('sg_cura_hoy').value === 'Si' ? 'Tipo: ' + (document.getElementById('sg_tipo_herida') ? document.getElementById('sg_tipo_herida').value : '') + ' | Apósito: ' + (document.getElementById('sg_aposito') ? document.getElementById('sg_aposito').value : '') : 'No precisa') +
+                '\n\n6. PLAN Y SEGUIMIENTO' +
+                '\nDerivaciones: ' + (document.getElementById('sg_derivaciones').value || 'Ninguna') +
+                '\nNotas: ' + (document.getElementById('sg_notas').value || 'Sin notas') +
+                '\nPróxima cita: ' + (document.getElementById('sg_prox_cita').value || 'Pendiente') +
+                '\n================================';
+            navigator.clipboard.writeText(txt).then(function () { alert("Informe copiado al portapapeles"); });
+        }
+
+        // =============================================
+        // === CURA POSTQUIRÚRGICA SCRIPTS ===
+        // =============================================
+        (function () {
+            var el = document.getElementById('cx_fechaVisita');
+            if (el) el.valueAsDate = new Date();
+        })();
+
+        function getTimeSelections_cx() {
+            var groups = ['cx_time-t', 'cx_time-i', 'cx_time-m', 'cx_time-e'];
+            var labels = ['T(Tejido)', 'I(Infección)', 'M(Humedad)', 'E(Bordes)'];
+            return groups.map(function (g, i) {
+                var sel = document.querySelector('[data-group="' + g + '"] .selected');
+                return labels[i] + ': ' + (sel ? sel.innerText : 'No evaluado');
+            }).join(' | ');
+        }
+
+        function exportData_cx() {
+            var comps = Array.from(document.querySelectorAll('#tab-cx .comp-item.active')).map(function (e) { return e.innerText; }).join('; ');
+            var row = [
+                document.getElementById('cx_fechaVisita').value,
+                document.getElementById('cx_nuhsa').value,
+                'CURA POST-QX',
+                document.getElementById('cx_n_cura').value,
+                document.getElementById('cx_tipo_qx').value,
+                document.getElementById('cx_tipo_cierre').value,
+                document.getElementById('cx_localizacion').value,
+                document.getElementById('cx_eva_pre').value,
+                document.getElementById('cx_eva_post').value,
+                getTimeSelections_cx(),
+                document.getElementById('cx_h_largo').value + 'x' + document.getElementById('cx_h_ancho').value + 'x' + document.getElementById('cx_h_prof').value,
+                document.getElementById('cx_apos_prim').value,
+                document.getElementById('cx_apos_sec').value,
+                comps,
+                document.getElementById('cx_freq_cura').value
+            ].join('\t');
+            navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel)"); });
+        }
+
+        function copyReport_cx() {
+            var comps = Array.from(document.querySelectorAll('#tab-cx .comp-item.active')).map(function (e) { return '• ' + e.innerText; }).join('\n');
+            var txt = 'CURA POSTQUIRÚRGICA — ENFERMERÍA EPA HS\n=======================================' +
+                '\nHospital Universitario Virgen del Rocío' +
+                '\nFecha: ' + document.getElementById('cx_fechaVisita').value +
+                '\nPaciente: ' + document.getElementById('cx_nuhsa').value + ' | Cura nº: ' + document.getElementById('cx_n_cura').value +
+                '\n\n1. CIRUGÍA\nIntervención: ' + document.getElementById('cx_tipo_qx').value + ' | Cierre: ' + document.getElementById('cx_tipo_cierre').value +
+                '\nLocalización: ' + document.getElementById('cx_localizacion').value +
+                '\nFecha Qx: ' + document.getElementById('cx_fecha_qx').value + ' | Cirujano: ' + document.getElementById('cx_cirujano').value +
+                '\n\n2. DOLOR\nEVA Pre-cura: ' + document.getElementById('cx_eva_pre').value + '/10 | EVA Post-cura: ' + document.getElementById('cx_eva_post').value + '/10' +
+                '\nAnalgesia: ' + (document.getElementById('cx_analgesia').value || 'Ninguna') + ' | Anestesia local: ' + document.getElementById('cx_anestesia_local').value +
+                '\n\n3. HS-TIME\n' + getTimeSelections_cx() +
+                '\n\n4. HERIDA\nDimensiones: ' + (document.getElementById('cx_h_largo').value || '?') + '×' + (document.getElementById('cx_h_ancho').value || '?') + '×' + (document.getElementById('cx_h_prof').value || '?') + ' cm' +
+                '\nLecho: ' + document.getElementById('cx_h_color').value + ' | Olor: ' + document.getElementById('cx_h_olor').value +
+                '\nPiel perilesional: ' + document.getElementById('cx_h_peri').value + ' | Sangrado: ' + document.getElementById('cx_h_sangrado').value +
+                '\n\n5. TRATAMIENTO LOCAL\nLimpieza: ' + document.getElementById('cx_limpieza').value +
+                '\nDesbridamiento: ' + document.getElementById('cx_desbrid').value +
+                '\nLavado H₂O₂: ' + document.getElementById('cx_lavado_h2o2').value +
+                '\nApósito primario: ' + (document.getElementById('cx_apos_prim').value || 'NR') +
+                '\nApósito secundario: ' + (document.getElementById('cx_apos_sec').value || 'NR') +
+                '\nFijación: ' + document.getElementById('cx_fijacion').value +
+                '\nTPN: ' + document.getElementById('cx_tpn').value +
+                '\n\n6. COMPLICACIONES\n' + (comps || 'Ninguna') +
+                (document.getElementById('cx_complic_detalle').value ? '\nDetalle: ' + document.getElementById('cx_complic_detalle').value : '') +
+                '\n\n7. PLAN\nFoto clínica: ' + document.getElementById('cx_foto').value +
+                '\nPróxima cura: ' + (document.getElementById('cx_prox_cura').value || 'Pendiente') +
+                '\nFrecuencia: ' + document.getElementById('cx_freq_cura').value +
+                '\n\nNOTAS:\n' + (document.getElementById('cx_notas').value || 'Sin notas') +
+                '\n=======================================';
+            navigator.clipboard.writeText(txt).then(function () { alert("Informe copiado al portapapeles"); });
+        }
+
+    </script>
+</body>
+
+</html>
