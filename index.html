@@ -1461,6 +1461,27 @@
         <div class="legend-box">(*) Campo alineado con la hoja habitual de Dermatología / información útil para consulta
             médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
             posterior.</div>
+        <div class="import-panel" id="master_import_panel">
+            <div class="import-panel-title">Base longitudinal</div>
+            <p class="info-text">Carga una base Excel <code>BD_VISITAS_HS</code> para buscar la última visita del paciente y precargar datos previos en seguimiento.</p>
+            <div class="import-panel-row">
+                <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
+                <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar Excel maestro</button>
+                <div class="import-status" id="master_excel_status">Sin base cargada</div>
+                <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
+            </div>
+            <label for="master_patient_search">Buscar paciente en base cargada</label>
+            <div class="import-panel-row">
+                <input type="text" id="master_patient_search" placeholder="NUHSA o código HS">
+                <button type="button" class="btn btn-outline" id="master_patient_search_btn"><i class="fas fa-search"></i> Buscar última visita</button>
+            </div>
+            <div id="master_excel_warnings" style="display:none;"></div>
+            <div id="master_excel_error" style="display:none;"></div>
+        </div>
+        <div class="import-panel" id="master_last_visit_panel">
+            <div class="import-panel-title">Última visita encontrada</div>
+            <div class="import-status" id="sg_last_visit_summary">Sin visita previa encontrada en la base cargada.</div>
+        </div>
 
 
         <!-- 1. IDENTIFICACIÓN RÁPIDA -->
@@ -1508,22 +1529,6 @@
                 <p class="info-text">El cálculo actual de tiempo desde última consulta usa fecha de visita + fecha última
                     consulta manual. La validación automática contra base se realizará cuando esté disponible la
                     importación de Excel maestro con datos sintéticos.</p>
-                <div class="import-panel">
-                    <div class="import-panel-title">Base longitudinal cargada</div>
-                    <div class="import-panel-row">
-                        <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
-                        <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar Excel maestro</button>
-                        <button type="button" class="btn btn-outline" id="sg_find_last_visit_btn"><i class="fas fa-search"></i> Buscar última visita</button>
-                    </div>
-                    <div class="import-status" id="master_excel_status">Sin base cargada</div>
-                    <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
-                    <div id="master_excel_warnings" style="display:none;"></div>
-                    <div id="master_excel_error" style="display:none;"></div>
-                </div>
-                <div class="import-panel">
-                    <div class="import-panel-title">Última visita encontrada</div>
-                    <div class="import-status" id="sg_last_visit_summary">Sin visita previa encontrada en la base cargada.</div>
-                </div>
             </div>
         </div>
 
@@ -2623,9 +2628,9 @@
                 return;
             }
 
-            var identifier = valueOf('sg_nuhsa') || valueOf('sg_codigo_hs');
+            var identifier = valueOf('master_patient_search') || valueOf('sg_nuhsa') || valueOf('sg_codigo_hs');
             if (!normalizePatientId(identifier)) {
-                showImportError('Introduzca NUHSA o código HS antes de buscar la última visita.');
+                showImportError('Introduzca NUHSA o código HS en la barra de búsqueda o en Identificación antes de buscar la última visita.');
                 return;
             }
 
@@ -2759,7 +2764,8 @@
             restoreMasterDbFromSession();
             var fileInput = document.getElementById('master_excel_file');
             var loadBtn = document.getElementById('master_excel_load_btn');
-            var findBtn = document.getElementById('sg_find_last_visit_btn');
+            var findBtn = document.getElementById('master_patient_search_btn');
+            var searchInput = document.getElementById('master_patient_search');
             if (loadBtn && fileInput) {
                 loadBtn.addEventListener('click', function () {
                     clearImportError();
@@ -2778,6 +2784,14 @@
                 });
             }
             if (findBtn) findBtn.addEventListener('click', applyLastVisitPreload);
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function (evt) {
+                    if (evt.key === 'Enter') {
+                        evt.preventDefault();
+                        applyLastVisitPreload();
+                    }
+                });
+            }
         }
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
