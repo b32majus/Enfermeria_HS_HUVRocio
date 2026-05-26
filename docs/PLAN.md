@@ -210,6 +210,31 @@ Código más mantenible, sin cambio funcional.
 
 ---
 
+## Fase 3.3 — UX global y limpieza visual
+
+### Objetivo
+Clarificar el flujo real de consulta (cargar base, buscar paciente y luego elegir tipo de visita) y mejorar legibilidad sin cambiar la lógica clínica de fondo ni la exportación longitudinal.
+
+### Tareas
+- Mover carga de BD y búsqueda de paciente a un panel global compacto.
+- Mantener `sessionStorage` y búsqueda longitudinal ya existente.
+- Dejar en Seguimiento un bloque reducido de paciente seleccionado y acción de precarga.
+- Quitar comportamiento sticky de la barra inferior de acciones.
+- Renombrar acciones a texto clínico-operativo más claro.
+- Rediseñar componente EVA (botones más legibles, separación y ayuda visual).
+- Eliminar EVAs duplicadas dentro de PROMs.
+- Añadir semáforos orientativos en:
+  - IHS4;
+  - DLQI;
+  - HADS;
+  - HSQoL-24;
+  - EVA.
+
+### Resultado esperado
+Flujo recomendado visible desde el inicio de la herramienta, menor carga visual en consulta y lectura clínica rápida con indicadores orientativos.
+
+---
+
 ## Fase 5 — Carga Excel maestro y sessionStorage
 
 ### Objetivo

@@ -113,7 +113,7 @@
             padding: 30px;
             max-width: 1200px;
             margin: 0 auto;
-            padding-bottom: 100px;
+            padding-bottom: 36px;
         }
 
         .tab-content.active {
@@ -707,9 +707,9 @@
         }
 
         .eva-buttons {
-            display: grid;
-            grid-template-columns: repeat(11, minmax(0, 1fr));
-            gap: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-top: 8px;
         }
 
@@ -717,7 +717,9 @@
             border: 1px solid #cbd5e1;
             background: #f8fafc;
             border-radius: 6px;
-            padding: 6px 0;
+            min-width: 40px;
+            min-height: 38px;
+            padding: 8px 10px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -732,6 +734,27 @@
             background: #0ea5e9;
             border-color: #0284c7;
             color: #fff;
+        }
+
+        .eva-btn.level-low.active {
+            background: #10b981;
+            border-color: #059669;
+        }
+
+        .eva-btn.level-medium.active {
+            background: #f59e0b;
+            border-color: #d97706;
+        }
+
+        .eva-btn.level-high.active {
+            background: #ef4444;
+            border-color: #dc2626;
+        }
+
+        .eva-helper {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.82rem;
         }
 
         .active-zones {
@@ -771,6 +794,79 @@
             color: #334155;
         }
 
+        .status-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 12px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            display: inline-block;
+            border: 1px solid transparent;
+        }
+
+        .status-dot--empty {
+            background: #e2e8f0;
+            border-color: #94a3b8;
+        }
+
+        .status-dot--loaded {
+            background: #10b981;
+            border-color: #059669;
+        }
+
+        .status-dot--warning {
+            background: #f59e0b;
+            border-color: #d97706;
+        }
+
+        .global-panel {
+            max-width: 1200px;
+            margin: 18px auto 0;
+            padding: 0 30px;
+        }
+
+        .global-panel-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 14px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        }
+
+        .global-panel-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .global-panel-title {
+            margin: 0;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .global-result {
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            padding: 8px 10px;
+            font-size: 0.88rem;
+            color: #334155;
+        }
+
+        .global-result.error {
+            color: #991b1b;
+            border-color: #fecaca;
+            background: #fee2e2;
+        }
+
         .import-error {
             color: #991b1b;
             background: #fee2e2;
@@ -802,19 +898,59 @@
         }
 
         .fab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            position: static;
+            margin: 26px auto 0;
+            max-width: 1200px;
+            background: #fff;
             padding: 15px;
-            border-top: 1px solid var(--border-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             display: flex;
             justify-content: flex-end;
             gap: 15px;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-            z-index: 100;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        }
+
+        .value-semaphore {
+            font-weight: 700;
+            border-width: 1px;
+        }
+
+        .value-semaphore--low {
+            background: #ecfdf5 !important;
+            border-color: #86efac !important;
+            color: #166534 !important;
+        }
+
+        .value-semaphore--low-soft {
+            background: #f0fdf4 !important;
+            border-color: #bbf7d0 !important;
+            color: #166534 !important;
+        }
+
+        .value-semaphore--medium {
+            background: #fff7ed !important;
+            border-color: #fdba74 !important;
+            color: #9a3412 !important;
+        }
+
+        .value-semaphore--high {
+            background: #fef2f2 !important;
+            border-color: #fca5a5 !important;
+            color: #991b1b !important;
+        }
+
+        .score-value--low {
+            color: #10b981 !important;
+        }
+
+        .score-value--medium {
+            color: #f59e0b !important;
+        }
+
+        .score-value--high {
+            color: #ef4444 !important;
         }
 
         .btn {
@@ -919,6 +1055,30 @@
 </head>
 
 <body>
+    <div class="global-panel">
+        <div class="global-panel-card">
+            <div class="global-panel-head">
+                <h2 class="global-panel-title">Base y paciente</h2>
+                <span style="font-size:0.8rem;color:#64748b;" title="Orientativo para priorización/lectura rápida.">Flujo recomendado</span>
+            </div>
+            <div class="import-panel-row" style="margin-bottom:6px;">
+                <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
+                <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar / recargar BD</button>
+                <div class="import-status status-inline">
+                    <span class="status-dot status-dot--empty" id="master_excel_status_dot"></span>
+                    <span id="master_excel_status">BD no cargada</span>
+                </div>
+                <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
+            </div>
+            <div class="import-panel-row">
+                <input type="text" id="global_patient_search" placeholder="Buscar por NUHSA o código HS">
+                <button type="button" class="btn btn-outline" id="global_patient_search_btn"><i class="fas fa-search"></i> Buscar paciente</button>
+            </div>
+            <div id="global_patient_result_summary" class="global-result">Sin paciente seleccionado.</div>
+            <div id="master_excel_warnings" style="display:none;"></div>
+            <div id="master_excel_error" style="display:none;"></div>
+        </div>
+    </div>
 
     <!-- BARRA DE PESTAÑAS -->
     <div class="tab-bar">
@@ -1240,13 +1400,40 @@
                     </div>
                     <div style="text-align:right;">
                         <span class="score-label">IHS4 Score (*)</span>
-                        <div class="score-value" id="pv_final_ihs4" style="color:#10b981;">0</div>
+                        <div class="score-value" id="pv_final_ihs4" style="color:#10b981;" title="Orientativo para priorización/lectura rápida.">0</div>
                     </div>
                 </div>
                 <div class="active-zones"><strong>Zonas activas (*)</strong>:
                     <span id="pv_active_zone_count">0</span> |
                     Localizaciones: <span id="pv_active_zone_list">Ninguna</span>
                 </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header" onclick="toggleSection('pv_sec-eva')">
+                <span><i class="fas fa-thermometer-half fa-icon"></i> 5.1 DOLOR Y ESTADO GENERAL (EVA)</span>
+                <i class="fas fa-chevron-down caret"></i>
+            </div>
+            <div id="pv_sec-eva" class="section-content">
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>EVA Dolor (0-10) <span class="label-star">(*)</span></label>
+                        <input type="hidden" id="pv_eva_dolor" value="">
+                        <div class="eva-buttons" id="pv_eva_dolor_buttons"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>EVA prurito (0-10) <span class="label-star">(*)</span></label>
+                        <input type="hidden" id="pv_eva_prurito" value="">
+                        <div class="eva-buttons" id="pv_eva_prurito_buttons"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>EVA supuración (0-10) <span class="label-star">(*)</span></label>
+                        <input type="hidden" id="pv_eva_supuracion" value="">
+                        <div class="eva-buttons" id="pv_eva_supuracion_buttons"></div>
+                    </div>
+                </div>
+                <p class="eva-helper">0 = sin síntoma | 10 = máximo síntoma</p>
             </div>
         </div>
 
@@ -1260,7 +1447,7 @@
                 <p class="info-text">PROMs en español incorporados. Revisar licencias/condiciones de uso antes de difusión
                     externa, especialmente en HADS.</p>
                 <!-- Resumen Visual -->
-                <div class="grid-5" style="margin-bottom:25px;">
+                <div class="grid-4" style="margin-bottom:25px;">
                     <div class="form-group"><label>DLQI Total</label><input type="text" id="pv_dlqi_display" readonly
                             value="0" style="background:#f1f5f9; font-weight:700; color:var(--primary-color);"></div>
                     <div class="form-group"><label>HSQoL-24</label><input type="text" id="pv_hsqol_display" readonly
@@ -1274,9 +1461,6 @@
                             readonly value="0"
                             style="background:#f0f9ff; font-weight:700; color:#0369a1; border-color:#bae6fd;">
                     </div>
-                    <div class="form-group"><label>EVA Dolor (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="pv_eva_dolor" value=""><div class="eva-buttons" id="pv_eva_dolor_buttons"></div></div>
-                    <div class="form-group"><label>EVA prurito (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="pv_eva_prurito" value=""><div class="eva-buttons" id="pv_eva_prurito_buttons"></div></div>
-                    <div class="form-group"><label>EVA supuración (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="pv_eva_supuracion" value=""><div class="eva-buttons" id="pv_eva_supuracion_buttons"></div></div>
                 </div>
                 <!-- ACORDEÓN DLQI -->
                 <div class="accordion-wrapper">
@@ -1461,26 +1645,12 @@
         <div class="legend-box">(*) Campo alineado con la hoja habitual de Dermatología / información útil para consulta
             médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
             posterior.</div>
-        <div class="import-panel" id="master_import_panel">
-            <div class="import-panel-title">Base longitudinal</div>
-            <p class="info-text">Carga una base Excel <code>BD_VISITAS_HS</code> para buscar la última visita del paciente y precargar datos previos en seguimiento.</p>
-            <div class="import-panel-row">
-                <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
-                <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar Excel maestro</button>
-                <div class="import-status" id="master_excel_status">Sin base cargada</div>
-                <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
+        <div class="import-panel" id="sg_selected_patient_panel">
+            <div class="import-panel-title">Paciente seleccionado</div>
+            <div class="import-status" id="sg_selected_patient_summary">Busque primero el paciente en el panel superior o introduzca NUHSA/código HS manualmente.</div>
+            <div class="import-panel-row" style="margin-top:8px;">
+                <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-bolt"></i> Precargar seguimiento con última visita</button>
             </div>
-            <label for="master_patient_search">Buscar paciente en base cargada</label>
-            <div class="import-panel-row">
-                <input type="text" id="master_patient_search" placeholder="NUHSA o código HS">
-                <button type="button" class="btn btn-outline" id="master_patient_search_btn"><i class="fas fa-search"></i> Buscar última visita</button>
-            </div>
-            <div id="master_excel_warnings" style="display:none;"></div>
-            <div id="master_excel_error" style="display:none;"></div>
-        </div>
-        <div class="import-panel" id="master_last_visit_panel">
-            <div class="import-panel-title">Última visita encontrada</div>
-            <div class="import-status" id="sg_last_visit_summary">Sin visita previa encontrada en la base cargada.</div>
         </div>
 
 
@@ -1551,7 +1721,7 @@
                     </div>
                     <div style="text-align:right;">
                         <span class="score-label">IHS4 Score (*)</span>
-                        <div class="score-value" id="sg_final_ihs4" style="color:#10b981;">0</div>
+                        <div class="score-value" id="sg_final_ihs4" style="color:#10b981;" title="Orientativo para priorización/lectura rápida.">0</div>
                     </div>
                 </div>
                 <div class="active-zones"><strong>Zonas activas (*)</strong>:
@@ -1578,6 +1748,7 @@
                     <div><label>Talla (m)</label><input type="number" id="sg_talla" step="0.01" onchange="calcIMC_sg()">
                     </div>
                 </div>
+                <p class="eva-helper">0 = sin síntoma | 10 = máximo síntoma</p>
                 <div class="grid-4" style="margin-top:15px;">
                     <div><label>IMC <span class="label-star">(*)</span></label><input type="text" id="sg_imc" readonly
                             style="background:#eee; font-weight:700;">
@@ -1795,11 +1966,15 @@
             <div id="sg_sec-proms" class="section-content">
                 <p class="info-text">PROMs en español incorporados. Revisar licencias/condiciones de uso antes de difusión
                     externa, especialmente en HADS.</p>
-                <div class="grid-3" style="margin-bottom:25px;">
+                <div class="grid-5" style="margin-bottom:25px;">
                     <div><label>DLQI Total</label><input type="text" id="sg_dlqi_display" readonly value="0"
                             style="background:#f1f5f9; font-weight:700; color:var(--primary-color);"></div>
                     <div><label>HSQoL-24</label><input type="text" id="sg_hsqol_display" readonly value="0"
                             style="background:#f0fdf4; font-weight:700; color:#166534; border-color:#bbf7d0;"></div>
+                    <div><label>HADS Ansiedad</label><input type="text" id="sg_hads_a_display" readonly value="0"
+                            style="background:#fff7ed; font-weight:700; color:#9a3412;"></div>
+                    <div><label>HADS Depresión</label><input type="text" id="sg_hads_d_display" readonly value="0"
+                            style="background:#fef2f2; font-weight:700; color:#991b1b;"></div>
                     <div><label>HADS Total</label><input type="text" id="sg_hads_total_display" readonly value="A 0 | D 0"
                             style="background:#fff7ed; font-weight:700; color:#9a3412;"></div>
                 </div>
@@ -2028,19 +2203,18 @@
             </div>
             <div id="cx_sec-dolor" class="section-content">
                 <div class="grid-2">
-                    <div style="text-align:center;">
+                    <div>
                         <label>EVA Pre-cura</label>
-                        <input type="range" id="cx_eva_pre" min="0" max="10" value="0" class="eva-slider"
-                            oninput="document.getElementById('cx_eva_pre_val').innerText=this.value; colorEva('cx_eva_pre_val',this.value)">
-                        <div class="eva-value" id="cx_eva_pre_val" style="color:#10b981;">0</div>
+                        <input type="hidden" id="cx_eva_pre" value="0">
+                        <div class="eva-buttons" id="cx_eva_pre_buttons"></div>
                     </div>
-                    <div style="text-align:center;">
+                    <div>
                         <label>EVA Post-cura</label>
-                        <input type="range" id="cx_eva_post" min="0" max="10" value="0" class="eva-slider"
-                            oninput="document.getElementById('cx_eva_post_val').innerText=this.value; colorEva('cx_eva_post_val',this.value)">
-                        <div class="eva-value" id="cx_eva_post_val" style="color:#10b981;">0</div>
+                        <input type="hidden" id="cx_eva_post" value="0">
+                        <div class="eva-buttons" id="cx_eva_post_buttons"></div>
                     </div>
                 </div>
+                <p class="eva-helper">0 = sin síntoma | 10 = máximo síntoma</p>
                 <div class="grid-2" style="margin-top:15px;">
                     <div><label>Analgesia usada pre-cura</label>
                         <select id="cx_analgesia">
@@ -2345,11 +2519,11 @@
 
     <!-- BARRA INFERIOR -->
     <div class="fab-bar">
-        <button class="btn btn-outline" onclick="location.reload()"><i class="fas fa-trash-alt"></i> Limpiar</button>
+        <button class="btn btn-outline" onclick="location.reload()"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar formulario</button>
         <button class="btn btn-excel" onclick="exportActiveTab()"><i class="fas fa-file-excel"></i> Copiar
-            Excel</button>
+            fila Excel</button>
         <button class="btn btn-primary" onclick="copyActiveReport()"><i class="fas fa-file-medical"></i> Copiar
-            Informe</button>
+            informe</button>
     </div>
 
     <script src="vendor/xlsx.full.min.js"></script>
@@ -2366,6 +2540,11 @@
         ];
         let masterDb = [];
         let masterDbLoadedAt = null;
+        let masterDbWarnings = [];
+        let selectedPatientIdentifier = '';
+        let selectedPatientRecords = [];
+        let selectedPatientLastRecord = null;
+        let selectedPatientLastClinicalRecord = null;
         const MASTER_COLUMNS = [
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
             'fecha_visita', 'nuhsa', 'codigo_hs', 'edad', 'sexo', 'situacion_laboral',
@@ -2434,22 +2613,35 @@
             el.textContent = message || '';
         }
 
+        function setMasterStatusDot(mode) {
+            var dotEl = document.getElementById('master_excel_status_dot');
+            if (!dotEl) return;
+            dotEl.className = 'status-dot';
+            if (mode === 'loaded') dotEl.classList.add('status-dot--loaded');
+            else if (mode === 'warning') dotEl.classList.add('status-dot--warning');
+            else dotEl.classList.add('status-dot--empty');
+        }
+
         function updateMasterDbStatus(warnings) {
             var statusEl = document.getElementById('master_excel_status');
             var loadedEl = document.getElementById('master_excel_loaded_at');
+            if (Array.isArray(warnings)) masterDbWarnings = warnings.filter(Boolean);
             var uniquePatients = {};
             masterDb.forEach(function (row) {
                 var key = normalizePatientId(row.nuhsa || row.codigo_hs);
                 if (key) uniquePatients[key] = true;
             });
             var nPatients = Object.keys(uniquePatients).length;
+            var hasWarnings = masterDb.length && masterDbWarnings.length;
             if (statusEl) {
-                statusEl.textContent = masterDb.length ? ('Base cargada: ' + masterDb.length + ' registros / ' + nPatients + ' pacientes') : 'Sin base cargada';
+                if (!masterDb.length) statusEl.textContent = 'BD no cargada';
+                else if (hasWarnings) statusEl.textContent = 'BD cargada con advertencias';
+                else statusEl.textContent = 'BD cargada: ' + masterDb.length + ' registros / ' + nPatients + ' pacientes';
             }
             if (loadedEl) {
                 loadedEl.textContent = masterDbLoadedAt ? ('Última carga: ' + masterDbLoadedAt) : 'Última carga: —';
             }
-            if (warnings && warnings.length) showImportWarnings(warnings);
+            setMasterStatusDot(!masterDb.length ? 'empty' : (hasWarnings ? 'warning' : 'loaded'));
         }
 
         function persistMasterDbToSession() {
@@ -2470,11 +2662,13 @@
                 if (!Array.isArray(parsed)) return;
                 masterDb = parsed.filter(function (row) { return row && typeof row === 'object'; });
                 masterDbLoadedAt = loadedAt || null;
+                masterDbWarnings = [];
                 updateMasterDbStatus([]);
                 showImportSuccess('Base restaurada desde la sesión actual.');
             } catch (err) {
                 masterDb = [];
                 masterDbLoadedAt = null;
+                masterDbWarnings = [];
                 updateMasterDbStatus([]);
                 showImportWarnings(['No se pudo restaurar la base previa de la sesión.']);
             }
@@ -2581,23 +2775,46 @@
             return null;
         }
 
-        function updateLastVisitSummary(record, clinicalRecord) {
-            var summaryEl = document.getElementById('sg_last_visit_summary');
+        function updateSelectedPatientSummary(record, clinicalRecord) {
+            var summaryEl = document.getElementById('sg_selected_patient_summary');
             if (!summaryEl) return;
             if (!record) {
-                summaryEl.textContent = 'Sin visita previa encontrada en la base cargada.';
+                summaryEl.textContent = 'Busque primero el paciente en el panel superior o introduzca NUHSA/código HS manualmente.';
                 return;
             }
             var ihs4Source = clinicalRecord || record;
             summaryEl.innerHTML =
-                'Fecha: ' + (record.fecha_visita || 'NR') +
+                'Identificador: ' + (selectedPatientIdentifier || record.nuhsa || record.codigo_hs || 'NR') +
+                ' | Última visita: ' + (record.fecha_visita || 'NR') +
                 ' | Tipo: ' + (record.tipo_visita || 'NR') +
-                '<br>IHS4 previo: ' + (ihs4Source.ihs4_actual || 'NR') +
-                ' | Hurley: ' + (ihs4Source.hurley_enfermeria || 'NR') +
-                ' | Peso previo: ' + (record.peso_kg || 'NR') +
-                '<br>Tratamiento activo previo: ' + (record.tratamiento_activo || 'NR') +
-                ' | Tabaco previo: ' + (record.tabaco_estado || 'NR') +
+                ' | IHS4: ' + (ihs4Source.ihs4_actual || 'NR');
+        }
+
+        function updateGlobalPatientSummary(record, clinicalRecord, notFound) {
+            var summaryEl = document.getElementById('global_patient_result_summary');
+            if (!summaryEl) return;
+            if (!record) {
+                summaryEl.className = 'global-result' + (notFound ? ' error' : '');
+                summaryEl.textContent = notFound ? 'Paciente no encontrado en la base cargada.' : 'Sin paciente seleccionado.';
+                return;
+            }
+            summaryEl.className = 'global-result';
+            var ihs4Source = clinicalRecord || record;
+            summaryEl.innerHTML =
+                'Paciente encontrado' +
+                ' | Última visita: ' + (record.fecha_visita || 'NR') +
+                ' | Tipo: ' + (record.tipo_visita || 'NR') +
+                ' | IHS4: ' + (ihs4Source.ihs4_actual || 'NR') +
                 ' | Código HS: ' + (record.codigo_hs || 'NR');
+        }
+
+        function setSelectedPatientState(identifier, records, lastRecord, lastClinical) {
+            selectedPatientIdentifier = normalizePatientId(identifier);
+            selectedPatientRecords = records || [];
+            selectedPatientLastRecord = lastRecord || null;
+            selectedPatientLastClinicalRecord = lastClinical || null;
+            updateSelectedPatientSummary(selectedPatientLastRecord, selectedPatientLastClinicalRecord);
+            updateGlobalPatientSummary(selectedPatientLastRecord, selectedPatientLastClinicalRecord, false);
         }
 
         function maybeSetFieldValue(fieldId, value, options) {
@@ -2619,18 +2836,51 @@
             return true;
         }
 
+        function runGlobalPatientSearch() {
+            clearImportError();
+            if (!masterDb.length) {
+                showImportWarnings([]);
+                showImportError('No hay BD cargada. Puede trabajar en manual o cargar la base.');
+                setSelectedPatientState('', [], null, null);
+                updateGlobalPatientSummary(null, null, false);
+                return;
+            }
+            var identifier = valueOf('global_patient_search');
+            if (!normalizePatientId(identifier)) {
+                showImportError('Introduzca NUHSA o código HS para buscar paciente.');
+                return;
+            }
+            var records = getPatientRecords(identifier);
+            if (!records.length) {
+                showImportWarnings([]);
+                setSelectedPatientState(identifier, [], null, null);
+                updateGlobalPatientSummary(null, null, true);
+                return;
+            }
+            var lastRecord = records[records.length - 1];
+            var lastClinical = getLastClinicalRecord(identifier, null) || lastRecord;
+            setSelectedPatientState(identifier, records, lastRecord, lastClinical);
+            showImportSuccess('Paciente seleccionado para la consulta actual.');
+        }
+
+        function maybeAutoFillSgPatientIdentifiers(record) {
+            if (!record) return;
+            if (!valueOf('sg_nuhsa') && record.nuhsa) maybeSetFieldValue('sg_nuhsa', record.nuhsa, { label: 'NUHSA' });
+            if (!valueOf('sg_codigo_hs') && record.codigo_hs) maybeSetFieldValue('sg_codigo_hs', record.codigo_hs, { label: 'Código HS' });
+        }
+
         function applyLastVisitPreload() {
             clearImportError();
             if (!masterDb.length) {
                 showImportWarnings([]);
                 showImportError('No hay base longitudinal cargada. Introduzca los datos manualmente.');
-                updateLastVisitSummary(null, null);
+                updateSelectedPatientSummary(null, null);
                 return;
             }
 
-            var identifier = valueOf('master_patient_search') || valueOf('sg_nuhsa') || valueOf('sg_codigo_hs');
+            var identifier = valueOf('sg_nuhsa') || valueOf('sg_codigo_hs') || selectedPatientIdentifier || valueOf('global_patient_search');
             if (!normalizePatientId(identifier)) {
-                showImportError('Introduzca NUHSA o código HS en la barra de búsqueda o en Identificación antes de buscar la última visita.');
+                showImportError('Busque primero el paciente en el panel superior o introduzca NUHSA/código HS en Seguimiento.');
                 return;
             }
 
@@ -2640,12 +2890,15 @@
             if (!lastRecord) {
                 showImportWarnings([]);
                 showImportError('Paciente no encontrado en la base cargada.');
-                updateLastVisitSummary(null, null);
+                setSelectedPatientState(identifier, [], null, null);
+                updateGlobalPatientSummary(null, null, true);
                 return;
             }
 
+            var records = getPatientRecords(identifier);
+            setSelectedPatientState(identifier, records, lastRecord, lastClinical || lastRecord);
+            maybeAutoFillSgPatientIdentifiers(lastRecord);
             showImportWarnings([]);
-            updateLastVisitSummary(lastRecord, lastClinical);
             var clinicalSource = lastClinical || lastRecord;
             maybeSetFieldValue('sg_fecha_ultima_consulta', lastRecord.fecha_visita, {
                 label: 'Fecha última consulta',
@@ -2748,7 +3001,8 @@
                     persistMasterDbToSession();
                     updateMasterDbStatus(validation.warnings || []);
                     showImportSuccess('Archivo cargado correctamente en memoria de sesión.');
-                    updateLastVisitSummary(null, null);
+                    setSelectedPatientState('', [], null, null);
+                    updateGlobalPatientSummary(null, null, false);
                 } catch (err) {
                     showImportError('No se pudo procesar el archivo Excel: ' + (err && err.message ? err.message : 'error desconocido'));
                 }
@@ -2764,8 +3018,9 @@
             restoreMasterDbFromSession();
             var fileInput = document.getElementById('master_excel_file');
             var loadBtn = document.getElementById('master_excel_load_btn');
-            var findBtn = document.getElementById('master_patient_search_btn');
-            var searchInput = document.getElementById('master_patient_search');
+            var globalFindBtn = document.getElementById('global_patient_search_btn');
+            var globalSearchInput = document.getElementById('global_patient_search');
+            var sgPreloadBtn = document.getElementById('sg_preload_btn');
             if (loadBtn && fileInput) {
                 loadBtn.addEventListener('click', function () {
                     clearImportError();
@@ -2783,15 +3038,18 @@
                     evt.target.value = '';
                 });
             }
-            if (findBtn) findBtn.addEventListener('click', applyLastVisitPreload);
-            if (searchInput) {
-                searchInput.addEventListener('keydown', function (evt) {
+            if (globalFindBtn) globalFindBtn.addEventListener('click', runGlobalPatientSearch);
+            if (globalSearchInput) {
+                globalSearchInput.addEventListener('keydown', function (evt) {
                     if (evt.key === 'Enter') {
                         evt.preventDefault();
-                        applyLastVisitPreload();
+                        runGlobalPatientSearch();
                     }
                 });
             }
+            if (sgPreloadBtn) sgPreloadBtn.addEventListener('click', applyLastVisitPreload);
+            updateSelectedPatientSummary(null, null);
+            updateGlobalPatientSummary(null, null, false);
         }
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -2813,6 +3071,64 @@
             el.closest('.time-options').querySelectorAll('.time-option').forEach(o => o.classList.remove('selected'));
             el.classList.add('selected');
         }
+        function getIhs4Level(value) {
+            var n = parseInt(value, 10);
+            if (isNaN(n)) return '';
+            if (n <= 3) return 'low';
+            if (n <= 10) return 'medium';
+            return 'high';
+        }
+        function getEvaLevel(value) {
+            var n = parseInt(value, 10);
+            if (isNaN(n)) return '';
+            if (n <= 3) return 'low';
+            if (n <= 6) return 'medium';
+            return 'high';
+        }
+        function getHadsLevel(value) {
+            var n = parseInt(value, 10);
+            if (isNaN(n)) return '';
+            if (n <= 7) return 'low';
+            if (n <= 10) return 'medium';
+            return 'high';
+        }
+        function getDlqiLevel(value) {
+            var n = parseInt(value, 10);
+            if (isNaN(n)) return '';
+            if (n <= 1) return 'low';
+            if (n <= 5) return 'low-soft';
+            if (n <= 10) return 'medium';
+            return 'high';
+        }
+        function getHsqolLevel(score, interp) {
+            var it = normalizeText(interp || '');
+            if (it.indexOf('sin impacto') !== -1 || it.indexOf('leve') !== -1) return 'low';
+            if (it.indexOf('moderado') !== -1) return 'medium';
+            if (it.indexOf('severo') !== -1) return 'high';
+            var n = parseInt(score, 10);
+            if (isNaN(n)) return '';
+            if (n <= 31) return 'low';
+            if (n <= 43) return 'medium';
+            return 'high';
+        }
+        function applySemaphoreClass(el, level) {
+            if (!el) return;
+            el.classList.remove('value-semaphore', 'value-semaphore--low', 'value-semaphore--low-soft', 'value-semaphore--medium', 'value-semaphore--high');
+            if (!level) return;
+            el.classList.add('value-semaphore', 'value-semaphore--' + level);
+            el.title = 'Orientativo para priorización/lectura rápida.';
+        }
+        function applySemaphoreToInputById(id, level) {
+            applySemaphoreClass(document.getElementById(id), level);
+        }
+        function applyIhs4ScoreStyle(id, level) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('score-value--low', 'score-value--medium', 'score-value--high');
+            if (!level) return;
+            el.classList.add('score-value--' + level);
+            el.title = 'Orientativo para priorización/lectura rápida.';
+        }
         function colorEva(id, val) {
             const el = document.getElementById(id); val = parseInt(val);
             if (val <= 3) el.style.color = '#10b981'; else if (val <= 6) el.style.color = '#f59e0b'; else el.style.color = '#ef4444';
@@ -2825,9 +3141,10 @@
             for (var i = 0; i <= 10; i++) {
                 var btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'eva-btn';
+                btn.className = 'eva-btn level-' + getEvaLevel(i);
                 btn.dataset.value = String(i);
                 btn.innerText = String(i);
+                btn.title = 'Orientativo para priorización/lectura rápida.';
                 btn.addEventListener('click', function (ev) {
                     var val = ev.currentTarget.dataset.value;
                     input.value = val;
@@ -2835,6 +3152,11 @@
                     ev.currentTarget.classList.add('active');
                 });
                 container.appendChild(btn);
+            }
+            var preselected = String(input.value || '');
+            if (preselected) {
+                var preselectedBtn = container.querySelector('.eva-btn[data-value="' + preselected + '"]');
+                if (preselectedBtn) preselectedBtn.classList.add('active');
             }
         }
         function getActiveZoneData(ihsData, regions) {
@@ -2978,11 +3300,12 @@
             var score = n + (a * 2) + (f * 4);
             var el = document.getElementById('pv_final_ihs4');
             el.innerText = score;
-            el.style.color = score < 4 ? '#10b981' : score <= 10 ? '#f59e0b' : '#ef4444';
+            applyIhs4ScoreStyle('pv_final_ihs4', getIhs4Level(score));
             var activeData = getActiveZoneData(pv_ihsData, pv_regions);
             document.getElementById('pv_active_zone_count').innerText = activeData.count;
             document.getElementById('pv_active_zone_list').innerText = activeData.list;
         }
+        calcTotalIHS_pv();
 
         // DLQI (PV)
         var dlqiQs = [
@@ -3007,6 +3330,7 @@
                 document.getElementsByName('pv_d' + i).forEach(function (e) { if (e.checked) t += parseInt(e.value); });
             }
             document.getElementById('pv_dlqi_display').value = t;
+            applySemaphoreToInputById('pv_dlqi_display', getDlqiLevel(t));
         }
 
         // HADS (PV)
@@ -3039,6 +3363,8 @@
             });
             document.getElementById('pv_hads_a_display').value = a;
             document.getElementById('pv_hads_d_display').value = d;
+            applySemaphoreToInputById('pv_hads_a_display', getHadsLevel(a));
+            applySemaphoreToInputById('pv_hads_d_display', getHadsLevel(d));
             document.getElementById('pv_hads-alert').style.display = (a >= 8 || d >= 8) ? 'block' : 'none';
         }
 
@@ -3099,7 +3425,11 @@
             else if (sc <= 43) interp = 'Moderado';
             else interp = 'Severo';
             document.getElementById('pv_hsqol_interp').value = interp;
+            applySemaphoreToInputById('pv_hsqol_display', getHsqolLevel(sc, interp));
         }
+        calcDLQI_pv();
+        calcHADS_pv();
+        updateHSQoL_pv();
 
         // Export / Report (PV)
         function exportData_pv() {
@@ -3350,7 +3680,7 @@
             var score = n + (a * 2) + (f * 4);
             var el = document.getElementById('sg_final_ihs4');
             el.innerText = score;
-            el.style.color = score < 4 ? '#10b981' : score <= 10 ? '#f59e0b' : '#ef4444';
+            applyIhs4ScoreStyle('sg_final_ihs4', getIhs4Level(score));
             var activeData = getActiveZoneData(sg_ihsData, sg_regions);
             document.getElementById('sg_active_zone_count').innerText = activeData.count;
             document.getElementById('sg_active_zone_list').innerText = activeData.list;
@@ -3366,6 +3696,7 @@
                 alertEl.style.display = 'none';
             }
         }
+        calcTotalIHS_sg();
 
         // PROMs (SG)
         var sgDlqiBody = document.getElementById('sg_dlqi-body');
@@ -3378,6 +3709,7 @@
                 document.getElementsByName('sg_d' + i).forEach(function (e) { if (e.checked) t += parseInt(e.value); });
             }
             document.getElementById('sg_dlqi_display').value = t;
+            applySemaphoreToInputById('sg_dlqi_display', getDlqiLevel(t));
         }
 
         hadsItems.forEach(function (x, i) {
@@ -3391,7 +3723,12 @@
                     if (e.checked) { if (x.t === 'A') a += parseInt(e.value); else d += parseInt(e.value); }
                 });
             });
+            document.getElementById('sg_hads_a_display').value = a;
+            document.getElementById('sg_hads_d_display').value = d;
             document.getElementById('sg_hads_total_display').value = 'A ' + a + ' | D ' + d;
+            applySemaphoreToInputById('sg_hads_a_display', getHadsLevel(a));
+            applySemaphoreToInputById('sg_hads_d_display', getHadsLevel(d));
+            applySemaphoreToInputById('sg_hads_total_display', getHadsLevel(Math.max(a, d)));
             document.getElementById('sg_hads-alert').style.display = (a >= 8 || d >= 8) ? 'block' : 'none';
         }
 
@@ -3418,7 +3755,11 @@
             else if (sc <= 43) interp = 'Moderado';
             else interp = 'Severo';
             document.getElementById('sg_hsqol_interp').value = interp;
+            applySemaphoreToInputById('sg_hsqol_display', getHsqolLevel(sc, interp));
         }
+        calcDLQI_sg();
+        calcHADS_sg();
+        updateHSQoL_sg();
 
         // Export / Report (SG)
         function exportData_sg() {
@@ -3536,6 +3877,8 @@
             var el = document.getElementById('cx_fechaVisita');
             if (el) el.valueAsDate = new Date();
         })();
+        setupEvaButtons('cx_eva_pre', 'cx_eva_pre_buttons');
+        setupEvaButtons('cx_eva_post', 'cx_eva_post_buttons');
 
         function getTimeSelections_cx() {
             var groups = ['cx_time-t', 'cx_time-i', 'cx_time-m', 'cx_time-e'];

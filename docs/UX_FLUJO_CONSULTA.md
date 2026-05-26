@@ -1,0 +1,78 @@
+# UX Flujo de Consulta — Fase 3.3
+
+## Flujo recomendado de uso
+
+1. Abrir la herramienta.
+2. Cargar BD si existe (`Cargar / recargar BD`).
+3. Buscar paciente por `NUHSA` o `código HS` en el panel global.
+4. Elegir ruta clínica (Primera Visita, Seguimiento o Cura Post-Qx).
+5. Completar la visita actual.
+6. Copiar fila Excel (`Copiar fila Excel`).
+7. Copiar informe (`Copiar informe`).
+
+## Si no hay BD cargada
+
+- La herramienta sigue funcionando en modo manual.
+- Se pueden registrar PV/SG/CX sin precarga.
+- El estado del panel mostrará `BD no cargada`.
+
+## Si el paciente no se encuentra
+
+- Se muestra `Paciente no encontrado en la base cargada`.
+- Puede continuarse la visita en manual.
+- En Seguimiento, se puede introducir `NUHSA`/`código HS` y reintentar precarga.
+
+## Precarga en Seguimiento
+
+Con paciente seleccionado (o identificador manual en SG), `Precargar seguimiento con última visita` puede completar:
+
+- fecha última consulta;
+- tiempo desde última consulta (si hay fecha de visita SG actual);
+- IHS4 previo;
+- Hurley orientativo;
+- peso previo;
+- tabaco previo;
+- tratamiento activo previo;
+- código HS (si existe).
+
+## Datos que siempre deben rellenarse en la visita actual
+
+La precarga no sustituye la valoración clínica actual. Deben registrarse en la visita actual, según aplique:
+
+- actividad actual (IHS4 actual, zonas activas);
+- EVA actuales;
+- brotes y estado global actual;
+- PROMs actuales;
+- plan y notas de la consulta actual.
+
+## Estado de BD (panel global)
+
+- `BD no cargada`: sin base en la sesión.
+- `BD cargada: X registros / Y pacientes`: carga válida.
+- `BD cargada con advertencias`: carga válida con columnas faltantes no críticas o columnas extra.
+
+## Semáforos visuales (orientativos)
+
+Todos los semáforos son de lectura rápida y no diagnósticos.
+
+- IHS4:
+  - verde: 0-3
+  - naranja: 4-10
+  - rojo: >=11
+- EVA:
+  - verde: 0-3
+  - naranja: 4-6
+  - rojo: 7-10
+- HADS (ansiedad/depresión):
+  - verde: 0-7
+  - naranja: 8-10
+  - rojo: >=11
+- DLQI:
+  - verde: 0-1
+  - verde suave: 2-5
+  - naranja: 6-10
+  - rojo: >=11
+- HSQoL-24:
+  - basado en interpretación (`Sin impacto/Leve`, `Moderado`, `Severo`) y, si no está disponible, en los rangos internos del formulario.
+
+Título de apoyo aplicado en UI: `Orientativo para priorización/lectura rápida`.
