@@ -158,6 +158,33 @@ Cada botón “Copiar Excel” genera una fila compatible con `BD_VISITAS_HS`.
 
 ---
 
+## Fase 3 — Importación Excel maestro y precarga temporal
+
+### Objetivo
+Permitir carga manual de una base Excel `BD_VISITAS_HS` en una herramienta estática, con almacenamiento temporal de sesión y precarga asistida en seguimiento.
+
+### Tareas
+- Cargar `vendor/xlsx.full.min.js` localmente (sin CDN).
+- Añadir UI mínima para cargar Excel maestro y mostrar estado de carga.
+- Leer hoja `BD_VISITAS_HS` y validar columnas críticas.
+- Guardar registros en memoria y `sessionStorage` de la pestaña.
+- Recuperar base cargada al recargar dentro de la misma sesión.
+- Buscar pacientes por `nuhsa` o `codigo_hs`.
+- Precargar en Seguimiento:
+  - fecha última consulta;
+  - tiempo desde última consulta;
+  - IHS4 previo;
+  - Hurley orientativo;
+  - peso previo;
+  - tabaco previo;
+  - tratamiento activo previo.
+- Validar flujo con `templates/BD_VISITAS_HS_sintetico.xlsx`.
+
+### Resultado esperado
+La pestaña de Seguimiento puede apoyarse en una base longitudinal temporal, sin backend y sin persistencia tras cerrar la pestaña.
+
+---
+
 ## Fase 4 — Refactor modular
 
 ### Objetivo

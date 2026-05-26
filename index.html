@@ -744,6 +744,63 @@
             color: #334155;
         }
 
+        .import-panel {
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .import-panel-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .import-panel-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .import-status {
+            font-size: 0.9rem;
+            color: #334155;
+        }
+
+        .import-error {
+            color: #991b1b;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.86rem;
+            margin-top: 8px;
+        }
+
+        .import-warning {
+            color: #92400e;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.86rem;
+            margin-top: 8px;
+        }
+
+        .import-ok {
+            color: #065f46;
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.86rem;
+            margin-top: 8px;
+        }
+
         .fab-bar {
             position: fixed;
             bottom: 0;
@@ -1416,6 +1473,7 @@
                 <div><label>NUHSA <span style="color:red">*</span></label><input type="text" id="sg_nuhsa"
                         placeholder="AN...">
                 </div>
+                <div><label>Código HS</label><input type="text" id="sg_codigo_hs" placeholder="HS0001"></div>
                 <div><label>Fecha visita <span class="label-star">(*)</span></label><input type="date" id="sg_fechaVisita"></div>
                 <div><label>Hurley basal</label>
                     <select id="sg_hurley">
@@ -1450,6 +1508,22 @@
                 <p class="info-text">El cálculo actual de tiempo desde última consulta usa fecha de visita + fecha última
                     consulta manual. La validación automática contra base se realizará cuando esté disponible la
                     importación de Excel maestro con datos sintéticos.</p>
+                <div class="import-panel">
+                    <div class="import-panel-title">Base longitudinal cargada</div>
+                    <div class="import-panel-row">
+                        <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
+                        <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar Excel maestro</button>
+                        <button type="button" class="btn btn-outline" id="sg_find_last_visit_btn"><i class="fas fa-search"></i> Buscar última visita</button>
+                    </div>
+                    <div class="import-status" id="master_excel_status">Sin base cargada</div>
+                    <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
+                    <div id="master_excel_warnings" style="display:none;"></div>
+                    <div id="master_excel_error" style="display:none;"></div>
+                </div>
+                <div class="import-panel">
+                    <div class="import-panel-title">Última visita encontrada</div>
+                    <div class="import-status" id="sg_last_visit_summary">Sin visita previa encontrada en la base cargada.</div>
+                </div>
             </div>
         </div>
 
@@ -2273,10 +2347,20 @@
             Informe</button>
     </div>
 
+    <script src="vendor/xlsx.full.min.js"></script>
     <script>
         // === SISTEMA DE PESTAÑAS ===
         let activeTab = 'pv';
         const TOOL_VERSION = "v1.3-longitudinal-export";
+        const TOOL_VERSION_IMPORT = "v1.4-excel-master-import";
+        const MASTER_DB_SESSION_KEY = 'hs_master_db';
+        const MASTER_DB_LOADED_AT_SESSION_KEY = 'hs_master_db_loaded_at';
+        const REQUIRED_IMPORT_COLUMNS = [
+            'fecha_visita', 'tipo_visita', 'nuhsa', 'codigo_hs', 'ihs4_actual',
+            'hurley_enfermeria', 'peso_kg', 'tabaco_estado', 'tratamiento_activo'
+        ];
+        let masterDb = [];
+        let masterDbLoadedAt = null;
         const MASTER_COLUMNS = [
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
             'fecha_visita', 'nuhsa', 'codigo_hs', 'edad', 'sexo', 'situacion_laboral',
@@ -2306,6 +2390,395 @@
             'detalle_complicaciones', 'foto_clinica', 'proxima_cura', 'frecuencia_cura',
             'necesidades_valorar_dermatologia', 'proxima_cita_enfermeria', 'notas_enfermeria'
         ];
+
+        function showImportError(message) {
+            var el = document.getElementById('master_excel_error');
+            if (!el) return;
+            el.className = 'import-error';
+            el.style.display = 'block';
+            el.textContent = message || '';
+        }
+
+        function clearImportError() {
+            var el = document.getElementById('master_excel_error');
+            if (!el) return;
+            el.style.display = 'none';
+            el.textContent = '';
+        }
+
+        function showImportWarnings(messages) {
+            var el = document.getElementById('master_excel_warnings');
+            if (!el) return;
+            var list = (messages || []).filter(Boolean);
+            if (!list.length) {
+                el.style.display = 'none';
+                el.textContent = '';
+                el.className = '';
+                return;
+            }
+            el.className = 'import-warning';
+            el.style.display = 'block';
+            el.innerHTML = list.map(function (msg) { return '- ' + msg; }).join('<br>');
+        }
+
+        function showImportSuccess(message) {
+            var el = document.getElementById('master_excel_warnings');
+            if (!el) return;
+            el.className = 'import-ok';
+            el.style.display = 'block';
+            el.textContent = message || '';
+        }
+
+        function updateMasterDbStatus(warnings) {
+            var statusEl = document.getElementById('master_excel_status');
+            var loadedEl = document.getElementById('master_excel_loaded_at');
+            var uniquePatients = {};
+            masterDb.forEach(function (row) {
+                var key = normalizePatientId(row.nuhsa || row.codigo_hs);
+                if (key) uniquePatients[key] = true;
+            });
+            var nPatients = Object.keys(uniquePatients).length;
+            if (statusEl) {
+                statusEl.textContent = masterDb.length ? ('Base cargada: ' + masterDb.length + ' registros / ' + nPatients + ' pacientes') : 'Sin base cargada';
+            }
+            if (loadedEl) {
+                loadedEl.textContent = masterDbLoadedAt ? ('Última carga: ' + masterDbLoadedAt) : 'Última carga: —';
+            }
+            if (warnings && warnings.length) showImportWarnings(warnings);
+        }
+
+        function persistMasterDbToSession() {
+            try {
+                sessionStorage.setItem(MASTER_DB_SESSION_KEY, JSON.stringify(masterDb));
+                sessionStorage.setItem(MASTER_DB_LOADED_AT_SESSION_KEY, masterDbLoadedAt || '');
+            } catch (err) {
+                showImportWarnings(['No se pudo guardar la base en sessionStorage (límite del navegador o política de seguridad).']);
+            }
+        }
+
+        function restoreMasterDbFromSession() {
+            try {
+                var raw = sessionStorage.getItem(MASTER_DB_SESSION_KEY);
+                var loadedAt = sessionStorage.getItem(MASTER_DB_LOADED_AT_SESSION_KEY);
+                if (!raw) return;
+                var parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed)) return;
+                masterDb = parsed.filter(function (row) { return row && typeof row === 'object'; });
+                masterDbLoadedAt = loadedAt || null;
+                updateMasterDbStatus([]);
+                showImportSuccess('Base restaurada desde la sesión actual.');
+            } catch (err) {
+                masterDb = [];
+                masterDbLoadedAt = null;
+                updateMasterDbStatus([]);
+                showImportWarnings(['No se pudo restaurar la base previa de la sesión.']);
+            }
+        }
+
+        function getRowValueByHeader(rowValues, headerIndexMap, columnName) {
+            var idx = headerIndexMap[columnName];
+            if (idx === undefined || idx === null) return '';
+            var value = rowValues[idx];
+            return value === undefined || value === null ? '' : String(value).trim();
+        }
+
+        function isRowCompletelyEmpty(record) {
+            return Object.keys(record).every(function (key) {
+                return !String(record[key] || '').trim();
+            });
+        }
+
+        function normalizePatientId(value) {
+            return (value || '').toString().trim().toUpperCase();
+        }
+
+        function normalizeVisitType(value) {
+            return normalizePatientId(value);
+        }
+
+        function parseVisitDate(value) {
+            if (!value) return null;
+            if (typeof value === 'number' && window.XLSX && XLSX.SSF) {
+                var parsedDate = XLSX.SSF.parse_date_code(value);
+                if (parsedDate && parsedDate.y && parsedDate.m && parsedDate.d) {
+                    return new Date(parsedDate.y, parsedDate.m - 1, parsedDate.d);
+                }
+            }
+            var str = String(value).trim();
+            if (!str) return null;
+            var d = new Date(str);
+            if (isNaN(d.getTime())) return null;
+            return d;
+        }
+
+        function formatDateToYmd(dateObj) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return '';
+            var y = dateObj.getFullYear();
+            var m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            var d = String(dateObj.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+
+        function calculateTimeSinceText(fromDateValue, toDateValue) {
+            var fromDate = parseVisitDate(fromDateValue);
+            var toDate = parseVisitDate(toDateValue);
+            if (!fromDate || !toDate) return '';
+            var diffMs = toDate - fromDate;
+            if (isNaN(diffMs) || diffMs < 0) return '';
+            var days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            if (days < 90) return days + ' días';
+            var months = Math.round(days / 30.44);
+            return months + ' meses aprox.';
+        }
+
+        function getPatientRecords(identifier) {
+            var normalized = normalizePatientId(identifier);
+            if (!normalized) return [];
+            return masterDb.filter(function (record) {
+                var byNuhsa = normalizePatientId(record.nuhsa) === normalized;
+                var byCode = normalizePatientId(record.codigo_hs) === normalized;
+                return byNuhsa || byCode;
+            }).sort(function (a, b) {
+                var da = parseVisitDate(a.fecha_visita);
+                var db = parseVisitDate(b.fecha_visita);
+                var ta = da ? da.getTime() : -1;
+                var tb = db ? db.getTime() : -1;
+                return ta - tb;
+            });
+        }
+
+        function getLastPatientRecord(identifier, beforeDate) {
+            var records = getPatientRecords(identifier);
+            if (!records.length) return null;
+            var before = beforeDate ? parseVisitDate(beforeDate) : null;
+            var filtered = records.filter(function (r) {
+                if (!before) return true;
+                var d = parseVisitDate(r.fecha_visita);
+                return d && d.getTime() < before.getTime();
+            });
+            if (!filtered.length) return null;
+            return filtered[filtered.length - 1];
+        }
+
+        function getLastClinicalRecord(identifier, beforeDate) {
+            var records = getPatientRecords(identifier);
+            if (!records.length) return null;
+            var before = beforeDate ? parseVisitDate(beforeDate) : null;
+            var filtered = records.filter(function (r) {
+                if (before) {
+                    var d = parseVisitDate(r.fecha_visita);
+                    if (!d || d.getTime() >= before.getTime()) return false;
+                }
+                var visitType = normalizeVisitType(r.tipo_visita);
+                return visitType === 'PV' || visitType === 'SG';
+            });
+            if (filtered.length) return filtered[filtered.length - 1];
+            return null;
+        }
+
+        function updateLastVisitSummary(record, clinicalRecord) {
+            var summaryEl = document.getElementById('sg_last_visit_summary');
+            if (!summaryEl) return;
+            if (!record) {
+                summaryEl.textContent = 'Sin visita previa encontrada en la base cargada.';
+                return;
+            }
+            var ihs4Source = clinicalRecord || record;
+            summaryEl.innerHTML =
+                'Fecha: ' + (record.fecha_visita || 'NR') +
+                ' | Tipo: ' + (record.tipo_visita || 'NR') +
+                '<br>IHS4 previo: ' + (ihs4Source.ihs4_actual || 'NR') +
+                ' | Hurley: ' + (ihs4Source.hurley_enfermeria || 'NR') +
+                ' | Peso previo: ' + (record.peso_kg || 'NR') +
+                '<br>Tratamiento activo previo: ' + (record.tratamiento_activo || 'NR') +
+                ' | Tabaco previo: ' + (record.tabaco_estado || 'NR') +
+                ' | Código HS: ' + (record.codigo_hs || 'NR');
+        }
+
+        function maybeSetFieldValue(fieldId, value, options) {
+            var opts = options || {};
+            var input = document.getElementById(fieldId);
+            if (!input || value === undefined || value === null || value === '') return false;
+            var nextValue = String(value);
+            var currentValue = String(input.value || '');
+            if (!currentValue) {
+                input.value = nextValue;
+                if (typeof opts.onSet === 'function') opts.onSet();
+                return true;
+            }
+            if (currentValue === nextValue) return false;
+            var ask = window.confirm('El campo "' + (opts.label || fieldId) + '" ya tiene valor. ¿Desea sobrescribirlo con el dato de la base cargada?');
+            if (!ask) return false;
+            input.value = nextValue;
+            if (typeof opts.onSet === 'function') opts.onSet();
+            return true;
+        }
+
+        function applyLastVisitPreload() {
+            clearImportError();
+            if (!masterDb.length) {
+                showImportWarnings([]);
+                showImportError('No hay base longitudinal cargada. Introduzca los datos manualmente.');
+                updateLastVisitSummary(null, null);
+                return;
+            }
+
+            var identifier = valueOf('sg_nuhsa') || valueOf('sg_codigo_hs');
+            if (!normalizePatientId(identifier)) {
+                showImportError('Introduzca NUHSA o código HS antes de buscar la última visita.');
+                return;
+            }
+
+            var currentVisitDate = valueOf('sg_fechaVisita');
+            var lastRecord = getLastPatientRecord(identifier, currentVisitDate || null);
+            var lastClinical = getLastClinicalRecord(identifier, currentVisitDate || null);
+            if (!lastRecord) {
+                showImportWarnings([]);
+                showImportError('Paciente no encontrado en la base cargada.');
+                updateLastVisitSummary(null, null);
+                return;
+            }
+
+            showImportWarnings([]);
+            updateLastVisitSummary(lastRecord, lastClinical);
+            var clinicalSource = lastClinical || lastRecord;
+            maybeSetFieldValue('sg_fecha_ultima_consulta', lastRecord.fecha_visita, {
+                label: 'Fecha última consulta',
+                onSet: function () { calcTiempoDesdeUltima_sg(); }
+            });
+            if (valueOf('sg_fechaVisita')) {
+                var calcText = calculateTimeSinceText(lastRecord.fecha_visita, valueOf('sg_fechaVisita'));
+                if (calcText) maybeSetFieldValue('sg_tiempo_desde_ultima', calcText, { label: 'Tiempo desde última consulta' });
+            } else {
+                showImportWarnings(['No se calculó "Tiempo desde última consulta" porque falta la fecha de visita de seguimiento.']);
+            }
+            maybeSetFieldValue('sg_ihs4_previo', clinicalSource.ihs4_actual, { label: 'IHS4 previo' });
+            maybeSetFieldValue('sg_hurley', clinicalSource.hurley_enfermeria, { label: 'Hurley basal' });
+            maybeSetFieldValue('sg_peso', lastRecord.peso_kg, { label: 'Peso previo', onSet: function () { calcIMC_sg(); } });
+            maybeSetFieldValue('sg_tabaco', lastRecord.tabaco_estado, { label: 'Tabaco previo' });
+            maybeSetFieldValue('sg_tratamiento_realizado', lastRecord.tratamiento_activo, { label: 'Tratamiento previo/activo' });
+            maybeSetFieldValue('sg_codigo_hs', lastRecord.codigo_hs, { label: 'Código HS' });
+            showImportSuccess('Precarga aplicada desde la última visita encontrada.');
+        }
+
+        function validateImportHeaders(headers) {
+            var normalizedHeaders = headers.map(function (h) { return String(h || '').trim(); });
+            var missingCritical = REQUIRED_IMPORT_COLUMNS.filter(function (col) {
+                return normalizedHeaders.indexOf(col) === -1;
+            });
+            if (missingCritical.length) {
+                return {
+                    ok: false,
+                    warnings: [],
+                    error: 'Faltan columnas críticas en BD_VISITAS_HS: ' + missingCritical.join(', ')
+                };
+            }
+
+            var missingMasterColumns = MASTER_COLUMNS.filter(function (col) {
+                return normalizedHeaders.indexOf(col) === -1;
+            });
+            var extraColumns = normalizedHeaders.filter(function (col) {
+                return MASTER_COLUMNS.indexOf(col) === -1;
+            });
+            var warnings = [];
+            if (missingMasterColumns.length) warnings.push('El Excel no contiene todas las columnas maestras (' + missingMasterColumns.length + ' faltantes). Se usará carga parcial.');
+            if (extraColumns.length) warnings.push('Se detectaron columnas adicionales (' + extraColumns.length + '). No bloquean la carga.');
+            return { ok: true, warnings: warnings, error: '' };
+        }
+
+        function handleMasterExcelUpload(file) {
+            clearImportError();
+            showImportWarnings([]);
+            if (!file) return;
+            if (!window.XLSX || !XLSX.read) {
+                showImportError('SheetJS no está disponible. Revise que exista vendor/xlsx.full.min.js.');
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (evt) {
+                try {
+                    var data = new Uint8Array(evt.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    var sheet = workbook.Sheets['BD_VISITAS_HS'];
+                    if (!sheet) {
+                        showImportError('El archivo no contiene la hoja obligatoria BD_VISITAS_HS.');
+                        return;
+                    }
+
+                    var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: true });
+                    if (!rows.length || !rows[0] || !rows[0].length) {
+                        showImportError('La hoja BD_VISITAS_HS no contiene cabeceras ni registros.');
+                        return;
+                    }
+
+                    var headers = rows[0].map(function (h) { return String(h || '').trim(); });
+                    var validation = validateImportHeaders(headers);
+                    if (!validation.ok) {
+                        showImportError(validation.error);
+                        return;
+                    }
+
+                    var headerIndexMap = {};
+                    headers.forEach(function (h, idx) { headerIndexMap[h] = idx; });
+
+                    var loadedRows = [];
+                    for (var i = 1; i < rows.length; i++) {
+                        var rowValues = rows[i] || [];
+                        var record = {};
+                        headers.forEach(function (h) {
+                            record[h] = getRowValueByHeader(rowValues, headerIndexMap, h);
+                        });
+                        if (isRowCompletelyEmpty(record)) continue;
+                        loadedRows.push(record);
+                    }
+
+                    if (!loadedRows.length) {
+                        showImportError('La hoja BD_VISITAS_HS no contiene registros útiles.');
+                        return;
+                    }
+
+                    masterDb = loadedRows;
+                    masterDbLoadedAt = new Date().toLocaleString('es-ES');
+                    persistMasterDbToSession();
+                    updateMasterDbStatus(validation.warnings || []);
+                    showImportSuccess('Archivo cargado correctamente en memoria de sesión.');
+                    updateLastVisitSummary(null, null);
+                } catch (err) {
+                    showImportError('No se pudo procesar el archivo Excel: ' + (err && err.message ? err.message : 'error desconocido'));
+                }
+            };
+            reader.onerror = function () {
+                showImportError('No se pudo leer el archivo seleccionado.');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function initMasterExcelUI() {
+            updateMasterDbStatus([]);
+            restoreMasterDbFromSession();
+            var fileInput = document.getElementById('master_excel_file');
+            var loadBtn = document.getElementById('master_excel_load_btn');
+            var findBtn = document.getElementById('sg_find_last_visit_btn');
+            if (loadBtn && fileInput) {
+                loadBtn.addEventListener('click', function () {
+                    clearImportError();
+                    if (!window.XLSX || !XLSX.read) {
+                        showImportError('SheetJS no está disponible. Revise vendor/xlsx.full.min.js.');
+                        return;
+                    }
+                    fileInput.click();
+                });
+            }
+            if (fileInput) {
+                fileInput.addEventListener('change', function (evt) {
+                    var file = evt.target.files && evt.target.files[0];
+                    handleMasterExcelUpload(file);
+                    evt.target.value = '';
+                });
+            }
+            if (findBtn) findBtn.addEventListener('click', applyLastVisitPreload);
+        }
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => { el.className = 'tab-btn'; });
@@ -2745,6 +3218,7 @@
         }
 
         initializeCollapsedSections();
+        initMasterExcelUI();
 
         // =============================================
         // === SEGUIMIENTO SCRIPTS ===
@@ -2761,13 +3235,9 @@
             var fechaActual = document.getElementById('sg_fechaVisita').value;
             var fechaUltima = document.getElementById('sg_fecha_ultima_consulta').value;
             if (!fechaActual || !fechaUltima) return;
-            var dActual = new Date(fechaActual);
-            var dUltima = new Date(fechaUltima);
-            var diffMs = dActual - dUltima;
-            if (isNaN(diffMs) || diffMs < 0) return;
-            var dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-            var meses = (dias / 30.44).toFixed(1);
-            document.getElementById('sg_tiempo_desde_ultima').value = dias + ' días (~' + meses + ' meses)';
+            var text = calculateTimeSinceText(fechaUltima, fechaActual);
+            if (!text) return;
+            document.getElementById('sg_tiempo_desde_ultima').value = text;
         }
         document.getElementById('sg_fechaVisita').addEventListener('change', calcTiempoDesdeUltima_sg);
         document.getElementById('sg_fecha_ultima_consulta').addEventListener('change', calcTiempoDesdeUltima_sg);
@@ -2949,6 +3419,7 @@
                 tipo_visita: 'SG',
                 fecha_visita: valueOf('sg_fechaVisita'),
                 nuhsa: valueOf('sg_nuhsa'),
+                codigo_hs: valueOf('sg_codigo_hs'),
                 tabaco_estado: valueOf('sg_tabaco'),
                 ejercicio: valueOf('sg_ejercicio'),
                 sueno: valueOf('sg_sueno'),
