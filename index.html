@@ -2274,6 +2274,36 @@
     <script>
         // === SISTEMA DE PESTAÑAS ===
         let activeTab = 'pv';
+        const TOOL_VERSION = "v1.3-longitudinal-export";
+        const MASTER_COLUMNS = [
+            'fecha_exportacion', 'version_herramienta', 'tipo_visita',
+            'fecha_visita', 'nuhsa', 'codigo_hs', 'edad', 'sexo', 'situacion_laboral',
+            'anio_inicio_sintomas', 'anio_diagnostico', 'retraso_diagnostico', 'profesional_diagnostico',
+            'antecedentes_familiares_hs', 'brotes_ultimo_anio', 'fiebre_brotes', 'urgencias_hs_ultimo_anio',
+            'cirugias_previas_hs', 'biologico_previo', 'tratamientos_previos_relevantes',
+            'gine_obst', 'deseos_genesicos',
+            'tabaco_estado', 'cigarrillos_dia', 'anios_fumando', 'intentos_cesacion', 'alcohol_ube_semana',
+            'ejercicio', 'sueno',
+            'peso_kg', 'talla_m', 'imc', 'perimetro_abdominal_cm', 'ta', 'hta', 'dislipemia', 'diabetes', 'obesidad',
+            'acne_grave_conglobata', 'sinus_pilonidal', 'eii_digestivo', 'espa_osteoarticular', 'ansiedad_dx',
+            'depresion_dx', 'malestar_emocional_alto', 'sop', 'brotes_perimenstruales', 'aco_actual',
+            'hurley_enfermeria', 'ihs4_previo', 'ihs4_actual', 'gravedad_ihs4', 'nodulos_total', 'abscesos_total',
+            'fistulas_total', 'zonas_activas_n', 'zonas_activas_listado', 'eva_dolor', 'eva_prurito', 'eva_supuracion',
+            'fecha_ultima_consulta', 'tiempo_desde_ultima_consulta', 'estado_global_referido', 'brotes_desde_ultima_visita',
+            'tratamiento_realizado_desde_ultima', 'tratamiento_activo', 'suspension_prematura', 'motivo_suspension',
+            'adherencia_morisky_score', 'adherencia_morisky_interpretacion', 'adherencia_morisky_patron',
+            'efectos_adversos', 'detalle_efectos_adversos', 'autoinyeccion', 'rotacion_punto_inyeccion', 'almacenamiento_correcto',
+            'dlqi_total', 'hads_ansiedad_total', 'hads_depresion_total', 'hsqol24_total', 'hsqol24_interpretacion',
+            'impacto_sexual', 'aislamiento_social',
+            'educacion_sanitaria_realizada', 'material_educativo_entregado', 'refuerzo_educativo_realizado',
+            'cura_hoy', 'tipo_herida', 'aposito_cura', 'notas_cura',
+            'n_cura', 'fecha_intervencion', 'cirujano', 'tipo_intervencion', 'tipo_cierre', 'localizacion_qx',
+            'eva_pre_cura', 'eva_post_cura', 'analgesia_pre_cura', 'anestesia_local', 'hstime', 'herida_dimensiones',
+            'herida_color_lecho', 'herida_olor', 'piel_perilesional', 'sangrado', 'solucion_limpieza', 'desbridamiento',
+            'lavado_h2o2', 'aposito_primario', 'aposito_secundario', 'fijacion', 'tpn', 'complicaciones',
+            'detalle_complicaciones', 'foto_clinica', 'proxima_cura', 'frecuencia_cura',
+            'necesidades_valorar_dermatologia', 'proxima_cita_enfermeria', 'notas_enfermeria'
+        ];
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => { el.className = 'tab-btn'; });
@@ -2326,6 +2356,54 @@
             return {
                 count: active.length,
                 list: active.length ? active.join(', ') : 'Ninguna'
+            };
+        }
+        function valueOf(id) {
+            var el = document.getElementById(id);
+            return el ? el.value : '';
+        }
+        function textOf(id) {
+            var el = document.getElementById(id);
+            return el ? (el.innerText || '') : '';
+        }
+        function normalizeText(text) {
+            return (text || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+        function severityFromIhs4(value) {
+            var score = parseInt(value, 10);
+            if (isNaN(score)) return '';
+            if (score < 4) return 'Leve';
+            if (score <= 10) return 'Moderado';
+            return 'Grave';
+        }
+        function getEmptyMasterRow() {
+            var row = {};
+            MASTER_COLUMNS.forEach(function (column) { row[column] = ''; });
+            return row;
+        }
+        function buildMasterRow(data) {
+            var row = getEmptyMasterRow();
+            Object.keys(data || {}).forEach(function (key) {
+                if (Object.prototype.hasOwnProperty.call(row, key) && data[key] !== undefined && data[key] !== null) {
+                    row[key] = String(data[key]);
+                }
+            });
+            return row;
+        }
+        function exportRowToClipboard(row) {
+            var line = MASTER_COLUMNS.map(function (column) { return row[column] || ''; }).join('\t');
+            return navigator.clipboard.writeText(line).then(function () { alert("Datos copiados (pegar en Excel)"); });
+        }
+        function getMasterHeader() {
+            return MASTER_COLUMNS.join('\t');
+        }
+        function parseHadsSummary(summary) {
+            var raw = summary || '';
+            var aMatch = raw.match(/A\s*(\d+)/i);
+            var dMatch = raw.match(/D\s*(\d+)/i);
+            return {
+                ansiedad: aMatch ? aMatch[1] : '',
+                depresion: dMatch ? dMatch[1] : ''
             };
         }
         function exportActiveTab() {
@@ -2536,56 +2614,89 @@
 
         // Export / Report (PV)
         function exportData_pv() {
-            var coms = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return e.innerText; }).join('; ');
+            var comorbTexts = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return e.innerText; });
+            var coms = comorbTexts.join('; ');
             var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return e.innerText.replace(/^.*?\s/, ''); }).join('; ');
             var activeData = getActiveZoneData(pv_ihsData, pv_regions);
-            var row = [
-                document.getElementById('pv_fechaVisita').value,
-                document.getElementById('pv_nuhsa').value,
-                'PRIMERA VISITA',
-                document.getElementById('pv_prof_dx').value,
-                document.getElementById('pv_edad').value,
-                document.getElementById('pv_sexo').value,
-                document.getElementById('pv_anio_ini').value,
-                document.getElementById('pv_anio_dx').value,
-                document.getElementById('pv_retraso_dx').value,
-                document.getElementById('pv_fiebre').value,
-                document.getElementById('pv_antecedentes_familiares').value,
-                document.getElementById('pv_gine_obst').value,
-                document.getElementById('pv_deseos_genesicos').value,
-                document.getElementById('pv_tx_previos').value,
-                document.getElementById('pv_hurley_val').value,
-                document.getElementById('pv_final_ihs4').innerText,
-                document.getElementById('pv_tot_n').innerText,
-                document.getElementById('pv_tot_a').innerText,
-                document.getElementById('pv_tot_f').innerText,
-                activeData.count,
-                activeData.list,
-                document.getElementById('pv_imc').value,
-                document.getElementById('pv_peso').value,
-                document.getElementById('pv_talla').value,
-                document.getElementById('pv_perimetro').value,
-                document.getElementById('pv_ta').value,
-                document.getElementById('pv_tabaco').value,
-                document.getElementById('pv_cig_dia').value,
-                document.getElementById('pv_anios_fumando').value,
-                document.getElementById('pv_alcohol_ube_semana').value,
-                document.getElementById('pv_ejercicio').value,
-                document.getElementById('pv_sueno').value,
-                document.getElementById('pv_dlqi_display').value,
-                document.getElementById('pv_hsqol_display').value,
-                document.getElementById('pv_hads_a_display').value,
-                document.getElementById('pv_hads_d_display').value,
-                document.getElementById('pv_eva_dolor').value,
-                document.getElementById('pv_eva_prurito').value,
-                document.getElementById('pv_eva_supuracion').value,
-                coms, edus,
-                document.getElementById('pv_material_entregado').value,
-                document.getElementById('pv_derivaciones').value,
-                document.getElementById('pv_notas').value,
-                document.getElementById('pv_prox_cita').value
-            ].join('\t');
-            navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel con Ctrl+V)"); });
+            function hasComorb(fragment) {
+                var normalizedFragment = normalizeText(fragment);
+                return comorbTexts.some(function (label) { return normalizeText(label).indexOf(normalizedFragment) >= 0; }) ? 'Si' : 'No';
+            }
+            var ihs4Actual = textOf('pv_final_ihs4');
+            var row = buildMasterRow({
+                fecha_exportacion: new Date().toISOString(),
+                version_herramienta: TOOL_VERSION,
+                tipo_visita: 'PV',
+                fecha_visita: valueOf('pv_fechaVisita'),
+                nuhsa: valueOf('pv_nuhsa'),
+                edad: valueOf('pv_edad'),
+                sexo: valueOf('pv_sexo'),
+                situacion_laboral: valueOf('pv_laboral'),
+                anio_inicio_sintomas: valueOf('pv_anio_ini'),
+                anio_diagnostico: valueOf('pv_anio_dx'),
+                retraso_diagnostico: valueOf('pv_retraso_dx'),
+                profesional_diagnostico: valueOf('pv_prof_dx'),
+                antecedentes_familiares_hs: valueOf('pv_antecedentes_familiares'),
+                brotes_ultimo_anio: valueOf('pv_n_medicos'),
+                fiebre_brotes: valueOf('pv_fiebre'),
+                urgencias_hs_ultimo_anio: valueOf('pv_n_urgencias'),
+                cirugias_previas_hs: valueOf('pv_n_cirugias'),
+                biologico_previo: valueOf('pv_bio_previo'),
+                tratamientos_previos_relevantes: valueOf('pv_tx_previos'),
+                gine_obst: valueOf('pv_gine_obst'),
+                deseos_genesicos: valueOf('pv_deseos_genesicos'),
+                tabaco_estado: valueOf('pv_tabaco'),
+                cigarrillos_dia: valueOf('pv_cig_dia'),
+                anios_fumando: valueOf('pv_anios_fumando'),
+                intentos_cesacion: valueOf('pv_cesacion_previa'),
+                alcohol_ube_semana: valueOf('pv_alcohol_ube_semana'),
+                ejercicio: valueOf('pv_ejercicio'),
+                sueno: valueOf('pv_sueno'),
+                peso_kg: valueOf('pv_peso'),
+                talla_m: valueOf('pv_talla'),
+                imc: valueOf('pv_imc'),
+                perimetro_abdominal_cm: valueOf('pv_perimetro'),
+                ta: valueOf('pv_ta'),
+                hta: hasComorb('hipertension'),
+                dislipemia: hasComorb('dislipemia'),
+                diabetes: hasComorb('diabetes'),
+                obesidad: hasComorb('obesidad'),
+                acne_grave_conglobata: hasComorb('acne grave'),
+                sinus_pilonidal: hasComorb('sinus pilonidal'),
+                eii_digestivo: hasComorb('eii/sintomas digestivos'),
+                espa_osteoarticular: hasComorb('espa'),
+                ansiedad_dx: hasComorb('ansiedad dx'),
+                depresion_dx: hasComorb('depresion dx'),
+                malestar_emocional_alto: hasComorb('malestar emocional alto'),
+                sop: hasComorb('sop'),
+                brotes_perimenstruales: hasComorb('brotes perimenstr'),
+                aco_actual: hasComorb('aco actual'),
+                hurley_enfermeria: valueOf('pv_hurley_val'),
+                ihs4_actual: ihs4Actual,
+                gravedad_ihs4: severityFromIhs4(ihs4Actual),
+                nodulos_total: textOf('pv_tot_n'),
+                abscesos_total: textOf('pv_tot_a'),
+                fistulas_total: textOf('pv_tot_f'),
+                zonas_activas_n: activeData.count,
+                zonas_activas_listado: activeData.list,
+                eva_dolor: valueOf('pv_eva_dolor'),
+                eva_prurito: valueOf('pv_eva_prurito'),
+                eva_supuracion: valueOf('pv_eva_supuracion'),
+                dlqi_total: valueOf('pv_dlqi_display'),
+                hads_ansiedad_total: valueOf('pv_hads_a_display'),
+                hads_depresion_total: valueOf('pv_hads_d_display'),
+                hsqol24_total: valueOf('pv_hsqol_display'),
+                hsqol24_interpretacion: valueOf('pv_hsqol_interp'),
+                impacto_sexual: valueOf('pv_sexual'),
+                aislamiento_social: valueOf('pv_aislamiento'),
+                educacion_sanitaria_realizada: edus,
+                material_educativo_entregado: valueOf('pv_material_entregado'),
+                refuerzo_educativo_realizado: valueOf('pv_material_entregado'),
+                necesidades_valorar_dermatologia: valueOf('pv_derivaciones'),
+                proxima_cita_enfermeria: valueOf('pv_prox_cita'),
+                notas_enfermeria: valueOf('pv_notas')
+            });
+            exportRowToClipboard(row);
         }
 
         function copyReport_pv() {
@@ -2827,48 +2938,65 @@
             var eas = Array.from(document.querySelectorAll('#tab-sg .ea-item.active')).map(function (e) { return e.innerText; }).join('; ');
             var drugs = getSelectedDrugs_sg().join('; ');
             var activeData = getActiveZoneData(sg_ihsData, sg_regions);
-            var row = [
-                document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '',
-                document.getElementById('sg_nuhsa').value,
-                'SEGUIMIENTO',
-                document.getElementById('sg_fecha_ultima_consulta').value,
-                document.getElementById('sg_tiempo_desde_ultima').value,
-                document.getElementById('sg_estado_global').value,
-                document.getElementById('sg_final_ihs4').innerText,
-                document.getElementById('sg_ihs4_previo').value,
-                document.getElementById('sg_tot_n').innerText,
-                document.getElementById('sg_tot_a').innerText,
-                document.getElementById('sg_tot_f').innerText,
-                activeData.count,
-                activeData.list,
-                document.getElementById('sg_n_brotes').value,
-                document.getElementById('sg_eva_dolor').value,
-                document.getElementById('sg_eva_prurito').value,
-                document.getElementById('sg_eva_supuracion').value,
-                document.getElementById('sg_peso').value,
-                document.getElementById('sg_imc').value,
-                drugs,
-                document.getElementById('sg_tratamiento_realizado').value,
-                document.getElementById('sg_suspension_prematura').value,
-                document.getElementById('sg_motivo_suspension').value,
-                document.getElementById('sg_adherencia_val').value,
-                eas,
-                document.getElementById('sg_sint_digestivos').value,
-                document.getElementById('sg_sint_digestivos_coment').value,
-                document.getElementById('sg_sint_osteoarticulares').value,
-                document.getElementById('sg_sint_osteoarticulares_coment').value,
-                document.getElementById('sg_sint_psiquiatricos').value,
-                document.getElementById('sg_sint_psiquiatricos_coment').value,
-                document.getElementById('sg_dlqi_display').value,
-                document.getElementById('sg_hsqol_display').value,
-                document.getElementById('sg_hads_total_display').value,
-                document.getElementById('sg_tabaco').value,
-                document.getElementById('sg_material_refuerzo').value,
-                document.getElementById('sg_derivaciones').value,
-                document.getElementById('sg_notas').value,
-                document.getElementById('sg_prox_cita').value
-            ].join('\t');
-            navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel)"); });
+            var hads = parseHadsSummary(valueOf('sg_hads_total_display'));
+            var ihs4Actual = textOf('sg_final_ihs4');
+            var row = buildMasterRow({
+                fecha_exportacion: new Date().toISOString(),
+                version_herramienta: TOOL_VERSION,
+                tipo_visita: 'SG',
+                fecha_visita: valueOf('sg_fechaVisita'),
+                nuhsa: valueOf('sg_nuhsa'),
+                tabaco_estado: valueOf('sg_tabaco'),
+                ejercicio: valueOf('sg_ejercicio'),
+                sueno: valueOf('sg_sueno'),
+                peso_kg: valueOf('sg_peso'),
+                talla_m: valueOf('sg_talla'),
+                imc: valueOf('sg_imc'),
+                eii_digestivo: valueOf('sg_sint_digestivos'),
+                espa_osteoarticular: valueOf('sg_sint_osteoarticulares'),
+                hurley_enfermeria: valueOf('sg_hurley'),
+                ihs4_previo: valueOf('sg_ihs4_previo'),
+                ihs4_actual: ihs4Actual,
+                gravedad_ihs4: severityFromIhs4(ihs4Actual),
+                nodulos_total: textOf('sg_tot_n'),
+                abscesos_total: textOf('sg_tot_a'),
+                fistulas_total: textOf('sg_tot_f'),
+                zonas_activas_n: activeData.count,
+                zonas_activas_listado: activeData.list,
+                eva_dolor: valueOf('sg_eva_dolor'),
+                eva_prurito: valueOf('sg_eva_prurito'),
+                eva_supuracion: valueOf('sg_eva_supuracion'),
+                fecha_ultima_consulta: valueOf('sg_fecha_ultima_consulta'),
+                tiempo_desde_ultima_consulta: valueOf('sg_tiempo_desde_ultima'),
+                estado_global_referido: valueOf('sg_estado_global'),
+                brotes_desde_ultima_visita: valueOf('sg_n_brotes'),
+                tratamiento_realizado_desde_ultima: valueOf('sg_tratamiento_realizado'),
+                tratamiento_activo: drugs,
+                suspension_prematura: valueOf('sg_suspension_prematura'),
+                motivo_suspension: valueOf('sg_motivo_suspension'),
+                adherencia_morisky_score: valueOf('sg_morisky_score'),
+                adherencia_morisky_interpretacion: valueOf('sg_adherencia_val'),
+                adherencia_morisky_patron: valueOf('sg_morisky_pattern'),
+                efectos_adversos: eas,
+                detalle_efectos_adversos: valueOf('sg_ea_detalle'),
+                autoinyeccion: valueOf('sg_autoinyec'),
+                rotacion_punto_inyeccion: valueOf('sg_rotacion'),
+                almacenamiento_correcto: valueOf('sg_almacen'),
+                dlqi_total: valueOf('sg_dlqi_display'),
+                hads_ansiedad_total: hads.ansiedad,
+                hads_depresion_total: hads.depresion,
+                hsqol24_total: valueOf('sg_hsqol_display'),
+                hsqol24_interpretacion: valueOf('sg_hsqol_interp'),
+                refuerzo_educativo_realizado: valueOf('sg_material_refuerzo'),
+                cura_hoy: valueOf('sg_cura_hoy'),
+                tipo_herida: valueOf('sg_tipo_herida'),
+                aposito_cura: valueOf('sg_aposito'),
+                notas_cura: valueOf('sg_notas_cura'),
+                necesidades_valorar_dermatologia: valueOf('sg_derivaciones'),
+                proxima_cita_enfermeria: valueOf('sg_prox_cita'),
+                notas_enfermeria: valueOf('sg_notas')
+            });
+            exportRowToClipboard(row);
         }
 
         function copyReport_sg() {
@@ -2932,24 +3060,44 @@
 
         function exportData_cx() {
             var comps = Array.from(document.querySelectorAll('#tab-cx .comp-item.active')).map(function (e) { return e.innerText; }).join('; ');
-            var row = [
-                document.getElementById('cx_fechaVisita').value,
-                document.getElementById('cx_nuhsa').value,
-                'CURA POST-QX',
-                document.getElementById('cx_n_cura').value,
-                document.getElementById('cx_tipo_qx').value,
-                document.getElementById('cx_tipo_cierre').value,
-                document.getElementById('cx_localizacion').value,
-                document.getElementById('cx_eva_pre').value,
-                document.getElementById('cx_eva_post').value,
-                getTimeSelections_cx(),
-                document.getElementById('cx_h_largo').value + 'x' + document.getElementById('cx_h_ancho').value + 'x' + document.getElementById('cx_h_prof').value,
-                document.getElementById('cx_apos_prim').value,
-                document.getElementById('cx_apos_sec').value,
-                comps,
-                document.getElementById('cx_freq_cura').value
-            ].join('\t');
-            navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel)"); });
+            var dimensiones = [valueOf('cx_h_largo'), valueOf('cx_h_ancho'), valueOf('cx_h_prof')].join('x');
+            var row = buildMasterRow({
+                fecha_exportacion: new Date().toISOString(),
+                version_herramienta: TOOL_VERSION,
+                tipo_visita: 'CX',
+                fecha_visita: valueOf('cx_fechaVisita'),
+                nuhsa: valueOf('cx_nuhsa'),
+                n_cura: valueOf('cx_n_cura'),
+                fecha_intervencion: valueOf('cx_fecha_qx'),
+                cirujano: valueOf('cx_cirujano'),
+                tipo_intervencion: valueOf('cx_tipo_qx'),
+                tipo_cierre: valueOf('cx_tipo_cierre'),
+                localizacion_qx: valueOf('cx_localizacion'),
+                eva_pre_cura: valueOf('cx_eva_pre'),
+                eva_post_cura: valueOf('cx_eva_post'),
+                analgesia_pre_cura: valueOf('cx_analgesia'),
+                anestesia_local: valueOf('cx_anestesia_local'),
+                hstime: getTimeSelections_cx(),
+                herida_dimensiones: dimensiones,
+                herida_color_lecho: valueOf('cx_h_color'),
+                herida_olor: valueOf('cx_h_olor'),
+                piel_perilesional: valueOf('cx_h_peri'),
+                sangrado: valueOf('cx_h_sangrado'),
+                solucion_limpieza: valueOf('cx_limpieza'),
+                desbridamiento: valueOf('cx_desbrid'),
+                lavado_h2o2: valueOf('cx_lavado_h2o2'),
+                aposito_primario: valueOf('cx_apos_prim'),
+                aposito_secundario: valueOf('cx_apos_sec'),
+                fijacion: valueOf('cx_fijacion'),
+                tpn: valueOf('cx_tpn'),
+                complicaciones: comps,
+                detalle_complicaciones: valueOf('cx_complic_detalle'),
+                foto_clinica: valueOf('cx_foto'),
+                proxima_cura: valueOf('cx_prox_cura'),
+                frecuencia_cura: valueOf('cx_freq_cura'),
+                notas_enfermeria: valueOf('cx_notas')
+            });
+            exportRowToClipboard(row);
         }
 
         function copyReport_cx() {
