@@ -937,6 +937,8 @@
                 <div class="grid-4" style="margin-top:15px;">
                     <div class="form-group"><label>Nº médicos previos</label><input type="number" id="pv_n_medicos"
                             placeholder="Antes del Dx"></div>
+                    <div class="form-group"><label>Brotes en el último año <span class="label-star">(*)</span></label><input type="number" id="pv_brotes_ultimo_anio"
+                            placeholder="Nº brotes"></div>
                     <div class="form-group"><label>Fiebre asociada a brotes <span class="label-star">(*)</span></label>
                         <select id="pv_fiebre">
                             <option>No</option>
@@ -2279,7 +2281,7 @@
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
             'fecha_visita', 'nuhsa', 'codigo_hs', 'edad', 'sexo', 'situacion_laboral',
             'anio_inicio_sintomas', 'anio_diagnostico', 'retraso_diagnostico', 'profesional_diagnostico',
-            'antecedentes_familiares_hs', 'brotes_ultimo_anio', 'fiebre_brotes', 'urgencias_hs_ultimo_anio',
+            'antecedentes_familiares_hs', 'brotes_ultimo_anio', 'n_medicos_previos', 'fiebre_brotes', 'urgencias_hs_ultimo_anio',
             'cirugias_previas_hs', 'biologico_previo', 'tratamientos_previos_relevantes',
             'gine_obst', 'deseos_genesicos',
             'tabaco_estado', 'cigarrillos_dia', 'anios_fumando', 'intentos_cesacion', 'alcohol_ube_semana',
@@ -2637,7 +2639,8 @@
                 retraso_diagnostico: valueOf('pv_retraso_dx'),
                 profesional_diagnostico: valueOf('pv_prof_dx'),
                 antecedentes_familiares_hs: valueOf('pv_antecedentes_familiares'),
-                brotes_ultimo_anio: valueOf('pv_n_medicos'),
+                brotes_ultimo_anio: valueOf('pv_brotes_ultimo_anio'),
+                n_medicos_previos: valueOf('pv_n_medicos'),
                 fiebre_brotes: valueOf('pv_fiebre'),
                 urgencias_hs_ultimo_anio: valueOf('pv_n_urgencias'),
                 cirugias_previas_hs: valueOf('pv_n_cirugias'),

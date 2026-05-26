@@ -30,7 +30,8 @@ Reglas de esta fase:
 | retraso_diagnostico | Retraso diagnóstico | texto | libre/calculado visible | PV | Calculado | Se mantiene el formato mostrado en UI |
 | profesional_diagnostico | Profesional que diagnostica | texto | libre | PV | Dermatología/Giovanna | |
 | antecedentes_familiares_hs | Antecedentes familiares HS | texto | Sí/No/Desconocido | PV | Dermatología/Giovanna | |
-| brotes_ultimo_anio | Brotes último año | número/texto | entero | PV | Dermatología/Giovanna | En fase actual se mapea a campo clínico disponible |
+| brotes_ultimo_anio | Brotes último año | número | entero | PV | Dermatología/Giovanna | Campo específico de brotes en Primera Visita |
+| n_medicos_previos | Nº médicos previos | número | entero | PV | Enfermería | Número de profesionales consultados antes del diagnóstico |
 | fiebre_brotes | Fiebre asociada a brotes | texto | Sí/No/No preguntado | PV | Dermatología/Giovanna | |
 | urgencias_hs_ultimo_anio | Urgencias HS último año | número | entero | PV | Dermatología/Giovanna | |
 | cirugias_previas_hs | Cirugías previas HS | número | entero | PV | Dermatología/Giovanna | |
