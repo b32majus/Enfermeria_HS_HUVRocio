@@ -5,10 +5,13 @@
 1. Abrir la herramienta.
 2. Cargar BD si existe (`Cargar / recargar BD`).
 3. Buscar paciente por `NUHSA` o `código HS` en el panel global.
-4. Elegir ruta clínica (Primera Visita, Seguimiento o Cura Post-Qx).
-5. Completar la visita actual.
-6. Copiar fila Excel (`Copiar fila Excel`).
-7. Copiar informe (`Copiar informe`).
+4. Revisar `código HS`:
+   - si existe, reutilizarlo;
+   - si no existe, asignarlo/generarlo desde el panel global o desde PV/SG/CX.
+5. Elegir ruta clínica (Primera Visita, Seguimiento o Cura Post-Qx).
+6. Completar la visita actual.
+7. Copiar fila Excel (`Copiar fila Excel`).
+8. Copiar informe (`Copiar informe`).
 
 ## Si no hay BD cargada
 
@@ -21,6 +24,16 @@
 - Se muestra `Paciente no encontrado en la base cargada`.
 - Puede continuarse la visita en manual.
 - En Seguimiento, se puede introducir `NUHSA`/`código HS` y reintentar precarga.
+- Si se trata de paciente nuevo con `NUHSA`, se puede generar `código HS` nuevo de forma explícita.
+
+## Código HS (operativo)
+
+- Formato obligatorio: `HS0001`, `HS0002`, `HS0003`...
+- Si el paciente ya tiene código en la base cargada, se reutiliza ese mismo código.
+- Si no tiene código, se genera el siguiente disponible (`max + 1`).
+- Si no hay BD cargada, la generación sigue disponible pero se avisa que no puede comprobarse unicidad histórica.
+- El `código HS` no sustituye al `NUHSA` en la consulta interna; se usa como identificador pseudonimizado para seguimiento/PROMs.
+- Para persistir oficialmente el código en la base del proyecto, hay que copiar y pegar la fila Excel exportada.
 
 ## Precarga en Seguimiento
 

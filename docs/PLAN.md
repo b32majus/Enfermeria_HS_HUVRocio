@@ -188,7 +188,7 @@ La pestaña de Seguimiento puede apoyarse en una base longitudinal temporal, sin
 
 ---
 
-## Fase 4 — Refactor modular
+## Fase futura — Refactor modular
 
 ### Objetivo
 Separar HTML, CSS y JS sin cambiar comportamiento.
@@ -232,6 +232,31 @@ Clarificar el flujo real de consulta (cargar base, buscar paciente y luego elegi
 
 ### Resultado esperado
 Flujo recomendado visible desde el inicio de la herramienta, menor carga visual en consulta y lectura clínica rápida con indicadores orientativos.
+
+---
+
+## Fase 4 — Código HS automático
+
+### Objetivo
+Incorporar generación y reutilización operativa de `codigo_hs` como identificador pseudonimizado interno del proyecto, manteniendo el flujo clínico actual sin backend.
+
+### Tareas
+- Normalizar entradas de código HS a formato `HS0001`.
+- Reutilizar `codigo_hs` si el paciente ya existe en la base cargada.
+- Generar `codigo_hs` nuevo (`max + 1`) cuando el paciente no tenga código previo.
+- Integrar la asignación/revisión de código en panel global y en PV/SG/CX.
+- Mantener exportación longitudinal sin cambios de columnas ni orden.
+- Mantener estado temporal en `sessionStorage` para apoyo durante la sesión.
+
+### Estado de avance
+- Lógica de normalización, validación y asignación de código integrada en la UI.
+- Reutilización automática al encontrar paciente con histórico.
+- Generación manual asistida para pacientes nuevos sin código.
+
+### Pendiente para fase posterior
+- Integración con Microsoft Forms.
+- Flujo QR para PROMs remotos.
+- Importación de PROMs remotos vinculados por `codigo_hs`.
 
 ---
 
