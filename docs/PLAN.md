@@ -97,6 +97,30 @@ Informe más útil para Giovanna y registro completo de Enfermería.
 
 ---
 
+## Fase 2.2 — Plantilla Excel BD_VISITAS_HS
+
+### Objetivo
+Disponer de una plantilla Excel oficial para uso de Enfermería y preparación de fases de importación.
+
+### Tareas
+- Generar plantilla `templates/BD_VISITAS_HS_template.xlsx`.
+- Mantener script reproducible en `scripts/generate_excel_template.py`.
+- Incluir hojas:
+  - `BD_VISITAS_HS`
+  - `DICCIONARIO_VARIABLES`
+  - `INSTRUCCIONES`
+
+### Estado de avance
+- Plantilla generada y versionada en repositorio.
+- Script reproducible disponible para regenerar la plantilla.
+
+### Pendiente para fase posterior
+- Carga de datos sintéticos longitudinales.
+- Importación Excel maestro.
+- Precarga automática de datos en seguimiento.
+
+---
+
 ## Fase 3 — Exportación longitudinal única
 
 ### Objetivo
