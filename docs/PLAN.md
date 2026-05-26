@@ -121,6 +121,26 @@ Disponer de una plantilla Excel oficial para uso de Enfermería y preparación d
 
 ---
 
+## Fase 2.3 — Datos sintéticos longitudinales
+
+### Objetivo
+Generar un archivo sintético longitudinal para pruebas técnicas de importación y precarga, sin usar datos reales.
+
+### Tareas
+- Generar `templates/BD_VISITAS_HS_sintetico.xlsx`.
+- Mantener script reproducible en `scripts/generate_synthetic_data.py`.
+- Incluir cohorte ficticia con escenarios de PV, SG y CX.
+
+### Estado de avance
+- Archivo sintético generado con el mismo esquema maestro de 122 columnas.
+- Script reproducible disponible para regenerar datos sintéticos.
+
+### Pendiente para fase posterior
+- Implementación de importación Excel maestro.
+- Uso de `sessionStorage` y precarga automática en la interfaz.
+
+---
+
 ## Fase 3 — Exportación longitudinal única
 
 ### Objetivo
