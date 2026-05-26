@@ -68,6 +68,7 @@ Alinear el formulario con la hoja habitual de Dermatología/Giovanna y limpiar c
   - síntomas psiquiátricos/salud mental;
   - refuerzo educativo/material si procede.
 - Cambiar “Derivaciones” por “Necesidades a valorar por Dermatología”.
+- Mantener estructura PROMs con cálculo total, dejando la incorporación del texto completo validado oficial para fase documental/licencias.
 
 ### Resultado esperado
 Formulario más alineado y limpio, sin cambiar todavía arquitectura profunda.
@@ -155,9 +156,34 @@ Permitir carga manual de Excel maestro y precarga de datos previos durante la se
   - comorbilidades conocidas;
   - último tratamiento registrado si existe.
 - Calcular tiempo desde última consulta si hay fecha previa.
+- Validar cálculo automático de tiempo desde última consulta con datos sintéticos tras la importación.
 
 ### Resultado esperado
 La herramienta ayuda a recuperar datos previos sin backend y sin persistencia tras cierre de sesión.
+
+---
+
+## Fase futura — Tratamiento estructurado (opcional)
+
+### Objetivo
+Estructurar tratamiento por módulos, sin sobrecargar la interfaz de Enfermería.
+
+### Tareas futuras
+- Mantener en fases iniciales campos simples de tratamiento:
+  - tratamiento realizado desde última visita;
+  - tratamiento activo;
+  - suspensión prematura y motivo;
+  - adherencia/Morisky;
+  - efectos adversos.
+- Diseñar módulos opcionales para evolución posterior:
+  - antibiótico;
+  - biológico;
+  - tópico;
+  - hormonal/metabólico;
+  - comorbilidades/otros.
+
+### Resultado esperado
+Mayor granularidad de tratamiento sin comprometer usabilidad en consulta.
 
 ---
 

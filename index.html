@@ -1198,6 +1198,9 @@
                 <i class="fas fa-chevron-down caret"></i>
             </div>
             <div id="pv_sec-proms" class="section-content">
+                <p class="info-text">Aviso PROMs: esta sección mantiene la estructura y el cálculo de puntuaciones, pero
+                    los textos completos validados en español (DLQI, HADS y HSQoL-24) quedan pendientes de incorporar
+                    con versión oficial autorizada. No usar los ítems mostrados como versión definitiva validada.</p>
                 <!-- Resumen Visual -->
                 <div class="grid-5" style="margin-bottom:25px;">
                     <div class="form-group"><label>DLQI Total</label><input type="text" id="pv_dlqi_display" readonly
@@ -1231,7 +1234,7 @@
                         <table class="clean-table">
                             <thead>
                                 <tr>
-                                    <th style="width:60%">Pregunta (Últimos 7 días)</th>
+                                    <th style="width:60%">Ítem (texto oficial pendiente)</th>
                                     <th class="radio-cell">+++</th>
                                     <th class="radio-cell">++</th>
                                     <th class="radio-cell">+</th>
@@ -1408,13 +1411,11 @@
                 <span><i class="fas fa-user-circle" style="margin-right:10px;"></i> 1. IDENTIFICACIÓN</span>
                 <i class="fas fa-chevron-down caret"></i>
             </div>
-            <div id="sg_sec-id" class="section-content grid-5">
+            <div id="sg_sec-id" class="section-content grid-4">
                 <div><label>NUHSA <span style="color:red">*</span></label><input type="text" id="sg_nuhsa"
                         placeholder="AN...">
                 </div>
                 <div><label>Fecha visita <span class="label-star">(*)</span></label><input type="date" id="sg_fechaVisita"></div>
-                <div><label>Nº Visita seguimiento</label><input type="number" id="sg_n_visita" placeholder="Ej: 2">
-                </div>
                 <div><label>Hurley basal</label>
                     <select id="sg_hurley">
                         <option value="">—</option>
@@ -1426,6 +1427,9 @@
                 <div><label>IHS4 previo <span class="label-star">(*)</span></label><input type="number" id="sg_ihs4_previo" placeholder="Último IHS4"></div>
             </div>
             <div class="section-content" style="padding-top:0;">
+                <p class="info-text">IHS4 previo y Hurley basal se mantienen como entrada manual temporal. En la fase
+                    de carga de Excel maestro se precargarán automáticamente desde la última visita registrada del
+                    paciente si existe base cargada.</p>
                 <p class="info-text">Clasificación orientativa registrada por Enfermería. Confirmación clínica por
                     Dermatología si procede.</p>
                 <div class="grid-4">
@@ -1442,6 +1446,9 @@
                     <div><label>Brotes desde última visita <span class="label-star">(*)</span></label><input type="number" id="sg_n_brotes"
                             placeholder="Nº brotes"></div>
                 </div>
+                <p class="info-text">El cálculo actual de tiempo desde última consulta usa fecha de visita + fecha última
+                    consulta manual. La validación automática contra base se realizará cuando esté disponible la
+                    importación de Excel maestro con datos sintéticos.</p>
             </div>
         </div>
 
@@ -1706,6 +1713,9 @@
                 <i class="fas fa-chevron-down caret"></i>
             </div>
             <div id="sg_sec-proms" class="section-content">
+                <p class="info-text">Aviso PROMs: esta sección mantiene la estructura y el cálculo de puntuaciones, pero
+                    los textos completos validados en español (DLQI, HADS y HSQoL-24) quedan pendientes de incorporar
+                    con versión oficial autorizada. No usar los ítems mostrados como versión definitiva validada.</p>
                 <div class="grid-3" style="margin-bottom:25px;">
                     <div><label>DLQI Total</label><input type="text" id="sg_dlqi_display" readonly value="0"
                             style="background:#f1f5f9; font-weight:700; color:var(--primary-color);"></div>
@@ -1727,7 +1737,7 @@
                         <table class="clean-table">
                             <thead>
                                 <tr>
-                                    <th style="width:60%">Pregunta (ultimos 7 dias)</th>
+                                    <th style="width:60%">Ítem (texto oficial pendiente)</th>
                                     <th class="radio-cell">+++</th>
                                     <th class="radio-cell">++</th>
                                     <th class="radio-cell">+</th>
@@ -2410,7 +2420,9 @@
         }
 
         // DLQI (PV)
-        var dlqiQs = ["1. Picor/Dolor", "2. Vergüenza", "3. Compras/Casa", "4. Ropa", "5. Social", "6. Deporte", "7. Trabajo", "8. Relaciones", "9. Sexualidad", "10. Tratamiento"];
+        var dlqiQs = Array.from({ length: 10 }, function (_, idx) {
+            return 'Ítem DLQI ' + (idx + 1) + ' — texto oficial validado pendiente';
+        });
         var dlqiBody = document.getElementById('pv_dlqi-body');
         dlqiQs.forEach(function (q, i) {
             dlqiBody.innerHTML += '<tr><td>' + q + '</td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="3" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="2" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="1" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="0" onchange="calcDLQI_pv()"></td></tr>';
@@ -2425,10 +2437,20 @@
 
         // HADS (PV)
         var hadsItems = [
-            { q: "1. Tenso", t: 'A', i: false }, { q: "2. Disfruto", t: 'D', i: true }, { q: "3. Miedo", t: 'A', i: false }, { q: "4. Reír", t: 'D', i: true },
-            { q: "5. Preocup.", t: 'A', i: false }, { q: "6. Alegre", t: 'D', i: true }, { q: "7. Tranquilo", t: 'A', i: true }, { q: "8. Lento", t: 'D', i: false },
-            { q: "9. Estómago", t: 'A', i: false }, { q: "10. Aspecto", t: 'D', i: false }, { q: "11. Inquieto", t: 'A', i: false }, { q: "12. Ilusión", t: 'D', i: true },
-            { q: "13. Pánico", t: 'A', i: false }, { q: "14. Libros", t: 'D', i: true }
+            { q: "Ítem HADS-A1 — texto oficial validado pendiente", t: 'A', i: false },
+            { q: "Ítem HADS-D1 — texto oficial validado pendiente", t: 'D', i: true },
+            { q: "Ítem HADS-A2 — texto oficial validado pendiente", t: 'A', i: false },
+            { q: "Ítem HADS-D2 — texto oficial validado pendiente", t: 'D', i: true },
+            { q: "Ítem HADS-A3 — texto oficial validado pendiente", t: 'A', i: false },
+            { q: "Ítem HADS-D3 — texto oficial validado pendiente", t: 'D', i: true },
+            { q: "Ítem HADS-A4 — texto oficial validado pendiente", t: 'A', i: true },
+            { q: "Ítem HADS-D4 — texto oficial validado pendiente", t: 'D', i: false },
+            { q: "Ítem HADS-A5 — texto oficial validado pendiente", t: 'A', i: false },
+            { q: "Ítem HADS-D5 — texto oficial validado pendiente", t: 'D', i: false },
+            { q: "Ítem HADS-A6 — texto oficial validado pendiente", t: 'A', i: false },
+            { q: "Ítem HADS-D6 — texto oficial validado pendiente", t: 'D', i: true },
+            { q: "Ítem HADS-A7 — texto oficial validado pendiente", t: 'A', i: false },
+            { q: "Ítem HADS-D7 — texto oficial validado pendiente", t: 'D', i: true }
         ];
         hadsItems.forEach(function (x, i) {
             var row = '<tr><td>' + x.q + '</td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 0 : 3) + '" onchange="calcHADS_pv()"></td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 1 : 2) + '" onchange="calcHADS_pv()"></td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 2 : 1) + '" onchange="calcHADS_pv()"></td><td class="radio-cell"><input type="radio" name="pv_h' + i + '" value="' + (x.i ? 3 : 0) + '" onchange="calcHADS_pv()"></td></tr>';
@@ -2447,32 +2469,12 @@
         }
 
         // HSQoL-24 (PV)
-        var hsqolPvItems = [
-            { q: "1. La HS afecta a mi estado de ánimo.", reverse: false },
-            { q: "2. La HS empeora con el estrés.", reverse: false },
-            { q: "3. Me he resignado a convivir con la HS.", reverse: false },
-            { q: "4. Me preocupa la poca eficacia del tratamiento.", reverse: false },
-            { q: "5. Me siento solo/a o aislado/a por la HS.", reverse: false },
-            { q: "6. Tener información sobre la HS me ayuda a aceptarla.", reverse: true },
-            { q: "7. La HS me ha llevado a pensar en hacerme daño o suicidarme.", reverse: false },
-            { q: "8. Me preocupa que alguno de mis hijos pueda tener HS.", reverse: false },
-            { q: "9. Me preocupa el mal olor causado por la HS.", reverse: false },
-            { q: "10. Evito hablar de mi HS.", reverse: false },
-            { q: "11. Me preocupa ser rechazado/a por mi HS.", reverse: false },
-            { q: "12. Me siento avergonzado/a por mi HS.", reverse: false },
-            { q: "13. Me preocupa el coste del tratamiento.", reverse: false },
-            { q: "14. La HS me dificulta realizar mi trabajo.", reverse: false },
-            { q: "15. Me preocupa perder mi empleo por la HS.", reverse: false },
-            { q: "16. La HS afecta a mis relaciones personales.", reverse: false },
-            { q: "17. Mi familia es mi principal apoyo frente a la HS.", reverse: true },
-            { q: "18. Me preocupa tener que renunciar a ciertas actividades por la HS.", reverse: false },
-            { q: "19. La HS supone un problema en mis relaciones íntimas.", reverse: false },
-            { q: "20. El agua (baño o ducha) empeora mis lesiones.", reverse: false },
-            { q: "21. La HS afecta a mi sueño.", reverse: false },
-            { q: "22. Valoro positivamente las iniciativas de los profesionales para mejorar mi HS.", reverse: true },
-            { q: "23. A veces me resulta difícil seguir los tratamientos y revisiones de la HS.", reverse: false },
-            { q: "24. Me preocupan los efectos adversos de los tratamientos para la HS.", reverse: false }
-        ];
+        var hsqolPvItems = Array.from({ length: 24 }, function (_, idx) {
+            return {
+                q: 'Ítem HSQoL-24 #' + (idx + 1) + ' — texto oficial validado pendiente',
+                reverse: idx === 5 || idx === 16 || idx === 21
+            };
+        });
         var hsqolScalePv = [
             { label: 'Nunca', value: 0 },
             { label: 'Raramente', value: 1 },
@@ -2802,7 +2804,6 @@
                 document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '',
                 document.getElementById('sg_nuhsa').value,
                 'SEGUIMIENTO',
-                document.getElementById('sg_n_visita').value,
                 document.getElementById('sg_fecha_ultima_consulta').value,
                 document.getElementById('sg_tiempo_desde_ultima').value,
                 document.getElementById('sg_estado_global').value,
@@ -2851,7 +2852,7 @@
             var activeData = getActiveZoneData(sg_ihsData, sg_regions);
             var txt = 'SEGUIMIENTO — ENFERMERÍA EPA HS\n================================\nHospital Universitario Virgen del Rocío' +
                 '\nFecha: ' + (document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '') +
-                '\nPaciente: ' + document.getElementById('sg_nuhsa').value + ' | Visita nº: ' + document.getElementById('sg_n_visita').value +
+                '\nPaciente: ' + document.getElementById('sg_nuhsa').value +
                 '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
                 '\nFecha última consulta: ' + (document.getElementById('sg_fecha_ultima_consulta').value || 'NR') + ' | Tiempo desde última: ' + (document.getElementById('sg_tiempo_desde_ultima').value || 'NR') +
                 '\nEstado global referido: ' + document.getElementById('sg_estado_global').value +
