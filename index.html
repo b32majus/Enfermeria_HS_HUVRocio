@@ -682,6 +682,68 @@
             margin-bottom: 15px;
         }
 
+        .legend-box {
+            background: #eef6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0 20px;
+            color: #1e3a8a;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .label-star {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .date-container label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .eva-buttons {
+            display: grid;
+            grid-template-columns: repeat(11, minmax(0, 1fr));
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .eva-btn {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 6px 0;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #334155;
+        }
+
+        .eva-btn:hover {
+            border-color: #94a3b8;
+        }
+
+        .eva-btn.active {
+            background: #0ea5e9;
+            border-color: #0284c7;
+            color: #fff;
+        }
+
+        .active-zones {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dbeafe;
+            background: #f8fbff;
+            font-size: 0.92rem;
+            color: #334155;
+        }
+
         .fab-bar {
             position: fixed;
             bottom: 0;
@@ -818,8 +880,14 @@
     <div class="tab-content active" id="tab-pv">
         <div style="display:flex; gap:15px; align-items:center;">
             <span class="visit-badge">1ª VISITA</span>
-            <div class="date-container"><input type="date" id="pv_fechaVisita"></div>
+            <div class="date-container">
+                <label>Fecha visita <span class="label-star">(*)</span></label>
+                <input type="date" id="pv_fechaVisita">
+            </div>
         </div>
+        <div class="legend-box">(*) Campo alineado con la hoja habitual de Dermatología / información útil para consulta
+            médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
+            posterior.</div>
 
 
         <!-- 1. FILIACIÓN E HISTORIA HS -->
@@ -833,9 +901,9 @@
                 <div class="grid-4">
                     <div class="form-group"><label>NUHSA <span style="color:red">*</span></label><input type="text"
                             id="pv_nuhsa" placeholder="AN..."></div>
-                    <div class="form-group"><label>Edad</label><input type="number" id="pv_edad" placeholder="Años">
+                    <div class="form-group"><label>Edad <span class="label-star">(*)</span></label><input type="number" id="pv_edad" placeholder="Años">
                     </div>
-                    <div class="form-group"><label>Sexo</label>
+                    <div class="form-group"><label>Sexo <span class="label-star">(*)</span></label>
                         <select id="pv_sexo">
                             <option value="">Seleccionar</option>
                             <option>Mujer</option>
@@ -857,19 +925,39 @@
                 </div>
                 <div class="subsection-title">Historia de la enfermedad</div>
                 <div class="grid-4">
-                    <div class="form-group"><label>Año inicio síntomas</label><input type="number" id="pv_anio_ini"
+                    <div class="form-group"><label>Año inicio síntomas <span class="label-star">(*)</span></label><input type="number" id="pv_anio_ini"
                             placeholder="Ej: 2015"></div>
-                    <div class="form-group"><label>Año diagnóstico</label><input type="number" id="pv_anio_dx"
+                    <div class="form-group"><label>Año diagnóstico <span class="label-star">(*)</span></label><input type="number" id="pv_anio_dx"
                             placeholder="Ej: 2020"></div>
-                    <div class="form-group"><label>Retraso diagnóstico</label><input type="text" id="pv_retraso_dx"
+                    <div class="form-group"><label>Retraso diagnóstico <span class="label-star">(*)</span></label><input type="text" id="pv_retraso_dx"
                             readonly style="background:#eee; font-weight:700;" placeholder="Auto"></div>
+                    <div class="form-group"><label>Profesional que diagnostica <span class="label-star">(*)</span></label><input type="text" id="pv_prof_dx"
+                            placeholder="Dermatología, AP, Urgencias..."></div>
+                </div>
+                <div class="grid-4" style="margin-top:15px;">
                     <div class="form-group"><label>Nº médicos previos</label><input type="number" id="pv_n_medicos"
                             placeholder="Antes del Dx"></div>
+                    <div class="form-group"><label>Fiebre asociada a brotes <span class="label-star">(*)</span></label>
+                        <select id="pv_fiebre">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>No preguntado</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Antecedentes familiares de HS <span class="label-star">(*)</span></label>
+                        <select id="pv_antecedentes_familiares">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>Desconocido</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>G/O o antecedentes gineco-obstétricos <span class="label-star">(*)</span></label><input type="text" id="pv_gine_obst"
+                            placeholder="Resumen breve"></div>
                 </div>
                 <div class="grid-3" style="margin-top:15px;">
                     <div class="form-group"><label>Urgencias por HS (último año)</label><input type="number"
                             id="pv_n_urgencias" placeholder="Nº visitas"></div>
-                    <div class="form-group"><label>Cirugías previas por HS</label><input type="number"
+                    <div class="form-group"><label>Cirugías previas por HS <span class="label-star">(*)</span></label><input type="number"
                             id="pv_n_cirugias" placeholder="Nº intervenciones"></div>
                     <div class="form-group"><label>Tratamientos biológicos previos</label>
                         <select id="pv_bio_previo">
@@ -882,7 +970,7 @@
                     </div>
                 </div>
                 <div class="form-group" style="margin-top:15px;">
-                    <label>Tratamientos previos relevantes</label>
+                    <label>Tratamientos previos relevantes <span class="label-star">(*)</span></label>
                     <textarea id="pv_tx_previos" rows="2"
                         placeholder="ATB previos, otros fármacos, tratamientos tópicos..."></textarea>
                 </div>
@@ -900,7 +988,7 @@
                     Tabaco
                 </div>
                 <div class="grid-4">
-                    <div class="form-group"><label>Estado tabáquico</label>
+                    <div class="form-group"><label>Tabaco <span class="label-star">(*)</span></label>
                         <select id="pv_tabaco" onchange="toggleTabacoDetail_pv()">
                             <option value="No">No Fumador</option>
                             <option value="Ex">Ex-Fumador</option>
@@ -908,10 +996,10 @@
                         </select>
                     </div>
                     <div class="form-group" id="pv_tabaco-detail-1" style="display:none;">
-                        <label>Cigarrillos/día</label><input type="number" id="pv_cig_dia" placeholder="Nº/día">
+                        <label>Cigarrillos/día <span class="label-star">(*)</span></label><input type="number" id="pv_cig_dia" placeholder="Nº/día">
                     </div>
                     <div class="form-group" id="pv_tabaco-detail-2" style="display:none;"><label>Años
-                            fumando</label><input type="number" id="pv_anios_fumando" placeholder="Años"></div>
+                            fumando <span class="label-star">(*)</span></label><input type="number" id="pv_anios_fumando" placeholder="Años"></div>
                     <div class="form-group" id="pv_tabaco-detail-3" style="display:none;"><label>Intentos previos de
                             cesación</label>
                         <select id="pv_cesacion_previa">
@@ -922,25 +1010,27 @@
                         </select>
                     </div>
                 </div>
+                <div class="grid-2" style="margin-top:15px;">
+                    <div class="form-group"><label>Deseos genésicos <span class="label-star">(*)</span></label>
+                        <select id="pv_deseos_genesicos">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>No aplica</option>
+                            <option>No preguntado</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Alcohol UBE/semana <span class="label-star">(*)</span></label><input type="number"
+                            id="pv_alcohol_ube_semana" min="0" step="1" placeholder="Ej: 3"></div>
+                </div>
                 <div id="pv_tabaco-consejo" class="alert-box alert-warning" style="margin-top:10px;">
                     <i class="fas fa-info-circle"></i> <strong>Consejo breve antitabáquico:</strong> El tabaco es el
                     factor
-                    modificable más importante en HS. Ofrecer consejo IN SITU (55% rechazan si se derivan externamente).
+                    modificable más importante en HS. Ofrecer consejo IN SITU (55% rechazan si se remiten externamente).
                 </div>
 
                 <div class="subsection-title" style="margin-top:25px;"><i class="fas fa-utensils"
-                        style="color:#f59e0b;margin-right:6px;"></i> Nutrición y ejercicio</div>
+                        style="color:#f59e0b;margin-right:6px;"></i> Hábitos generales</div>
                 <div class="grid-3">
-                    <div class="form-group"><label>Patrón alimentario</label>
-                        <select id="pv_dieta">
-                            <option value="">Seleccionar</option>
-                            <option>Mediterránea</option>
-                            <option>Occidental (predominio procesados)</option>
-                            <option>Rica en lácteos/azúcares</option>
-                            <option>Vegetariana/Vegana</option>
-                            <option>Sin patrón definido</option>
-                        </select>
-                    </div>
                     <div class="form-group"><label>Actividad física</label>
                         <select id="pv_ejercicio">
                             <option value="">Seleccionar</option>
@@ -959,18 +1049,12 @@
                             <option>Insomnio</option>
                         </select>
                     </div>
-                </div>
-                <div class="grid-2" style="margin-top:15px;">
-                    <div class="form-group"><label>Alcohol</label>
-                        <select id="pv_alcohol">
-                            <option value="No">No</option>
-                            <option>Ocasional</option>
-                            <option>Habitual</option>
-                            <option>Riesgo</option>
+                    <div class="form-group"><label>Material educativo entregado</label>
+                        <select id="pv_material_entregado">
+                            <option>No</option>
+                            <option>Sí</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Suplementos actuales</label><input type="text" id="pv_suplementos"
-                            placeholder="Ej: Zinc, Vitamina D, Omega-3..."></div>
                 </div>
             </div>
         </div>
@@ -984,30 +1068,30 @@
             <div id="pv_sec-comorb" class="section-content">
                 <div class="grid-5"
                     style="background:#f8fafc; padding:20px; border-radius:8px; margin-bottom:25px; border:1px solid #e2e8f0;">
-                    <div><label>Peso (kg)</label><input type="number" id="pv_peso" onchange="calcIMC_pv()"></div>
-                    <div><label>Talla (m)</label><input type="number" id="pv_talla" step="0.01" onchange="calcIMC_pv()">
+                    <div><label>Peso (kg) <span class="label-star">(*)</span></label><input type="number" id="pv_peso" onchange="calcIMC_pv()"></div>
+                    <div><label>Talla (m) <span class="label-star">(*)</span></label><input type="number" id="pv_talla" step="0.01" onchange="calcIMC_pv()">
                     </div>
-                    <div><label>IMC</label><input type="text" id="pv_imc" readonly
+                    <div><label>IMC <span class="label-star">(*)</span></label><input type="text" id="pv_imc" readonly
                             style="background:#eee; font-weight:700;">
                     </div>
-                    <div><label>P. Abdominal (cm)</label><input type="number" id="pv_perimetro"
+                    <div><label>P. Abdominal (cm) <span class="label-star">(*)</span></label><input type="number" id="pv_perimetro"
                             placeholder="S. Metabólico">
                     </div>
-                    <div><label>TA (mmHg)</label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
+                    <div><label>TA (mmHg) <span class="label-star">(*)</span></label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
                 </div>
                 <div id="pv_imc-alert" class="alert-box alert-warning"><i class="fas fa-weight"></i> <strong>IMC
                         ≥30:</strong>
-                    Pérdida del 5-10% puede reducir brotes. Considerar derivar a Nutrición.</div>
+                    Pérdida del 5-10% puede reducir brotes. Valorar apoyo nutricional si procede.</div>
 
                 <div class="grid-4">
                     <div class="comorb-group">
                         <div class="comorb-title" style="color:#ef4444;"><i class="fas fa-fire-alt"></i> Metabólico
                         </div>
-                        <div class="toggle-card c-item" onclick="toggleActive(this)">Diabetes II</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)">Diabetes II (*)</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">
-                            Hipertensión
+                            Hipertensión (*)
                         </div>
-                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Dislipemia
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Dislipemia (*)
                         </div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Obesidad
                             (IMC≥30)</div>
@@ -1015,17 +1099,17 @@
                     <div class="comorb-group">
                         <div class="comorb-title" style="color:#f59e0b;"><i class="fas fa-exclamation-triangle"></i>
                             Inflamatorio</div>
-                        <div class="toggle-card c-item" onclick="toggleActive(this)">EII (Digestivo)</div>
+                        <div class="toggle-card c-item" onclick="toggleActive(this)">EII/síntomas digestivos (*)</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">EspA
-                            (Articular)</div>
+                            /síntomas osteoarticulares (*)</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Sinus
-                            Pilonidal
+                            pilonidal (*)
                         </div>
-                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Acné grave
+                        <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Acné grave/conglobata (*)
                         </div>
                     </div>
                     <div class="comorb-group">
-                        <div class="comorb-title" style="color:#8b5cf6;"><i class="fas fa-brain"></i> Salud Mental</div>
+                        <div class="comorb-title" style="color:#8b5cf6;"><i class="fas fa-brain"></i> Salud Mental (*)</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)">Ansiedad Dx</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Depresión
                             Dx
@@ -1034,7 +1118,7 @@
                             style="margin-top:10px;border-color:#ef4444;color:#ef4444;">Malestar Emocional Alto</div>
                     </div>
                     <div class="comorb-group">
-                        <div class="comorb-title" style="color:#0d9488;"><i class="fas fa-venus"></i> Ginecológico</div>
+                        <div class="comorb-title" style="color:#0d9488;"><i class="fas fa-venus"></i> Ginecológico (*)</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)">SOP</div>
                         <div class="toggle-card c-item" onclick="toggleActive(this)" style="margin-top:10px">Brotes
                             perimenstr.</div>
@@ -1055,6 +1139,8 @@
                 <p class="info-text">Clasificación estática de severidad. Se registra en la primera visita como
                     referencia
                     basal.</p>
+                <p class="info-text">Clasificación orientativa registrada por Enfermería. Confirmación clínica por
+                    Dermatología si procede.</p>
                 <div class="grid-3">
                     <div class="hurley-card" onclick="selectHurley(this,'pv_', 'I')">
                         <h3>Hurley I — Leve</h3>
@@ -1087,16 +1173,20 @@
                 <div class="score-display">
                     <div style="font-size:1.1rem;">
                         <span style="margin-right:20px;"><i class="fas fa-circle"
-                                style="color:#f59e0b;font-size:0.8rem;"></i> Nódulos: <b id="pv_tot_n">0</b></span>
+                                style="color:#f59e0b;font-size:0.8rem;"></i> Nódulos (*): <b id="pv_tot_n">0</b></span>
                         <span style="margin-right:20px;"><i class="fas fa-circle"
-                                style="color:#ef4444;font-size:0.8rem;"></i> Abscesos: <b id="pv_tot_a">0</b></span>
-                        <span><i class="fas fa-circle" style="color:#7c3aed;font-size:0.8rem;"></i> Fístulas: <b
+                                style="color:#ef4444;font-size:0.8rem;"></i> Abscesos (*): <b id="pv_tot_a">0</b></span>
+                        <span><i class="fas fa-circle" style="color:#7c3aed;font-size:0.8rem;"></i> Fístulas (*): <b
                                 id="pv_tot_f">0</b></span>
                     </div>
                     <div style="text-align:right;">
-                        <span class="score-label">IHS4 Score</span>
+                        <span class="score-label">IHS4 Score (*)</span>
                         <div class="score-value" id="pv_final_ihs4" style="color:#10b981;">0</div>
                     </div>
+                </div>
+                <div class="active-zones"><strong>Zonas activas (*)</strong>:
+                    <span id="pv_active_zone_count">0</span> |
+                    Localizaciones: <span id="pv_active_zone_list">Ninguna</span>
                 </div>
             </div>
         </div>
@@ -1123,8 +1213,9 @@
                             readonly value="0"
                             style="background:#f0f9ff; font-weight:700; color:#0369a1; border-color:#bae6fd;">
                     </div>
-                    <div class="form-group"><label>EVA Dolor (0-10)</label><input type="number" id="pv_eva_dolor"
-                            min="0" max="10" placeholder="0-10"></div>
+                    <div class="form-group"><label>EVA Dolor (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="pv_eva_dolor" value=""><div class="eva-buttons" id="pv_eva_dolor_buttons"></div></div>
+                    <div class="form-group"><label>EVA prurito (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="pv_eva_prurito" value=""><div class="eva-buttons" id="pv_eva_prurito_buttons"></div></div>
+                    <div class="form-group"><label>EVA supuración (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="pv_eva_supuracion" value=""><div class="eva-buttons" id="pv_eva_supuracion_buttons"></div></div>
                 </div>
                 <!-- ACORDEÓN DLQI -->
                 <div class="accordion-wrapper">
@@ -1240,7 +1331,7 @@
 
                 <div id="pv_hads-alert" class="alert-box alert-danger"><i class="fas fa-exclamation-triangle"></i>
                     <strong>HADS
-                        ≥8:</strong> Derivar a Salud Mental.
+                        ≥8:</strong> Recomendar valoración de Salud Mental.
                 </div>
             </div>
         </div>
@@ -1286,9 +1377,9 @@
                 <p class="info-text">Sección reducida para evitar duplicidad con la educación sanitaria registrada en el
                     apartado anterior.</p>
                 <div class="grid-2" style="margin-top:20px;">
-                    <div class="form-group"><label>Derivaciones solicitadas</label>
+                    <div class="form-group"><label>Necesidades a valorar por Dermatología</label>
                         <textarea id="pv_derivaciones" rows="2"
-                            placeholder="Ej: Nutrición, Psicología, Tabaquismo, Cirugía..."></textarea>
+                            placeholder="Ej: Reforzar ajuste terapéutico, valoración de cirugía, comorbilidades..."></textarea>
                     </div>
                     <div class="form-group"><label>Próxima cita enfermería</label>
                         <input type="date" id="pv_prox_cita">
@@ -1306,6 +1397,9 @@
 
     <!-- TAB 2: SEGUIMIENTO -->
     <div class="tab-content" id="tab-sg">
+        <div class="legend-box">(*) Campo alineado con la hoja habitual de Dermatología / información útil para consulta
+            médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
+            posterior.</div>
 
 
         <!-- 1. IDENTIFICACIÓN RÁPIDA -->
@@ -1318,7 +1412,7 @@
                 <div><label>NUHSA <span style="color:red">*</span></label><input type="text" id="sg_nuhsa"
                         placeholder="AN...">
                 </div>
-                <div><label>Fecha visita</label><input type="date" id="sg_fechaVisita"></div>
+                <div><label>Fecha visita <span class="label-star">(*)</span></label><input type="date" id="sg_fechaVisita"></div>
                 <div><label>Nº Visita seguimiento</label><input type="number" id="sg_n_visita" placeholder="Ej: 2">
                 </div>
                 <div><label>Hurley basal</label>
@@ -1329,7 +1423,25 @@
                         <option>III</option>
                     </select>
                 </div>
-                <div><label>IHS4 previo</label><input type="number" id="sg_ihs4_previo" placeholder="Último IHS4"></div>
+                <div><label>IHS4 previo <span class="label-star">(*)</span></label><input type="number" id="sg_ihs4_previo" placeholder="Último IHS4"></div>
+            </div>
+            <div class="section-content" style="padding-top:0;">
+                <p class="info-text">Clasificación orientativa registrada por Enfermería. Confirmación clínica por
+                    Dermatología si procede.</p>
+                <div class="grid-4">
+                    <div><label>Fecha última consulta <span class="label-star">(*)</span></label><input type="date" id="sg_fecha_ultima_consulta"></div>
+                    <div><label>Tiempo desde última consulta <span class="label-star">(*)</span></label><input type="text" id="sg_tiempo_desde_ultima" placeholder="Auto o manual"></div>
+                    <div><label>Estado global referido por el paciente <span class="label-star">(*)</span></label>
+                        <select id="sg_estado_global">
+                            <option>Mejor</option>
+                            <option>Igual</option>
+                            <option>Peor</option>
+                            <option>No registrado</option>
+                        </select>
+                    </div>
+                    <div><label>Brotes desde última visita <span class="label-star">(*)</span></label><input type="number" id="sg_n_brotes"
+                            placeholder="Nº brotes"></div>
+                </div>
             </div>
         </div>
 
@@ -1344,16 +1456,20 @@
                 <div class="score-display">
                     <div style="font-size:1.1rem;">
                         <span style="margin-right:20px;"><i class="fas fa-circle"
-                                style="color:#f59e0b;font-size:0.8rem;"></i> Nódulos: <b id="sg_tot_n">0</b></span>
+                                style="color:#f59e0b;font-size:0.8rem;"></i> Nódulos (*): <b id="sg_tot_n">0</b></span>
                         <span style="margin-right:20px;"><i class="fas fa-circle"
-                                style="color:#ef4444;font-size:0.8rem;"></i> Abscesos: <b id="sg_tot_a">0</b></span>
-                        <span><i class="fas fa-circle" style="color:#7c3aed;font-size:0.8rem;"></i> Fístulas: <b
+                                style="color:#ef4444;font-size:0.8rem;"></i> Abscesos (*): <b id="sg_tot_a">0</b></span>
+                        <span><i class="fas fa-circle" style="color:#7c3aed;font-size:0.8rem;"></i> Fístulas (*): <b
                                 id="sg_tot_f">0</b></span>
                     </div>
                     <div style="text-align:right;">
-                        <span class="score-label">IHS4 Score</span>
+                        <span class="score-label">IHS4 Score (*)</span>
                         <div class="score-value" id="sg_final_ihs4" style="color:#10b981;">0</div>
                     </div>
+                </div>
+                <div class="active-zones"><strong>Zonas activas (*)</strong>:
+                    <span id="sg_active_zone_count">0</span> |
+                    Localizaciones: <span id="sg_active_zone_list">Ninguna</span>
                 </div>
                 <div id="sg_ihs4-change" class="alert-box" style="margin-top:15px;"></div>
             </div>
@@ -1368,19 +1484,18 @@
             </div>
             <div id="sg_sec-dolor" class="section-content">
                 <div class="grid-5">
-                    <div><label>EVA Dolor actual (0-10)</label><input type="number" id="sg_eva_dolor" min="0" max="10"
-                            placeholder="0-10"></div>
-                    <div><label>Peso actual (kg)</label><input type="number" id="sg_peso" onchange="calcIMC_sg()"></div>
+                    <div><label>EVA Dolor actual (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="sg_eva_dolor" value=""><div class="eva-buttons" id="sg_eva_dolor_buttons"></div></div>
+                    <div><label>EVA prurito (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="sg_eva_prurito" value=""><div class="eva-buttons" id="sg_eva_prurito_buttons"></div></div>
+                    <div><label>EVA supuración (0-10) <span class="label-star">(*)</span></label><input type="hidden" id="sg_eva_supuracion" value=""><div class="eva-buttons" id="sg_eva_supuracion_buttons"></div></div>
+                    <div><label>Peso actual (kg) <span class="label-star">(*)</span></label><input type="number" id="sg_peso" onchange="calcIMC_sg()"></div>
                     <div><label>Talla (m)</label><input type="number" id="sg_talla" step="0.01" onchange="calcIMC_sg()">
                     </div>
-                    <div><label>IMC</label><input type="text" id="sg_imc" readonly
+                </div>
+                <div class="grid-4" style="margin-top:15px;">
+                    <div><label>IMC <span class="label-star">(*)</span></label><input type="text" id="sg_imc" readonly
                             style="background:#eee; font-weight:700;">
                     </div>
-                    <div><label>Brotes desde última visita</label><input type="number" id="sg_n_brotes"
-                            placeholder="Nº brotes"></div>
-                </div>
-                <div class="grid-3" style="margin-top:15px;">
-                    <div><label>Tabaco (estado actual)</label>
+                    <div><label>Tabaco actual <span class="label-star">(*)</span></label>
                         <select id="sg_tabaco">
                             <option value="No">No Fumador</option>
                             <option value="Ex">Ex-Fumador</option>
@@ -1388,6 +1503,34 @@
                             <option value="Reducido">Ha reducido</option>
                         </select>
                     </div>
+                    <div><label>Síntomas digestivos <span class="label-star">(*)</span></label>
+                        <select id="sg_sint_digestivos">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>No preguntado</option>
+                        </select>
+                    </div>
+                    <div><label>Comentario síntomas digestivos</label><input type="text" id="sg_sint_digestivos_coment" placeholder="Opcional"></div>
+                </div>
+                <div class="grid-4" style="margin-top:15px;">
+                    <div><label>Síntomas osteoarticulares <span class="label-star">(*)</span></label>
+                        <select id="sg_sint_osteoarticulares">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>No preguntado</option>
+                        </select>
+                    </div>
+                    <div><label>Comentario síntomas osteoarticulares</label><input type="text" id="sg_sint_osteoarticulares_coment" placeholder="Opcional"></div>
+                    <div><label>Síntomas psiquiátricos/salud mental <span class="label-star">(*)</span></label>
+                        <select id="sg_sint_psiquiatricos">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>No preguntado</option>
+                        </select>
+                    </div>
+                    <div><label>Comentario salud mental</label><input type="text" id="sg_sint_psiquiatricos_coment" placeholder="Opcional"></div>
+                </div>
+                <div class="grid-2" style="margin-top:15px;">
                     <div><label>Ejercicio</label>
                         <select id="sg_ejercicio">
                             <option>Sin cambio</option>
@@ -1414,6 +1557,21 @@
             </div>
             <div id="sg_sec-tx" class="section-content">
                 <div class="subsection-title">Tratamiento actual</div>
+                <div class="grid-3" style="margin-bottom:15px;">
+                    <div><label>Tratamiento realizado desde última visita <span class="label-star">(*)</span></label>
+                        <textarea id="sg_tratamiento_realizado" rows="2" placeholder="Resumen breve"></textarea>
+                    </div>
+                    <div><label>Suspensión prematura <span class="label-star">(*)</span></label>
+                        <select id="sg_suspension_prematura">
+                            <option>No</option>
+                            <option>Sí</option>
+                            <option>No aplica</option>
+                        </select>
+                    </div>
+                    <div><label>Motivo suspensión <span class="label-star">(*)</span></label>
+                        <textarea id="sg_motivo_suspension" rows="2" placeholder="Solo si aplica"></textarea>
+                    </div>
+                </div>
                 <div class="stack-sm">
                     <div class="inline-row">
                         <select id="sg_farmaco_ppal">
@@ -1490,7 +1648,7 @@
                     </tbody>
                 </table>
 
-                <div class="subsection-title">Efectos adversos</div>
+                <div class="subsection-title">Efectos adversos <span class="label-star">(*)</span></div>
                 <div class="grid-4">
                     <div class="toggle-card ea-item" onclick="toggleActive(this)">Infecci&oacute;n</div>
                     <div class="toggle-card ea-item" onclick="toggleActive(this)">Candidiasis oral</div>
@@ -1503,6 +1661,14 @@
                 </div>
                 <div style="margin-top:15px;"><label>Detalle EA / motivo de no adherencia</label>
                     <textarea id="sg_ea_detalle" rows="2" placeholder="Describir si procede..."></textarea>
+                </div>
+                <div class="grid-2" style="margin-top:15px;">
+                    <div><label>Material educativo/refuerzo realizado</label>
+                        <select id="sg_material_refuerzo">
+                            <option>No</option>
+                            <option>Sí</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="subsection-title">Biol&oacute;gico (si aplica)</div>
@@ -1634,7 +1800,7 @@
                 </div>
                 <div id="sg_hads-alert" class="alert-box alert-danger"><i class="fas fa-exclamation-triangle"></i>
                     <strong>HADS
-                        ≥8:</strong> Derivar a Salud Mental.
+                        ≥8:</strong> Recomendar valoración de Salud Mental.
                 </div>
             </div>
         </div>
@@ -1684,8 +1850,8 @@
                 <p class="info-text">Seccion resumida para evitar redundancia con la valoracion ya registrada en los
                     apartados previos.</p>
                 <div class="grid-2" style="margin-top:20px;">
-                    <div><label>Derivaciones</label><textarea id="sg_derivaciones" rows="2"
-                            placeholder="Nutrición, Psicología, Cirugía..."></textarea></div>
+                    <div><label>Necesidades a valorar por Dermatología</label><textarea id="sg_derivaciones" rows="2"
+                            placeholder="Ej: revisión de estrategia terapéutica, comorbilidades, cirugía..."></textarea></div>
                     <div><label>Próxima cita enfermería</label><input type="date" id="sg_prox_cita"></div>
                 </div>
                 <label style="margin-top:20px;">Notas de Evolución / Plan:</label>
@@ -1699,6 +1865,8 @@
 
     <!-- TAB 3: CURA POSTQUIRÚRGICA -->
     <div class="tab-content" id="tab-cx">
+        <div class="legend-box">(*) Campo clínico básico para seguimiento de cura/postquirúrgico. Sin asterisco: campo
+            añadido para registro enfermero y explotación posterior.</div>
 
 
         <!-- 1. IDENTIFICACIÓN -->
@@ -1711,11 +1879,12 @@
                 <div class="grid-4">
                     <div><label>NUHSA <span style="color:red">*</span></label><input type="text" id="cx_nuhsa"
                             placeholder="AN..."></div>
+                    <div><label>Fecha visita <span class="label-star">(*)</span></label><input type="date" id="cx_fechaVisita"></div>
                     <div><label>Nº Cura</label><input type="number" id="cx_n_cura" placeholder="Ej: 3"></div>
                     <div><label>Fecha intervención</label><input type="date" id="cx_fecha_qx"></div>
-                    <div><label>Cirujano</label><input type="text" id="cx_cirujano" placeholder="Nombre"></div>
                 </div>
-                <div class="grid-3" style="margin-top:15px;">
+                <div class="grid-4" style="margin-top:15px;">
+                    <div><label>Cirujano</label><input type="text" id="cx_cirujano" placeholder="Nombre"></div>
                     <div><label>Tipo intervención</label>
                         <select id="cx_tipo_qx">
                             <option value="">Seleccionar</option>
@@ -2121,6 +2290,36 @@
             const el = document.getElementById(id); val = parseInt(val);
             if (val <= 3) el.style.color = '#10b981'; else if (val <= 6) el.style.color = '#f59e0b'; else el.style.color = '#ef4444';
         }
+        function setupEvaButtons(hiddenId, containerId) {
+            var input = document.getElementById(hiddenId);
+            var container = document.getElementById(containerId);
+            if (!input || !container) return;
+            container.innerHTML = '';
+            for (var i = 0; i <= 10; i++) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'eva-btn';
+                btn.dataset.value = String(i);
+                btn.innerText = String(i);
+                btn.addEventListener('click', function (ev) {
+                    var val = ev.currentTarget.dataset.value;
+                    input.value = val;
+                    container.querySelectorAll('.eva-btn').forEach(function (b) { b.classList.remove('active'); });
+                    ev.currentTarget.classList.add('active');
+                });
+                container.appendChild(btn);
+            }
+        }
+        function getActiveZoneData(ihsData, regions) {
+            var active = [];
+            ihsData.forEach(function (zone, idx) {
+                if ((zone.n + zone.a + zone.f) > 0) active.push(regions[idx]);
+            });
+            return {
+                count: active.length,
+                list: active.length ? active.join(', ') : 'Ninguna'
+            };
+        }
         function exportActiveTab() {
             if (activeTab === 'pv') exportData_pv();
             else if (activeTab === 'sg') exportData_sg();
@@ -2150,6 +2349,9 @@
         // === PRIMERA VISITA SCRIPTS ===
         // =============================================
         document.getElementById('pv_fechaVisita').valueAsDate = new Date();
+        setupEvaButtons('pv_eva_dolor', 'pv_eva_dolor_buttons');
+        setupEvaButtons('pv_eva_prurito', 'pv_eva_prurito_buttons');
+        setupEvaButtons('pv_eva_supuracion', 'pv_eva_supuracion_buttons');
 
         // IMC (PV)
         function calcIMC_pv() {
@@ -2202,6 +2404,9 @@
             var el = document.getElementById('pv_final_ihs4');
             el.innerText = score;
             el.style.color = score < 4 ? '#10b981' : score <= 10 ? '#f59e0b' : '#ef4444';
+            var activeData = getActiveZoneData(pv_ihsData, pv_regions);
+            document.getElementById('pv_active_zone_count').innerText = activeData.count;
+            document.getElementById('pv_active_zone_list').innerText = activeData.list;
         }
 
         // DLQI (PV)
@@ -2304,23 +2509,51 @@
         function exportData_pv() {
             var coms = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return e.innerText; }).join('; ');
             var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return e.innerText.replace(/^.*?\s/, ''); }).join('; ');
+            var activeData = getActiveZoneData(pv_ihsData, pv_regions);
             var row = [
                 document.getElementById('pv_fechaVisita').value,
                 document.getElementById('pv_nuhsa').value,
                 'PRIMERA VISITA',
+                document.getElementById('pv_prof_dx').value,
                 document.getElementById('pv_edad').value,
                 document.getElementById('pv_sexo').value,
+                document.getElementById('pv_anio_ini').value,
+                document.getElementById('pv_anio_dx').value,
+                document.getElementById('pv_retraso_dx').value,
+                document.getElementById('pv_fiebre').value,
+                document.getElementById('pv_antecedentes_familiares').value,
+                document.getElementById('pv_gine_obst').value,
+                document.getElementById('pv_deseos_genesicos').value,
+                document.getElementById('pv_tx_previos').value,
                 document.getElementById('pv_hurley_val').value,
                 document.getElementById('pv_final_ihs4').innerText,
+                document.getElementById('pv_tot_n').innerText,
+                document.getElementById('pv_tot_a').innerText,
+                document.getElementById('pv_tot_f').innerText,
+                activeData.count,
+                activeData.list,
                 document.getElementById('pv_imc').value,
+                document.getElementById('pv_peso').value,
+                document.getElementById('pv_talla').value,
+                document.getElementById('pv_perimetro').value,
+                document.getElementById('pv_ta').value,
                 document.getElementById('pv_tabaco').value,
+                document.getElementById('pv_cig_dia').value,
+                document.getElementById('pv_anios_fumando').value,
+                document.getElementById('pv_alcohol_ube_semana').value,
+                document.getElementById('pv_ejercicio').value,
+                document.getElementById('pv_sueno').value,
                 document.getElementById('pv_dlqi_display').value,
                 document.getElementById('pv_hsqol_display').value,
                 document.getElementById('pv_hads_a_display').value,
                 document.getElementById('pv_hads_d_display').value,
                 document.getElementById('pv_eva_dolor').value,
+                document.getElementById('pv_eva_prurito').value,
+                document.getElementById('pv_eva_supuracion').value,
                 coms, edus,
+                document.getElementById('pv_material_entregado').value,
                 document.getElementById('pv_derivaciones').value,
+                document.getElementById('pv_notas').value,
                 document.getElementById('pv_prox_cita').value
             ].join('\t');
             navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel con Ctrl+V)"); });
@@ -2332,34 +2565,38 @@
             var retraso = document.getElementById('pv_retraso_dx').value;
             var ihs4 = document.getElementById('pv_final_ihs4').innerText;
             var ihs4_sev = parseInt(ihs4) < 4 ? 'LEVE' : parseInt(ihs4) <= 10 ? 'MODERADO' : 'GRAVE';
+            var activeData = getActiveZoneData(pv_ihsData, pv_regions);
             var txt = 'PRIMERA VISITA — ENFERMERÍA EPA HS\n===================================\nHospital Universitario Virgen del Rocío\nFecha: ' + document.getElementById('pv_fechaVisita').value +
-                '\n\n1. IDENTIFICACIÓN\nPaciente: ' + document.getElementById('pv_nuhsa').value +
-                '\nEdad: ' + document.getElementById('pv_edad').value + ' | Sexo: ' + document.getElementById('pv_sexo').value +
-                '\nSituación laboral: ' + document.getElementById('pv_laboral').value +
-                '\n\n2. HISTORIA HS\nInicio síntomas: ' + document.getElementById('pv_anio_ini').value + ' | Dx: ' + document.getElementById('pv_anio_dx').value + ' | Retraso: ' + retraso +
-                '\nNº médicos previos: ' + document.getElementById('pv_n_medicos').value + ' | Urgencias/año: ' + document.getElementById('pv_n_urgencias').value +
-                '\nCirugías previas HS: ' + document.getElementById('pv_n_cirugias').value + ' | Biológico previo: ' + document.getElementById('pv_bio_previo').value +
-                '\nTratamientos previos: ' + (document.getElementById('pv_tx_previos').value || 'No referidos') +
-                '\n\n3. HÁBITOS\nTabaco: ' + document.getElementById('pv_tabaco').value +
-                '\nDieta: ' + document.getElementById('pv_dieta').value + ' | Ejercicio: ' + document.getElementById('pv_ejercicio').value +
-                '\nAlcohol: ' + document.getElementById('pv_alcohol').value + ' | Sueño: ' + document.getElementById('pv_sueno').value +
-                '\n\n4. CLINIMETRÍA\nPeso: ' + document.getElementById('pv_peso').value + ' kg | Talla: ' + document.getElementById('pv_talla').value + ' m | IMC: ' + document.getElementById('pv_imc').value +
-                '\nP. Abdominal: ' + document.getElementById('pv_perimetro').value + ' cm | TA: ' + document.getElementById('pv_ta').value +
-                '\nCOMORBILIDADES:\n' + (coms || 'Ninguna registrada') +
-                '\n\n5. CLASIFICACIÓN\nHurley: ' + (document.getElementById('pv_hurley_val').value || 'No clasificado') +
-                '\n\n6. ACTIVIDAD (IHS4: ' + ihs4 + ' — ' + ihs4_sev + ')' +
+                '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
+                '\nPaciente: ' + document.getElementById('pv_nuhsa').value +
+                '\nEdad/Sexo: ' + document.getElementById('pv_edad').value + ' / ' + document.getElementById('pv_sexo').value +
+                '\nProfesional que diagnostica: ' + (document.getElementById('pv_prof_dx').value || 'NR') +
+                '\nInicio síntomas: ' + document.getElementById('pv_anio_ini').value + ' | Dx: ' + document.getElementById('pv_anio_dx').value + ' | Retraso: ' + (retraso || 'NR') +
+                '\nFiebre brotes: ' + document.getElementById('pv_fiebre').value + ' | Antecedentes familiares HS: ' + document.getElementById('pv_antecedentes_familiares').value +
+                '\nG/O: ' + (document.getElementById('pv_gine_obst').value || 'NR') + ' | Deseos genésicos: ' + document.getElementById('pv_deseos_genesicos').value +
+                '\nTratamientos previos relevantes: ' + (document.getElementById('pv_tx_previos').value || 'No referidos') +
+                '\nCirugías previas HS: ' + (document.getElementById('pv_n_cirugias').value || '0') +
+                '\nTabaco: ' + document.getElementById('pv_tabaco').value + ' | Cig/día: ' + (document.getElementById('pv_cig_dia').value || 'NR') + ' | Años fumando: ' + (document.getElementById('pv_anios_fumando').value || 'NR') +
+                '\nAlcohol UBE/semana: ' + (document.getElementById('pv_alcohol_ube_semana').value || 'NR') +
+                '\nPeso/Talla/IMC: ' + (document.getElementById('pv_peso').value || 'NR') + 'kg / ' + (document.getElementById('pv_talla').value || 'NR') + 'm / ' + (document.getElementById('pv_imc').value || 'NR') +
+                '\nPerímetro abdominal: ' + (document.getElementById('pv_perimetro').value || 'NR') + ' | TA: ' + (document.getElementById('pv_ta').value || 'NR') +
+                '\nComorbilidades señaladas:\n' + (coms || 'Ninguna registrada') +
+                '\nHurley basal: ' + (document.getElementById('pv_hurley_val').value || 'No clasificado') +
+                '\nIHS4: ' + ihs4 + ' (' + ihs4_sev + ')' +
                 '\nNódulos: ' + document.getElementById('pv_tot_n').innerText + ' | Abscesos: ' + document.getElementById('pv_tot_a').innerText + ' | Fístulas: ' + document.getElementById('pv_tot_f').innerText +
-                '\n\n7. PROMs\nDLQI: ' + document.getElementById('pv_dlqi_display').value + '/30' +
+                '\nZonas activas: ' + activeData.count + ' | ' + activeData.list +
+                '\nEVA dolor/prurito/supuración: ' + (document.getElementById('pv_eva_dolor').value || 'NR') + '/' + (document.getElementById('pv_eva_prurito').value || 'NR') + '/' + (document.getElementById('pv_eva_supuracion').value || 'NR') +
+                '\n\n=== REGISTRO AÑADIDO DE ENFERMERÍA ===' +
+                '\nDLQI: ' + document.getElementById('pv_dlqi_display').value + '/30' +
                 '\nHSQoL-24: ' + document.getElementById('pv_hsqol_display').value + ' (' + (document.getElementById('pv_hsqol_interp').value || 'No evaluado') + ')' +
                 '\nHADS: Ansiedad ' + document.getElementById('pv_hads_a_display').value + '/21 | Depresión ' + document.getElementById('pv_hads_d_display').value + '/21' +
-                '\nEVA Dolor: ' + (document.getElementById('pv_eva_dolor').value || 'NR') + '/10' +
-                '\nImpacto sexual: ' + document.getElementById('pv_sexual').value +
-                '\nAislamiento social: ' + document.getElementById('pv_aislamiento').value +
-                '\n\n8. EDUCACIÓN SANITARIA REALIZADA\n' + (edus || 'Ninguna registrada') +
-                '\n\n9. PLAN Y SEGUIMIENTO' +
-                '\nDerivaciones: ' + (document.getElementById('pv_derivaciones').value || 'Ninguna') +
+                '\nImpacto sexual: ' + document.getElementById('pv_sexual').value + ' | Aislamiento social: ' + document.getElementById('pv_aislamiento').value +
+                '\nEjercicio/Sueño: ' + document.getElementById('pv_ejercicio').value + ' / ' + document.getElementById('pv_sueno').value +
+                '\nEducación sanitaria:\n' + (edus || 'Ninguna registrada') +
+                '\nMaterial educativo entregado: ' + document.getElementById('pv_material_entregado').value +
+                '\nRecomendaciones/necesidades a comentar con Dermatología: ' + (document.getElementById('pv_derivaciones').value || 'Ninguna') +
                 '\nNotas de evolución: ' + (document.getElementById('pv_notas').value || 'Sin notas') +
-                '\nPróxima cita: ' + (document.getElementById('pv_prox_cita').value || 'Pendiente') +
+                '\nPróxima cita enfermería: ' + (document.getElementById('pv_prox_cita').value || 'Pendiente') +
                 '\n===================================';
             navigator.clipboard.writeText(txt).then(function () { alert("Informe clínico copiado al portapapeles"); });
         }
@@ -2374,6 +2611,23 @@
             var el = document.getElementById('sg_fechaVisita');
             if (el) el.valueAsDate = new Date();
         })();
+        setupEvaButtons('sg_eva_dolor', 'sg_eva_dolor_buttons');
+        setupEvaButtons('sg_eva_prurito', 'sg_eva_prurito_buttons');
+        setupEvaButtons('sg_eva_supuracion', 'sg_eva_supuracion_buttons');
+        function calcTiempoDesdeUltima_sg() {
+            var fechaActual = document.getElementById('sg_fechaVisita').value;
+            var fechaUltima = document.getElementById('sg_fecha_ultima_consulta').value;
+            if (!fechaActual || !fechaUltima) return;
+            var dActual = new Date(fechaActual);
+            var dUltima = new Date(fechaUltima);
+            var diffMs = dActual - dUltima;
+            if (isNaN(diffMs) || diffMs < 0) return;
+            var dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            var meses = (dias / 30.44).toFixed(1);
+            document.getElementById('sg_tiempo_desde_ultima').value = dias + ' días (~' + meses + ' meses)';
+        }
+        document.getElementById('sg_fechaVisita').addEventListener('change', calcTiempoDesdeUltima_sg);
+        document.getElementById('sg_fecha_ultima_consulta').addEventListener('change', calcTiempoDesdeUltima_sg);
 
         var sgDrugOptions = [
             'Seleccionar',
@@ -2470,14 +2724,19 @@
             var el = document.getElementById('sg_final_ihs4');
             el.innerText = score;
             el.style.color = score < 4 ? '#10b981' : score <= 10 ? '#f59e0b' : '#ef4444';
+            var activeData = getActiveZoneData(sg_ihsData, sg_regions);
+            document.getElementById('sg_active_zone_count').innerText = activeData.count;
+            document.getElementById('sg_active_zone_list').innerText = activeData.list;
             // Compare with previous
             var prev = parseInt(document.getElementById('sg_ihs4_previo').value);
+            var alertEl = document.getElementById('sg_ihs4-change');
             if (prev) {
                 var pct = ((score - prev) / prev * 100).toFixed(0);
-                var alertEl = document.getElementById('sg_ihs4-change');
                 if (score < prev) { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-down"></i> <strong>Mejoría:</strong> IHS4 ' + prev + ' → ' + score + ' (' + pct + '%)'; }
                 else if (score > prev) { alertEl.className = 'alert-box alert-warning'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-up"></i> <strong>Empeoramiento:</strong> IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)'; }
                 else { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-equals"></i> <strong>Estable:</strong> IHS4 sin cambios (' + score + ')'; }
+            } else {
+                alertEl.style.display = 'none';
             }
         }
 
@@ -2538,22 +2797,47 @@
         function exportData_sg() {
             var eas = Array.from(document.querySelectorAll('#tab-sg .ea-item.active')).map(function (e) { return e.innerText; }).join('; ');
             var drugs = getSelectedDrugs_sg().join('; ');
+            var activeData = getActiveZoneData(sg_ihsData, sg_regions);
             var row = [
                 document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '',
                 document.getElementById('sg_nuhsa').value,
                 'SEGUIMIENTO',
                 document.getElementById('sg_n_visita').value,
+                document.getElementById('sg_fecha_ultima_consulta').value,
+                document.getElementById('sg_tiempo_desde_ultima').value,
+                document.getElementById('sg_estado_global').value,
                 document.getElementById('sg_final_ihs4').innerText,
                 document.getElementById('sg_ihs4_previo').value,
+                document.getElementById('sg_tot_n').innerText,
+                document.getElementById('sg_tot_a').innerText,
+                document.getElementById('sg_tot_f').innerText,
+                activeData.count,
+                activeData.list,
+                document.getElementById('sg_n_brotes').value,
                 document.getElementById('sg_eva_dolor').value,
+                document.getElementById('sg_eva_prurito').value,
+                document.getElementById('sg_eva_supuracion').value,
+                document.getElementById('sg_peso').value,
+                document.getElementById('sg_imc').value,
                 drugs,
+                document.getElementById('sg_tratamiento_realizado').value,
+                document.getElementById('sg_suspension_prematura').value,
+                document.getElementById('sg_motivo_suspension').value,
                 document.getElementById('sg_adherencia_val').value,
                 eas,
+                document.getElementById('sg_sint_digestivos').value,
+                document.getElementById('sg_sint_digestivos_coment').value,
+                document.getElementById('sg_sint_osteoarticulares').value,
+                document.getElementById('sg_sint_osteoarticulares_coment').value,
+                document.getElementById('sg_sint_psiquiatricos').value,
+                document.getElementById('sg_sint_psiquiatricos_coment').value,
                 document.getElementById('sg_dlqi_display').value,
                 document.getElementById('sg_hsqol_display').value,
                 document.getElementById('sg_hads_total_display').value,
                 document.getElementById('sg_tabaco').value,
+                document.getElementById('sg_material_refuerzo').value,
                 document.getElementById('sg_derivaciones').value,
+                document.getElementById('sg_notas').value,
                 document.getElementById('sg_prox_cita').value
             ].join('\t');
             navigator.clipboard.writeText(row).then(function () { alert("Datos copiados (pegar en Excel)"); });
@@ -2564,24 +2848,37 @@
             var drugs = getSelectedDrugs_sg();
             var ihs4 = document.getElementById('sg_final_ihs4').innerText;
             var sev = parseInt(ihs4) < 4 ? 'LEVE' : parseInt(ihs4) <= 10 ? 'MODERADO' : 'GRAVE';
+            var activeData = getActiveZoneData(sg_ihsData, sg_regions);
             var txt = 'SEGUIMIENTO — ENFERMERÍA EPA HS\n================================\nHospital Universitario Virgen del Rocío' +
                 '\nFecha: ' + (document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '') +
                 '\nPaciente: ' + document.getElementById('sg_nuhsa').value + ' | Visita nº: ' + document.getElementById('sg_n_visita').value +
-                '\n\n1. ACTIVIDAD\nIHS4 actual: ' + ihs4 + ' (' + sev + ') | IHS4 previo: ' + (document.getElementById('sg_ihs4_previo').value || 'NR') +
+                '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
+                '\nFecha última consulta: ' + (document.getElementById('sg_fecha_ultima_consulta').value || 'NR') + ' | Tiempo desde última: ' + (document.getElementById('sg_tiempo_desde_ultima').value || 'NR') +
+                '\nEstado global referido: ' + document.getElementById('sg_estado_global').value +
+                '\nIHS4 actual: ' + ihs4 + ' (' + sev + ') | IHS4 previo: ' + (document.getElementById('sg_ihs4_previo').value || 'NR') +
                 '\nNódulos: ' + document.getElementById('sg_tot_n').innerText + ' | Abscesos: ' + document.getElementById('sg_tot_a').innerText + ' | Fístulas: ' + document.getElementById('sg_tot_f').innerText +
-                '\nEVA Dolor: ' + (document.getElementById('sg_eva_dolor').value || 'NR') + '/10' +
+                '\nZonas activas: ' + activeData.count + ' | ' + activeData.list +
+                '\nEVA dolor/prurito/supuración: ' + (document.getElementById('sg_eva_dolor').value || 'NR') + '/' + (document.getElementById('sg_eva_prurito').value || 'NR') + '/' + (document.getElementById('sg_eva_supuracion').value || 'NR') +
                 '\nBrotes desde última visita: ' + (document.getElementById('sg_n_brotes').value || 'NR') +
-                '\n\n2. TRATAMIENTO\nFarmacos: ' + (drugs.length ? drugs.join(', ') : 'NR') +
+                '\nPeso/IMC: ' + (document.getElementById('sg_peso').value || 'NR') + 'kg / ' + (document.getElementById('sg_imc').value || 'NR') +
+                '\nTabaco actual: ' + document.getElementById('sg_tabaco').value +
+                '\nTratamiento realizado desde última visita: ' + (document.getElementById('sg_tratamiento_realizado').value || 'NR') +
+                '\nSuspensión prematura: ' + document.getElementById('sg_suspension_prematura').value + ' | Motivo: ' + (document.getElementById('sg_motivo_suspension').value || 'NR') +
+                '\nSíntomas digestivos: ' + document.getElementById('sg_sint_digestivos').value + (document.getElementById('sg_sint_digestivos_coment').value ? ' (' + document.getElementById('sg_sint_digestivos_coment').value + ')' : '') +
+                '\nSíntomas osteoarticulares: ' + document.getElementById('sg_sint_osteoarticulares').value + (document.getElementById('sg_sint_osteoarticulares_coment').value ? ' (' + document.getElementById('sg_sint_osteoarticulares_coment').value + ')' : '') +
+                '\nSíntomas psiquiátricos/salud mental: ' + document.getElementById('sg_sint_psiquiatricos').value + (document.getElementById('sg_sint_psiquiatricos_coment').value ? ' (' + document.getElementById('sg_sint_psiquiatricos_coment').value + ')' : '') +
+                '\n\n=== REGISTRO AÑADIDO DE ENFERMERÍA ===' +
+                '\nFármacos: ' + (drugs.length ? drugs.join(', ') : 'NR') +
                 '\nAdherencia Morisky Green: ' + (document.getElementById('sg_adherencia_val').value || 'NR') + ' (' + document.getElementById('sg_morisky_score').value + '/4)' +
                 '\nAutoinyección: ' + (document.getElementById('sg_autoinyec') ? document.getElementById('sg_autoinyec').value : 'N/A') +
                 '\nEfectos adversos:\n' + (eas || 'Ninguno') +
                 (document.getElementById('sg_ea_detalle').value ? '\nDetalle: ' + document.getElementById('sg_ea_detalle').value : '') +
-                '\n\n3. HÁBITOS\nTabaco: ' + document.getElementById('sg_tabaco').value + ' | Ejercicio: ' + document.getElementById('sg_ejercicio').value + ' | Sueño: ' + document.getElementById('sg_sueno').value +
-                '\n\n4. PROMs\nDLQI: ' + document.getElementById('sg_dlqi_display').value + '/30 | HSQoL-24: ' + document.getElementById('sg_hsqol_display').value + ' (' + (document.getElementById('sg_hsqol_interp').value || 'No evaluado') + ')' +
+                '\nEjercicio/Sueño: ' + document.getElementById('sg_ejercicio').value + ' / ' + document.getElementById('sg_sueno').value +
+                '\nPROMs: DLQI ' + document.getElementById('sg_dlqi_display').value + '/30 | HSQoL-24 ' + document.getElementById('sg_hsqol_display').value + ' (' + (document.getElementById('sg_hsqol_interp').value || 'No evaluado') + ')' +
                 '\nHADS: ' + document.getElementById('sg_hads_total_display').value +
-                '\n\n5. CURA\n' + (document.getElementById('sg_cura_hoy') && document.getElementById('sg_cura_hoy').value === 'Si' ? 'Tipo: ' + (document.getElementById('sg_tipo_herida') ? document.getElementById('sg_tipo_herida').value : '') + ' | Apósito: ' + (document.getElementById('sg_aposito') ? document.getElementById('sg_aposito').value : '') : 'No precisa') +
-                '\n\n6. PLAN Y SEGUIMIENTO' +
-                '\nDerivaciones: ' + (document.getElementById('sg_derivaciones').value || 'Ninguna') +
+                '\nMaterial educativo/refuerzo: ' + document.getElementById('sg_material_refuerzo').value +
+                '\nCura local: ' + (document.getElementById('sg_cura_hoy') && document.getElementById('sg_cura_hoy').value === 'Si' ? 'Tipo ' + (document.getElementById('sg_tipo_herida') ? document.getElementById('sg_tipo_herida').value : '') + ' | Apósito ' + (document.getElementById('sg_aposito') ? document.getElementById('sg_aposito').value : '') : 'No precisa') +
+                '\nRecomendaciones/necesidades a comentar con Dermatología: ' + (document.getElementById('sg_derivaciones').value || 'Ninguna') +
                 '\nNotas: ' + (document.getElementById('sg_notas').value || 'Sin notas') +
                 '\nPróxima cita: ' + (document.getElementById('sg_prox_cita').value || 'Pendiente') +
                 '\n================================';
