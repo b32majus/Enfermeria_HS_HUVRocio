@@ -183,6 +183,9 @@ Permitir carga manual de una base Excel `BD_VISITAS_HS` en una herramienta está
 ### Resultado esperado
 La pestaña de Seguimiento puede apoyarse en una base longitudinal temporal, sin backend y sin persistencia tras cerrar la pestaña.
 
+### Estado
+- Validación manual completada y documentada en `docs/QA_FASE_3_IMPORTACION.md`.
+
 ---
 
 ## Fase 4 — Refactor modular
