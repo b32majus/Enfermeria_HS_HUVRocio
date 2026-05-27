@@ -261,8 +261,25 @@ La acción:
 - Confirmar si la parte quirúrgica/cura postquirúrgica está demasiado extensa y qué simplificar.
 - Confirmar si todos los PROMs se usarán en consulta o si algunos pasarán a remoto.
 - Confirmar si Hurley se mantiene como orientación enfermera.
-- Revisar si el bloque de tratamiento activo es suficiente o si más adelante habrá que estructurarlo por grupo terapéutico.
 - Confirmar si hay campos poco útiles o difíciles de completar en consulta real.
+
+### Tratamiento activo y registro farmacológico
+
+Pendiente clave para Enfermería y Dermatología/Farmacia:
+
+- Confirmar si Enfermería debe registrar tratamiento activo en la herramienta o si se obtendrá de otras fuentes.
+- Decidir si el tratamiento se recoge de forma simple, por ejemplo campo libre/listado de fármacos, o de forma estructurada por grupos terapéuticos.
+- Si se estructura por grupos, definir qué grupos son útiles:
+  - antibióticos;
+  - biológicos;
+  - tratamiento tópico;
+  - hormonal/metabólico;
+  - tratamientos para comorbilidades;
+  - otros.
+- Confirmar si merece la pena que Enfermería recoja fármaco exacto, dosis/frecuencia y cambios, o si esto añade demasiada carga a la consulta.
+- Confirmar si parte de la información se puede extraer mejor de Dermatología, de Farmacia Hospitalaria o de la historia clínica.
+- Decidir qué dato mínimo sí debe quedar en la herramienta para el seguimiento enfermero: tratamiento activo, cambios desde última visita, suspensión, motivo, adherencia y efectos adversos.
+- Acordar si el bloque actual es suficiente para la beta o si se deja como fase posterior.
 
 ### Educación sanitaria y apoyo social
 
@@ -297,6 +314,7 @@ La acción:
 | Agenda específica Enfermería HS | Agenda ya creada/prevista, pendiente de uso estructurado. | Confirmar cómo se activa y quién gestiona huecos. |
 | Nueva tarea/actividad | Crear tarea para registrar homogéneamente actividad de Enfermería HS. | Confirmar si se ha solicitado/creado. |
 | Formulario HTML/PIDE | Usar HTML operativo y valorar transformación futura a formulario estructurado PIDE. | La herramienta HTML ya está operativa para beta; PIDE queda como evolución. |
+| Registro farmacológico | Definir si Enfermería recoge tratamiento activo/fármacos o si se extrae de Dermatología/Farmacia. | Decidir nivel mínimo de registro y si se estructura por grupos terapéuticos. |
 | Dossier educación sanitaria | Preparar material educativo para agilizar consulta. | Pendiente validación de Giovanna y definición de contenido final. |
 | Material ayudas sociales | Preparar documento de recursos/ayudas sociales para pacientes. | Pedir a Enfermería contenido habitual y responsable de preparación. |
 | DLQI/PROMs remotos | Valorar recogida remota para que Enfermería incorpore puntuación. | Fase posterior con Microsoft Forms/QR. |
