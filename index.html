@@ -655,6 +655,18 @@
             color: #92400e;
         }
 
+        .bmi-interpretation {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e3a8a;
+        }
+
+        .bmi-interpretation.is-warning {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
         .alert-danger {
             background: #fee2e2;
             border: 1px solid #fecaca;
@@ -1671,6 +1683,7 @@
                     </div>
                     <div><label>TA (mmHg)</label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
                 </div>
+                <div id="pv_imc-interpretation" class="alert-box bmi-interpretation" aria-live="polite"></div>
                 <div id="pv_imc-alert" class="alert-box alert-warning"><i class="fas fa-weight"></i> <strong>IMC
                         ≥30:</strong>
                     Pérdida del 5-10% puede reducir brotes. Valorar apoyo nutricional si procede.</div>
@@ -2145,6 +2158,7 @@
                     </div>
                     <div><label>Comentario síntomas digestivos</label><input type="text" id="sg_sint_digestivos_coment" placeholder="Opcional"></div>
                 </div>
+                <div id="sg_imc-interpretation" class="alert-box bmi-interpretation" aria-live="polite"></div>
                 <div class="grid-4" style="margin-top:15px;">
                     <div><label>Síntomas osteoarticulares <span class="label-star">(*)</span></label>
                         <select id="sg_sint_osteoarticulares">
@@ -4813,14 +4827,41 @@
         toggleHabitosAdvice_pv();
 
         // IMC (PV)
+        function getBmiCategory(imc) {
+            if (imc < 18.5) return 'Bajo peso';
+            if (imc < 25) return 'Normopeso';
+            if (imc < 30) return 'Sobrepeso';
+            if (imc < 35) return 'Obesidad clase I';
+            if (imc < 40) return 'Obesidad clase II';
+            return 'Obesidad clase III';
+        }
+
+        function updateBmiInterpretation(prefix) {
+            var imcValue = document.getElementById(prefix + '_imc').value;
+            var imc = parseFloat(imcValue);
+            var interpretationEl = document.getElementById(prefix + '_imc-interpretation');
+            if (!interpretationEl) return;
+            if (isNaN(imc)) {
+                interpretationEl.style.display = 'none';
+                interpretationEl.textContent = '';
+                return;
+            }
+            var category = getBmiCategory(imc);
+            interpretationEl.className = 'alert-box bmi-interpretation' + (imc >= 25 ? ' is-warning' : '');
+            interpretationEl.textContent = 'IMC ' + imcValue + ' — ' + category + '. Interpretar junto con evolución clínica, comorbilidades y criterio profesional.';
+            interpretationEl.style.display = 'block';
+        }
+
         function calcIMC_pv() {
             var w = parseFloat(document.getElementById('pv_peso').value);
             var h = parseFloat(document.getElementById('pv_talla').value);
             if (w && h) {
-                var imc = (w / (h * h)).toFixed(1);
-                document.getElementById('pv_imc').value = imc;
-                document.getElementById('pv_imc-alert').style.display = imc >= 30 ? 'block' : 'none';
+                document.getElementById('pv_imc').value = (w / (h * h)).toFixed(1);
+            } else {
+                document.getElementById('pv_imc').value = '';
             }
+            updateBmiInterpretation('pv');
+            document.getElementById('pv_imc-alert').style.display = w && h && parseFloat(document.getElementById('pv_imc').value) >= 30 ? 'block' : 'none';
         }
 
         // Retraso diagnóstico
@@ -5218,6 +5259,7 @@
             var h = parseFloat(document.getElementById('sg_talla').value);
             if (w && h) document.getElementById('sg_imc').value = (w / (h * h)).toFixed(1);
             else document.getElementById('sg_imc').value = '';
+            updateBmiInterpretation('sg');
         }
 
         function toggleCuraDetail_sg() {
