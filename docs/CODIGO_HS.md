@@ -29,6 +29,13 @@ Si aparecen varios códigos HS para el mismo paciente en el histórico, la herra
 
 Un paciente que ya tiene `codigo_hs` válido no puede recibir otro desde la interfaz. Los botones de asignación quedan bloqueados cuando ya existe código.
 
+Si en el formulario aparece un `codigo_hs` distinto del histórico del paciente, la herramienta:
+
+- restaura automáticamente el código histórico;
+- sincroniza PV/SG/CX;
+- bloquea la exportación en ese intento;
+- muestra aviso visible y requiere volver a pulsar `Copiar fila Excel` tras revisar identificación.
+
 ## Cuándo se genera uno nuevo
 
 Se genera automáticamente un código nuevo cuando se inicia o selecciona un paciente por `NUHSA` y no tiene `codigo_hs` previo:
@@ -87,6 +94,8 @@ En fases posteriores, `codigo_hs` será el identificador de enlace para respuest
 3. La herramienta reutiliza automáticamente el código existente o genera el siguiente código disponible.
 4. Elegir PV, SG o CX y completar la visita.
 5. Registrar la visita y copiar la fila Excel para persistir la correspondencia.
+
+Si surge conflicto de código durante exportación, la herramienta no exporta automáticamente tras corrección: primero corrige/sincroniza y luego requiere una segunda pulsación manual de `Copiar fila Excel`.
 
 ## Límites
 

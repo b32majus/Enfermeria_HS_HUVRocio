@@ -36,6 +36,37 @@
             margin: 0;
         }
 
+        .app-shell {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            min-height: 100vh;
+        }
+
+        .app-sidebar {
+            border-right: 1px solid #dbe3ef;
+            background: #f8fbff;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 14px;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            width: 100%;
+            margin-bottom: 10px;
+            justify-content: space-between;
+        }
+
+        .app-sidebar-body {
+            display: block;
+        }
+
+        .app-main {
+            min-width: 0;
+        }
+
         /* TAB BAR */
         .tab-bar {
             background: #1e293b;
@@ -624,6 +655,18 @@
             color: #92400e;
         }
 
+        .bmi-interpretation {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e3a8a;
+        }
+
+        .bmi-interpretation.is-warning {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
         .alert-danger {
             background: #fee2e2;
             border: 1px solid #fecaca;
@@ -825,9 +868,8 @@
         }
 
         .global-panel {
-            max-width: 1200px;
-            margin: 18px auto 0;
-            padding: 0 30px;
+            margin: 0;
+            padding: 0;
         }
 
         .global-panel-card {
@@ -895,6 +937,70 @@
             padding: 8px 10px;
             font-size: 0.86rem;
             margin-top: 8px;
+        }
+
+        .sidebar-section {
+            margin-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.86rem;
+            color: #334155;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-metrics {
+            font-size: 0.86rem;
+            color: #334155;
+            border-radius: 6px;
+            border: 1px solid #dbe5f0;
+            background: #f8fafc;
+            padding: 8px 10px;
+            margin-top: 6px;
+        }
+
+        .sidebar-patient-card {
+            border: 1px solid #dbe5f0;
+            border-radius: 8px;
+            background: #fff;
+            padding: 10px;
+            font-size: 0.86rem;
+            color: #334155;
+            display: grid;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-patient-card.is-new {
+            border-color: #fde68a;
+            background: #fffbeb;
+        }
+
+        .sidebar-patient-state {
+            display: none;
+            color: #92400e;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .sidebar-patient-row strong {
+            color: #0f172a;
+        }
+
+        .advice-card {
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            line-height: 1.4;
         }
 
         .fab-bar {
@@ -1091,6 +1197,36 @@
             color: #065f46;
         }
 
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            padding: 4px 10px;
+            font-size: 0.82rem;
+            color: #334155;
+        }
+
+        .status-chip.is-ok {
+            border-color: #86efac;
+            background: #ecfdf5;
+            color: #166534;
+        }
+
+        .status-chip.is-warn {
+            border-color: #fcd34d;
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .status-chip.is-error {
+            border-color: #fca5a5;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
         .active-patient-inline {
             margin-top: 16px;
             padding: 10px 14px;
@@ -1098,42 +1234,218 @@
             border-radius: 8px;
             background: #f8fafc;
         }
+
+        .toast-host {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 2100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: min(420px, calc(100vw - 32px));
+            pointer-events: none;
+        }
+
+        .app-toast {
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 0.9rem;
+            line-height: 1.35;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+            color: #fff;
+            transform: translateY(12px);
+            opacity: 0;
+            animation: toast-in 0.22s ease forwards;
+        }
+
+        .app-toast--ok {
+            background: #166534;
+        }
+
+        .app-toast--warn {
+            background: #92400e;
+        }
+
+        .app-toast--error {
+            background: #991b1b;
+        }
+
+        .app-toast.is-leaving {
+            animation: toast-out 0.2s ease forwards;
+        }
+
+        @media (max-width: 1100px) {
+            .app-shell {
+                display: block;
+            }
+
+            .app-sidebar {
+                position: static;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #dbe3ef;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+            }
+
+            .app-sidebar.is-collapsed .app-sidebar-body {
+                display: none;
+            }
+        }
+
+        .critical-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            z-index: 2200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .critical-modal.is-open {
+            display: flex;
+        }
+
+        .critical-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.54);
+        }
+
+        .critical-modal__panel {
+            position: relative;
+            width: min(680px, 100%);
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.3);
+            overflow: hidden;
+        }
+
+        .critical-modal__head {
+            padding: 14px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .critical-modal__title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .critical-modal__body {
+            padding: 16px 18px 10px;
+            color: #1e293b;
+            font-size: 0.93rem;
+            line-height: 1.45;
+            white-space: pre-line;
+        }
+
+        .critical-modal__detail {
+            margin-top: 10px;
+            font-size: 0.86rem;
+            color: #475569;
+            white-space: pre-line;
+        }
+
+        .critical-modal__actions {
+            padding: 14px 18px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toast-out {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="global-panel">
-        <div class="global-panel-card">
-            <div class="global-panel-head">
-                <h2 class="global-panel-title">Base y paciente</h2>
-                <span style="font-size:0.8rem;color:#64748b;" title="Orientativo para priorización/lectura rápida.">Flujo recomendado</span>
-            </div>
-            <div class="import-panel-row" style="margin-bottom:6px;">
-                <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
-                <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar / recargar BD</button>
-                <div class="import-status status-inline">
-                    <span class="status-dot status-dot--empty" id="master_excel_status_dot"></span>
-                    <span id="master_excel_status">BD no cargada</span>
-                </div>
-                <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
-            </div>
-            <div class="import-panel-row">
-                <input type="text" id="global_patient_search" placeholder="Buscar por NUHSA o código HS">
-                <button type="button" class="btn btn-outline" id="global_patient_search_btn"><i class="fas fa-search"></i> Buscar paciente</button>
-            </div>
-            <div id="global_patient_result_summary" class="global-result">Sin paciente seleccionado.</div>
-            <div class="hs-code-row">
-                <span id="global_hs_code_status" class="hs-code-status">Introduzca primero NUHSA o busque paciente.</span>
-                <button type="button" class="btn btn-outline" id="global_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Asignar código HS</button>
-            </div>
-            <div id="global_hs_code_feedback" class="hs-code-feedback">Recuerde copiar la fila Excel para que el código HS quede registrado en la base.</div>
-            <div id="master_excel_warnings" style="display:none;"></div>
-            <div id="master_excel_error" style="display:none;"></div>
-        </div>
-    </div>
+    <div class="app-shell">
+        <aside class="app-sidebar" id="app_sidebar">
+            <button type="button" class="btn btn-outline sidebar-toggle" id="sidebar_toggle_btn">
+                <span><i class="fas fa-database"></i> Base y paciente</span>
+                <span id="sidebar_toggle_icon"><i class="fas fa-chevron-up"></i></span>
+            </button>
+            <div class="app-sidebar-body" id="app_sidebar_body">
+                <div class="global-panel">
+                    <div class="global-panel-card">
+                        <div class="global-panel-head">
+                            <h2 class="global-panel-title">Base de datos</h2>
+                            <span style="font-size:0.8rem;color:#64748b;" title="Orientativo para priorización/lectura rápida.">Consulta activa</span>
+                        </div>
+                        <div class="import-panel-row" style="margin-bottom:6px;">
+                            <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
+                            <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar / recargar BD</button>
+                        </div>
+                        <div class="import-status status-inline">
+                            <span class="status-dot status-dot--empty" id="master_excel_status_dot"></span>
+                            <span id="master_excel_status">BD no cargada</span>
+                        </div>
+                        <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
+                        <div class="sidebar-metrics" id="master_excel_metrics">Registros: 0 | Pacientes: 0 | Códigos HS únicos: 0</div>
 
-    <!-- BARRA DE PESTAÑAS -->
-    <div class="tab-bar">
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">Paciente</div>
+                            <div class="import-panel-row">
+                                <input type="text" id="global_patient_search" placeholder="Buscar por NUHSA o código HS">
+                                <button type="button" class="btn btn-outline" id="global_patient_search_btn"><i class="fas fa-search"></i> Buscar</button>
+                            </div>
+                            <div id="global_patient_result_summary" class="global-result" style="display:none;"></div>
+                            <div class="sidebar-patient-card" id="sidebar_patient_card">
+                                <div class="sidebar-patient-state" id="sidebar_patient_state"></div>
+                                <div class="sidebar-patient-row"><strong>NUHSA:</strong> <span id="sidebar_patient_nuhsa">—</span></div>
+                                <div class="sidebar-patient-row"><strong id="sidebar_patient_code_label">Código HS:</strong> <span id="sidebar_patient_code">—</span></div>
+                                <div class="sidebar-patient-row"><strong>Última visita:</strong> <span id="sidebar_patient_visit">—</span></div>
+                                <div class="sidebar-patient-row"><strong>Tipo:</strong> <span id="sidebar_patient_type">—</span></div>
+                                <div class="sidebar-patient-row"><strong>IHS4 último:</strong> <span id="sidebar_patient_ihs4">—</span></div>
+                            </div>
+                            <div class="hs-code-row">
+                                <span id="global_hs_code_status" class="hs-code-status">Introduzca primero NUHSA o busque paciente.</span>
+                                <button type="button" class="btn btn-outline" id="global_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Asignar código HS</button>
+                            </div>
+                            <div id="global_hs_code_feedback" class="hs-code-feedback" style="display:none;"></div>
+                            <button type="button" class="btn btn-outline" id="sidebar_new_patient_btn"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar formulario</button>
+                        </div>
+                        <div id="master_excel_warnings" style="display:none;"></div>
+                        <div id="master_excel_error" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <!-- BARRA DE PESTAÑAS -->
+            <div class="tab-bar">
         <button class="tab-btn active-pv" id="btn-pv" onclick="switchTab('pv')">
             <i class="fas fa-user-nurse"></i> Primera Visita <span class="tab-badge tab-badge-pv">1ª</span>
         </button>
@@ -1175,7 +1487,7 @@
                     </div>
                     <div class="form-group"><label>Edad <span class="label-star">(*)</span></label><input type="number" id="pv_edad" placeholder="Años">
                     </div>
-                    <div class="form-group"><label>Sexo <span class="label-star">(*)</span></label>
+                    <div class="form-group"><label>Sexo al nacimiento <span class="label-star">(*)</span></label>
                         <select id="pv_sexo">
                             <option value="">Seleccionar</option>
                             <option>Mujer</option>
@@ -1196,18 +1508,30 @@
                     </div>
                 </div>
                 <div class="import-panel-row" style="margin-top:10px;">
-                    <button type="button" class="btn btn-outline" id="pv_hs_assign_btn"><i class="fas fa-id-card"></i> Generar código HS</button>
+                    <button type="button" class="btn btn-outline" id="pv_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Generar código HS</button>
                 </div>
                 <div class="subsection-title">Historia de la enfermedad</div>
                 <div class="grid-4">
-                    <div class="form-group"><label>Año inicio síntomas <span class="label-star">(*)</span></label><input type="number" id="pv_anio_ini"
+                    <div class="form-group"><label>Año inicio síntomas</label><input type="number" id="pv_anio_ini"
                             placeholder="Ej: 2015"></div>
-                    <div class="form-group"><label>Año diagnóstico <span class="label-star">(*)</span></label><input type="number" id="pv_anio_dx"
+                    <div class="form-group"><label>Año diagnóstico</label><input type="number" id="pv_anio_dx"
                             placeholder="Ej: 2020"></div>
                     <div class="form-group"><label>Retraso diagnóstico <span class="label-star">(*)</span></label><input type="text" id="pv_retraso_dx"
                             readonly style="background:#eee; font-weight:700;" placeholder="Auto"></div>
-                    <div class="form-group"><label>Profesional que diagnostica <span class="label-star">(*)</span></label><input type="text" id="pv_prof_dx"
-                            placeholder="Dermatología, AP, Urgencias..."></div>
+                    <div class="form-group"><label>Profesional/servicio que deriva <span class="label-star">(*)</span></label>
+                        <select id="pv_prof_dx">
+                            <option value="">Seleccionar</option>
+                            <option>Dermatología general</option>
+                            <option>Atención Primaria</option>
+                            <option>Cirugía General</option>
+                            <option>Cirugía Plástica</option>
+                            <option>Urgencias</option>
+                            <option>Digestivo</option>
+                            <option>Ginecología</option>
+                            <option>Urología</option>
+                            <option>Otro / no consta</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="grid-4" style="margin-top:15px;">
                     <div class="form-group"><label>Nº médicos previos</label><input type="number" id="pv_n_medicos"
@@ -1309,7 +1633,7 @@
                         style="color:#f59e0b;margin-right:6px;"></i> Hábitos generales</div>
                 <div class="grid-3">
                     <div class="form-group"><label>Actividad física</label>
-                        <select id="pv_ejercicio">
+                        <select id="pv_ejercicio" onchange="toggleHabitosAdvice_pv()">
                             <option value="">Seleccionar</option>
                             <option>Sedentario</option>
                             <option>Ligera (paseos)</option>
@@ -1318,7 +1642,7 @@
                         </select>
                     </div>
                     <div class="form-group"><label>Calidad del sueño</label>
-                        <select id="pv_sueno">
+                        <select id="pv_sueno" onchange="toggleHabitosAdvice_pv()">
                             <option value="">Seleccionar</option>
                             <option>Buena</option>
                             <option>Regular (despertares)</option>
@@ -1333,6 +1657,12 @@
                         </select>
                     </div>
                 </div>
+                <div id="pv_ejercicio-consejo" class="advice-card" style="display:none;">
+                    Valorar consejo breve de actividad física adaptada a dolor, brotes y situación funcional.
+                </div>
+                <div id="pv_sueno-consejo" class="advice-card" style="display:none;">
+                    Registrar si la alteración del sueño parece asociada a dolor, prurito o supuración. Reforzar medidas básicas de higiene del sueño si procede.
+                </div>
             </div>
         </div>
 
@@ -1343,7 +1673,7 @@
                 <i class="fas fa-chevron-down caret"></i>
             </div>
             <div id="pv_sec-comorb" class="section-content">
-                <div class="grid-5"
+                <div class="grid-4"
                     style="background:#f8fafc; padding:20px; border-radius:8px; margin-bottom:25px; border:1px solid #e2e8f0;">
                     <div><label>Peso (kg) <span class="label-star">(*)</span></label><input type="number" id="pv_peso" onchange="calcIMC_pv()"></div>
                     <div><label>Talla (m) <span class="label-star">(*)</span></label><input type="number" id="pv_talla" step="0.01" onchange="calcIMC_pv()">
@@ -1351,11 +1681,9 @@
                     <div><label>IMC <span class="label-star">(*)</span></label><input type="text" id="pv_imc" readonly
                             style="background:#eee; font-weight:700;">
                     </div>
-                    <div><label>P. Abdominal (cm) <span class="label-star">(*)</span></label><input type="number" id="pv_perimetro"
-                            placeholder="S. Metabólico">
-                    </div>
-                    <div><label>TA (mmHg) <span class="label-star">(*)</span></label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
+                    <div><label>TA (mmHg)</label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
                 </div>
+                <div id="pv_imc-interpretation" class="alert-box bmi-interpretation" aria-live="polite"></div>
                 <div id="pv_imc-alert" class="alert-box alert-warning"><i class="fas fa-weight"></i> <strong>IMC
                         ≥30:</strong>
                     Pérdida del 5-10% puede reducir brotes. Valorar apoyo nutricional si procede.</div>
@@ -1704,9 +2032,9 @@
             médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
             posterior.</div>
         <div class="active-patient-inline" id="sg_selected_patient_panel">
-            <div class="import-status" id="sg_selected_patient_summary">Busque primero el paciente en el panel superior o introduzca NUHSA/código HS manualmente.</div>
+            <div id="sg_preload_status_chip" class="status-chip" style="display:none; margin-top:8px;">Datos previos cargados desde última visita</div>
             <div class="import-panel-row" style="margin-top:8px;">
-                <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-bolt"></i> Precargar seguimiento</button>
+                <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-redo"></i> Reaplicar precarga</button>
             </div>
         </div>
 
@@ -1735,7 +2063,7 @@
             </div>
             <div class="section-content" style="padding-top:0;">
                 <div class="import-panel-row" style="margin-bottom:12px;">
-                    <button type="button" class="btn btn-outline" id="sg_hs_assign_btn"><i class="fas fa-id-card"></i> Generar / asignar código HS</button>
+                    <button type="button" class="btn btn-outline" id="sg_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Generar / asignar código HS</button>
                 </div>
                 <p class="info-text">IHS4 previo y Hurley basal se mantienen como entrada manual temporal. En la fase
                     de carga de Excel maestro se precargarán automáticamente desde la última visita registrada del
@@ -1830,6 +2158,7 @@
                     </div>
                     <div><label>Comentario síntomas digestivos</label><input type="text" id="sg_sint_digestivos_coment" placeholder="Opcional"></div>
                 </div>
+                <div id="sg_imc-interpretation" class="alert-box bmi-interpretation" aria-live="polite"></div>
                 <div class="grid-4" style="margin-top:15px;">
                     <div><label>Síntomas osteoarticulares <span class="label-star">(*)</span></label>
                         <select id="sg_sint_osteoarticulares">
@@ -1850,19 +2179,25 @@
                 </div>
                 <div class="grid-2" style="margin-top:15px;">
                     <div><label>Ejercicio</label>
-                        <select id="sg_ejercicio">
+                        <select id="sg_ejercicio" onchange="toggleHabitosAdvice_sg()">
                             <option>Sin cambio</option>
                             <option>Ha mejorado</option>
                             <option>Ha empeorado</option>
                         </select>
                     </div>
                     <div><label>Sueño</label>
-                        <select id="sg_sueno">
+                        <select id="sg_sueno" onchange="toggleHabitosAdvice_sg()">
                             <option>Sin cambio</option>
                             <option>Ha mejorado</option>
                             <option>Ha empeorado</option>
                         </select>
                     </div>
+                </div>
+                <div id="sg_ejercicio-consejo" class="advice-card" style="display:none;">
+                    Valorar consejo breve de actividad física adaptada a dolor, brotes y situación funcional.
+                </div>
+                <div id="sg_sueno-consejo" class="advice-card" style="display:none;">
+                    Registrar si la alteración del sueño parece asociada a dolor, prurito o supuración. Reforzar medidas básicas de higiene del sueño si procede.
                 </div>
             </div>
         </div>
@@ -1875,10 +2210,10 @@
             </div>
             <div id="sg_sec-tx" class="section-content">
                 <div class="subsection-title">Tratamiento actual</div>
-                <div class="grid-3" style="margin-bottom:15px;">
-                    <div><label>Tratamiento realizado desde última visita <span class="label-star">(*)</span></label>
-                        <textarea id="sg_tratamiento_realizado" rows="2" placeholder="Resumen breve"></textarea>
-                    </div>
+                <div class="advice-card" style="margin-bottom:12px;">
+                    Pendiente definir con Enfermería/Dermatología/Farmacia si el tratamiento activo se registra de forma simple, por grupos terapéuticos o se extrae de historia/Farmacia.
+                </div>
+                <div class="grid-2" style="margin-bottom:15px;">
                     <div><label>Suspensión prematura <span class="label-star">(*)</span></label>
                         <select id="sg_suspension_prematura">
                             <option>No</option>
@@ -2209,7 +2544,7 @@
                     <div><label>Fecha intervención</label><input type="date" id="cx_fecha_qx"></div>
                 </div>
                 <div class="import-panel-row" style="margin-top:10px;">
-                    <button type="button" class="btn btn-outline" id="cx_hs_assign_btn"><i class="fas fa-id-card"></i> Generar código HS</button>
+                    <button type="button" class="btn btn-outline" id="cx_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Generar código HS</button>
                 </div>
                 <div class="grid-4" style="margin-top:15px;">
                     <div><label>Cirujano</label><input type="text" id="cx_cirujano" placeholder="Nombre"></div>
@@ -2582,12 +2917,28 @@
     </div>
 
     <!-- BARRA INFERIOR -->
-    <div class="fab-bar">
-        <button class="btn btn-outline" onclick="startNewPatient()"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar formulario</button>
-        <button class="btn btn-excel" onclick="exportActiveTab()"><i class="fas fa-file-excel"></i> Copiar
-            fila Excel</button>
-        <button class="btn btn-primary" onclick="copyActiveReport()"><i class="fas fa-file-medical"></i> Copiar
-            informe</button>
+            <div class="fab-bar">
+                <button class="btn btn-excel" onclick="exportActiveTab()"><i class="fas fa-file-excel"></i> Copiar
+                    fila Excel</button>
+                <button class="btn btn-primary" onclick="copyActiveReport()"><i class="fas fa-file-medical"></i> Copiar
+                    informe</button>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast_host" class="toast-host" aria-live="polite" aria-atomic="false"></div>
+    <div id="critical_modal" class="critical-modal" role="dialog" aria-modal="true" aria-labelledby="critical_modal_title" aria-hidden="true">
+        <div class="critical-modal__backdrop" data-critical-close="1"></div>
+        <div class="critical-modal__panel">
+            <div class="critical-modal__head">
+                <h3 id="critical_modal_title" class="critical-modal__title">Revise identificación</h3>
+            </div>
+            <div class="critical-modal__body">
+                <div id="critical_modal_message"></div>
+                <div id="critical_modal_detail" class="critical-modal__detail" style="display:none;"></div>
+            </div>
+            <div id="critical_modal_actions" class="critical-modal__actions"></div>
+        </div>
     </div>
 
     <script src="vendor/xlsx.full.min.js"></script>
@@ -2612,7 +2963,10 @@
         let selectedPatientLastRecord = null;
         let selectedPatientLastClinicalRecord = null;
         let hsSessionCodeMap = {};
+        let masterDbDuplicateCodes = [];
         let pendingNewPatientIdentifier = '';
+        let sgAutoPreloadMarker = '';
+        let activeCriticalModalConfig = null;
         const MASTER_COLUMNS = [
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
             'fecha_visita', 'nuhsa', 'codigo_hs', 'edad', 'sexo', 'situacion_laboral',
@@ -2643,12 +2997,113 @@
             'necesidades_valorar_dermatologia', 'proxima_cita_enfermeria', 'notas_enfermeria'
         ];
 
+        function showToast(message, type, timeoutMs) {
+            var host = document.getElementById('toast_host');
+            var text = String(message || '').trim();
+            if (!host || !text) return;
+            var mode = (type === 'error' || type === 'warn') ? type : 'ok';
+            var toast = document.createElement('div');
+            toast.className = 'app-toast app-toast--' + mode;
+            toast.textContent = text;
+            host.appendChild(toast);
+            var ttl = typeof timeoutMs === 'number' ? timeoutMs : (mode === 'error' ? 5600 : 3800);
+            window.setTimeout(function () {
+                toast.classList.add('is-leaving');
+                window.setTimeout(function () {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 220);
+            }, ttl);
+        }
+
+        function closeCriticalModal() {
+            var modal = document.getElementById('critical_modal');
+            if (!modal) return;
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            activeCriticalModalConfig = null;
+        }
+
+        function showCriticalModal(config) {
+            var modal = document.getElementById('critical_modal');
+            var titleEl = document.getElementById('critical_modal_title');
+            var messageEl = document.getElementById('critical_modal_message');
+            var detailEl = document.getElementById('critical_modal_detail');
+            var actionsEl = document.getElementById('critical_modal_actions');
+            if (!modal || !titleEl || !messageEl || !detailEl || !actionsEl) return;
+            var cfg = config || {};
+            activeCriticalModalConfig = cfg;
+            titleEl.textContent = cfg.title || 'Revise identificación';
+            messageEl.textContent = cfg.message || 'Se detectó una incoherencia de identidad.';
+            if (cfg.detail) {
+                detailEl.style.display = 'block';
+                detailEl.textContent = cfg.detail;
+            } else {
+                detailEl.style.display = 'none';
+                detailEl.textContent = '';
+            }
+            actionsEl.innerHTML = '';
+            var actions = Array.isArray(cfg.actions) && cfg.actions.length ? cfg.actions : [{ label: 'Aceptar', close: true }];
+            actions.forEach(function (action, idx) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn ' + (action.className || (idx === 0 ? 'btn-primary' : 'btn-outline'));
+                btn.textContent = action.label || 'Aceptar';
+                btn.addEventListener('click', function () {
+                    try {
+                        if (typeof action.onClick === 'function') action.onClick();
+                    } finally {
+                        if (action.close !== false) closeCriticalModal();
+                    }
+                });
+                actionsEl.appendChild(btn);
+            });
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function initNotificationUI() {
+            var modal = document.getElementById('critical_modal');
+            if (!modal) return;
+            modal.querySelectorAll('[data-critical-close]').forEach(function (node) {
+                node.addEventListener('click', function () {
+                    closeCriticalModal();
+                });
+            });
+            document.addEventListener('keydown', function (evt) {
+                if (evt.key === 'Escape' && modal.classList.contains('is-open')) closeCriticalModal();
+            });
+        }
+
+        function updateSidebarToggleUI() {
+            var sidebar = document.getElementById('app_sidebar');
+            var iconEl = document.getElementById('sidebar_toggle_icon');
+            if (!sidebar || !iconEl) return;
+            var collapsed = sidebar.classList.contains('is-collapsed');
+            iconEl.innerHTML = collapsed ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-up"></i>';
+        }
+
+        function copyTextToClipboard(text, successMessage, errorMessage) {
+            var successMsg = successMessage || 'Texto copiado al portapapeles.';
+            var failureMsg = errorMessage || 'No se pudo copiar al portapapeles.';
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                showToast(failureMsg, 'error');
+                return Promise.reject(new Error('Clipboard API no disponible'));
+            }
+            return navigator.clipboard.writeText(text).then(function () {
+                showToast(successMsg, 'ok');
+            }).catch(function (err) {
+                showToast(failureMsg, 'error', 6200);
+                throw err;
+            });
+        }
+
         function showImportError(message) {
             var el = document.getElementById('master_excel_error');
             if (!el) return;
             el.className = 'import-error';
             el.style.display = 'block';
             el.textContent = message || '';
+            showToast(message || 'Error durante la operación.', 'error', 6200);
         }
 
         function clearImportError() {
@@ -2670,15 +3125,21 @@
             }
             el.className = 'import-warning';
             el.style.display = 'block';
-            el.innerHTML = list.map(function (msg) { return '- ' + msg; }).join('<br>');
+            el.textContent = '';
+            list.forEach(function (msg, idx) {
+                if (idx) el.appendChild(document.createElement('br'));
+                el.appendChild(document.createTextNode('- ' + msg));
+            });
+            showToast(list.join(' | '), 'warn', 5200);
         }
 
         function showImportSuccess(message) {
             var el = document.getElementById('master_excel_warnings');
             if (!el) return;
-            el.className = 'import-ok';
-            el.style.display = 'block';
-            el.textContent = message || '';
+            el.className = '';
+            el.style.display = 'none';
+            el.textContent = '';
+            if (message) showToast(message, 'ok');
         }
 
         function setMasterStatusDot(mode) {
@@ -2690,26 +3151,54 @@
             else dotEl.classList.add('status-dot--empty');
         }
 
+        function analyzeMasterDbStats() {
+            var uniquePatients = {};
+            var uniqueCodes = {};
+            var codeOwnersMap = {};
+            masterDb.forEach(function (row) {
+                var patientKey = normalizePatientId(row.nuhsa || row.codigo_hs);
+                var nuhsa = normalizePatientId(row.nuhsa);
+                var code = normalizeHsCode(row.codigo_hs);
+                if (patientKey) uniquePatients[patientKey] = true;
+                if (isValidHsCode(code)) {
+                    uniqueCodes[code] = true;
+                    if (!codeOwnersMap[code]) codeOwnersMap[code] = {};
+                    if (nuhsa) codeOwnersMap[code][nuhsa] = true;
+                }
+            });
+            var duplicateCodes = Object.keys(codeOwnersMap).filter(function (code) {
+                return Object.keys(codeOwnersMap[code]).length > 1;
+            });
+            return {
+                nPatients: Object.keys(uniquePatients).length,
+                nCodes: Object.keys(uniqueCodes).length,
+                duplicateCodes: duplicateCodes
+            };
+        }
+
         function updateMasterDbStatus(warnings) {
             var statusEl = document.getElementById('master_excel_status');
             var loadedEl = document.getElementById('master_excel_loaded_at');
+            var metricsEl = document.getElementById('master_excel_metrics');
             if (Array.isArray(warnings)) masterDbWarnings = warnings.filter(Boolean);
-            var uniquePatients = {};
-            masterDb.forEach(function (row) {
-                var key = normalizePatientId(row.nuhsa || row.codigo_hs);
-                if (key) uniquePatients[key] = true;
-            });
-            var nPatients = Object.keys(uniquePatients).length;
-            var hasWarnings = masterDb.length && masterDbWarnings.length;
+            var stats = analyzeMasterDbStats();
+            masterDbDuplicateCodes = stats.duplicateCodes.slice();
+            var hasWarnings = masterDb.length && (masterDbWarnings.length || masterDbDuplicateCodes.length);
             if (statusEl) {
                 if (!masterDb.length) statusEl.textContent = 'BD no cargada';
-                else if (hasWarnings) statusEl.textContent = 'BD cargada con advertencias';
-                else statusEl.textContent = 'BD cargada: ' + masterDb.length + ' registros / ' + nPatients + ' pacientes';
+                else if (hasWarnings) statusEl.textContent = 'BD cargada con incidencias';
+                else statusEl.textContent = 'BD cargada correctamente';
             }
             if (loadedEl) {
                 loadedEl.textContent = masterDbLoadedAt ? ('Última carga: ' + masterDbLoadedAt) : 'Última carga: —';
             }
+            if (metricsEl) {
+                metricsEl.textContent = 'Registros: ' + masterDb.length + ' | Pacientes: ' + stats.nPatients + ' | Códigos HS únicos: ' + stats.nCodes;
+            }
             setMasterStatusDot(!masterDb.length ? 'empty' : (hasWarnings ? 'warning' : 'loaded'));
+            if (masterDb.length && masterDbDuplicateCodes.length) {
+                console.warn('Códigos HS duplicados detectados en BD cargada:', masterDbDuplicateCodes);
+            }
         }
 
         function persistMasterDbToSession() {
@@ -2732,7 +3221,11 @@
                 masterDbLoadedAt = loadedAt || null;
                 masterDbWarnings = [];
                 updateMasterDbStatus([]);
-                showImportSuccess('Base restaurada desde la sesión actual.');
+                if (masterDbDuplicateCodes.length) {
+                    showImportWarnings(['BD restaurada con incidencias: códigos HS duplicados detectados (' + masterDbDuplicateCodes.join(', ') + ').']);
+                } else {
+                    showImportSuccess('Base restaurada desde la sesión actual.');
+                }
                 updateHsCodeGlobalUI();
             } catch (err) {
                 masterDb = [];
@@ -2823,11 +3316,39 @@
         function setHsCodeFeedback(message, mode) {
             var el = document.getElementById('global_hs_code_feedback');
             if (!el) return;
+            if (el._hideTimer) window.clearTimeout(el._hideTimer);
+            if (!message || message === 'Recuerde copiar la fila Excel para que el código HS quede registrado en la base.') {
+                el.style.display = 'none';
+                el.textContent = '';
+                return;
+            }
             el.className = 'hs-code-feedback';
             if (mode === 'warn') el.classList.add('is-warn');
             if (mode === 'error') el.classList.add('is-error');
             if (mode === 'ok') el.classList.add('is-ok');
-            el.textContent = message || 'Recuerde copiar la fila Excel para que el código HS quede registrado en la base.';
+            el.textContent = message;
+            el.style.display = 'block';
+            el._hideTimer = window.setTimeout(function () {
+                el.style.display = 'none';
+                el.textContent = '';
+            }, mode === 'error' ? 6200 : 4800);
+        }
+
+        function updateSgPreloadStatusChip(message, mode) {
+            var chip = document.getElementById('sg_preload_status_chip');
+            if (!chip) return;
+            if (!message) {
+                chip.style.display = 'none';
+                chip.className = 'status-chip';
+                chip.textContent = '';
+                return;
+            }
+            chip.style.display = 'inline-flex';
+            chip.className = 'status-chip';
+            if (mode === 'ok') chip.classList.add('is-ok');
+            else if (mode === 'warn') chip.classList.add('is-warn');
+            else if (mode === 'error') chip.classList.add('is-error');
+            chip.textContent = message;
         }
 
         function getHsCodeOwners(hsCode) {
@@ -2851,6 +3372,26 @@
             var patientId = normalizePatientId(nuhsa);
             return getHsCodeOwners(hsCode).some(function (owner) {
                 return owner && owner !== patientId;
+            });
+        }
+
+        function isDuplicateHsCodeInMasterDb(hsCode) {
+            var code = normalizeHsCode(hsCode);
+            return isValidHsCode(code) && masterDbDuplicateCodes.indexOf(code) !== -1;
+        }
+
+        function showDuplicateHsCodeModal(hsCode, context) {
+            var code = normalizeHsCode(hsCode);
+            var actionMessage = context === 'report'
+                ? ' No es seguro copiar un informe con este código.'
+                : context === 'export'
+                    ? ' No es seguro copiar una fila Excel con este código.'
+                    : ' No es seguro seleccionar paciente por este código.';
+            showCriticalModal({
+                title: 'Código HS duplicado en la base',
+                message: 'El código ' + code + ' está asociado a más de un paciente.' + actionMessage,
+                detail: 'Busque por NUHSA o revise el Excel maestro antes de continuar.',
+                actions: [{ label: 'Aceptar', className: 'btn-primary' }]
             });
         }
 
@@ -3004,21 +3545,20 @@
             var selectedCode = normalizeHsCode(identifier ? getPatientHsCode(identifier) : '');
             var hasValidCode = isValidHsCode(selectedCode);
 
-            actionBtn.style.display = '';
+            actionBtn.style.display = 'none';
             actionBtn.disabled = true;
             actionBtn.title = '';
-            actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Introduzca NUHSA';
+            actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
+            statusEl.style.display = '';
 
             if (hasValidCode) {
-                statusEl.textContent = 'Código HS: ' + selectedCode;
-                actionBtn.disabled = true;
-                actionBtn.title = 'Paciente ya tiene código HS asignado';
-                actionBtn.innerHTML = '<i class="fas fa-check"></i> Código HS asignado';
+                statusEl.style.display = 'none';
                 updateFormHsButtons(selectedCode);
                 return;
             }
             if (identifier && (selectedRecord || pendingNewPatientIdentifier)) {
                 statusEl.textContent = 'Paciente sin código HS asignado.';
+                actionBtn.style.display = '';
                 actionBtn.disabled = false;
                 actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
                 updateFormHsButtons('');
@@ -3041,11 +3581,11 @@
                 var fieldCode = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
                 var assigned = isValidHsCode(code) || isValidHsCode(fieldCode);
                 var hasNuhsa = looksLikeNuhsa(valueOf(prefix + '_nuhsa') || selectedPatientIdentifier || pendingNewPatientIdentifier);
-                button.disabled = assigned || !hasNuhsa;
-                button.title = assigned ? 'Paciente ya tiene código HS asignado' : (!hasNuhsa ? 'Introduzca NUHSA primero' : '');
-                button.innerHTML = assigned
-                    ? '<i class="fas fa-check"></i> Código HS asignado'
-                    : (!hasNuhsa ? '<i class="fas fa-id-card"></i> Introduzca NUHSA' : '<i class="fas fa-id-card"></i> ' + config.emptyText);
+                var canAssign = !assigned && hasNuhsa;
+                button.style.display = canAssign ? '' : 'none';
+                button.disabled = !canAssign;
+                button.title = canAssign ? '' : '';
+                button.innerHTML = '<i class="fas fa-id-card"></i> ' + config.emptyText;
             });
         }
 
@@ -3096,7 +3636,10 @@
                 if (!masterDb.length && generatedNew) {
                     setHsCodeFeedback('Sin BD cargada: no se puede comprobar unicidad histórica. Se reservará el código en esta sesión. Código HS: ' + codeToUse + '.', 'warn');
                 } else if (generatedNew) {
-                    setHsCodeFeedback('Código HS generado automáticamente: ' + codeToUse + '. Recuerde copiar la fila Excel para registrarlo en la base.', 'ok');
+                    var generatedCodeNextStep = opts.actionContext === 'report'
+                        ? 'Revise la identificación antes de copiar el informe.'
+                        : 'Recuerde copiar la fila Excel para registrarlo en la base.';
+                    setHsCodeFeedback('Código HS generado automáticamente: ' + codeToUse + '. ' + generatedCodeNextStep, 'ok');
                 } else {
                     setHsCodeFeedback('Código HS existente reutilizado.', 'ok');
                 }
@@ -3191,38 +3734,160 @@
             ensureHsCodeForPatient(identifier, { source: 'manual-nuhsa' });
         }
 
-        function validateIdentityForExport(prefix) {
-            var nuhsa = normalizePatientId(valueOf(prefix + '_nuhsa'));
-            var code = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
-            if (!nuhsa && isValidHsCode(code)) {
-                var missingNuhsaMessage = 'Revise identificación: no se puede exportar código HS sin NUHSA asociado.';
-                setHsCodeFeedback(missingNuhsaMessage, 'error');
-                alert(missingNuhsaMessage);
+        function getConflictOwnersDetail(hsCode) {
+            var owners = getHsCodeOwners(hsCode);
+            return owners.length ? owners.join(', ') : 'No identificado';
+        }
+
+        function buildIdentityMismatchMessage(prefix, nuhsa) {
+            var activeNuhsa = normalizePatientId(selectedPatientIdentifier);
+            if (!activeNuhsa || !nuhsa || isValidHsCode(nuhsa)) return '';
+            if (activeNuhsa !== nuhsa) {
+                return 'Paciente activo: ' + activeNuhsa + '\nFormulario ' + prefix.toUpperCase() + ': ' + nuhsa;
+            }
+            return '';
+        }
+
+        function showBlockedIdentityModal(message, detail) {
+            showCriticalModal({
+                title: 'Revise identificación',
+                message: message,
+                detail: detail || '',
+                actions: [{ label: 'Aceptar', className: 'btn-primary' }]
+            });
+        }
+
+        function getIdentityActionMessages(context) {
+            var forReport = context === 'report';
+            return {
+                blocked: forReport ? 'Informe bloqueado' : 'Exportación bloqueada',
+                stopped: forReport ? 'Informe detenido' : 'Exportación detenida',
+                missingDetail: forReport
+                    ? 'Busque o introduzca NUHSA/código HS antes de copiar el informe.'
+                    : 'Busque o introduzca NUHSA/código HS antes de copiar la fila Excel.',
+                retryButton: forReport ? '"Copiar informe"' : '"Copiar fila Excel"',
+                cancelLabel: forReport ? 'Cancelar informe' : 'Cancelar exportación',
+                duplicateDetail: forReport
+                    ? 'Revise el Excel maestro antes de copiar el informe.'
+                    : 'Revise el Excel maestro antes de exportar.'
+            };
+        }
+
+        function resolveHsConflictWithAction(nuhsa, enteredCode, prefix, context) {
+            var patientId = normalizePatientId(nuhsa);
+            var conflictingCode = normalizeHsCode(enteredCode);
+            var knownCode = normalizeHsCode(getPatientHsCode(patientId));
+            var conflictOwners = getConflictOwnersDetail(conflictingCode);
+            var isHistoricalMismatch = isValidHsCode(knownCode) && knownCode !== conflictingCode;
+            var messages = getIdentityActionMessages(context);
+            if (isHistoricalMismatch) {
+                syncPatientIdentificationToForms(patientId, knownCode);
+                setHsCodeFeedback(messages.stopped + ': se restauró el código HS histórico del paciente (' + knownCode + '). Revise identificación y pulse de nuevo ' + messages.retryButton + '.', 'error');
+                showToast('Código HS histórico restaurado: ' + knownCode + '.', 'warn', 5400);
+                showCriticalModal({
+                    title: 'Código HS restaurado',
+                    message: 'El código HS introducido (' + conflictingCode + ') no corresponde al paciente actual. Se ha restaurado ' + knownCode + '.',
+                    detail: 'Paciente actual: ' + patientId + '\nCódigo en conflicto asignado a: ' + conflictOwners + '\nPara continuar, revise los datos y vuelva a pulsar ' + messages.retryButton + '.',
+                    actions: [{ label: 'Entendido', className: 'btn-primary' }]
+                });
                 return false;
             }
-            if (!nuhsa) return true;
+
+            showCriticalModal({
+                title: 'Conflicto de código HS',
+                message: 'El código HS ' + conflictingCode + ' ya pertenece a otro paciente.',
+                detail: 'Paciente actual: ' + patientId + '\nCódigo en conflicto asignado a: ' + conflictOwners + '\nPuede generar un nuevo código seguro para este paciente.',
+                actions: [
+                    {
+                        label: 'Generar nuevo código seguro',
+                        className: 'btn-primary',
+                        onClick: function () {
+                            var generatedCode = ensureHsCodeForPatient(patientId, { source: 'conflict-resolution', silent: true });
+                            if (isValidHsCode(generatedCode)) {
+                                setHsCodeFeedback('Se generó un nuevo código HS seguro (' + generatedCode + '). Revise y pulse de nuevo ' + messages.retryButton + '.', 'warn');
+                                showToast('Código HS corregido: ' + generatedCode + '.', 'ok');
+                            } else {
+                                setHsCodeFeedback('No se pudo generar un nuevo código HS seguro. Revise identificación.', 'error');
+                                showToast('No se pudo resolver el conflicto de código HS.', 'error');
+                            }
+                        }
+                    },
+                    { label: messages.cancelLabel, className: 'btn-outline' }
+                ]
+            });
+            return false;
+        }
+
+        function validateIdentityForAction(prefix, context) {
+            var messages = getIdentityActionMessages(context);
+            var nuhsa = normalizePatientId(valueOf(prefix + '_nuhsa'));
+            var code = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
+            var mismatchDetail = buildIdentityMismatchMessage(prefix, nuhsa);
+            if (mismatchDetail) {
+                setHsCodeFeedback(messages.stopped + ': paciente activo y formulario no coinciden.', 'error');
+                showBlockedIdentityModal(messages.blocked + ' por incoherencia entre paciente activo y formulario.', mismatchDetail);
+                return false;
+            }
+            if (!nuhsa) {
+                var missingIdentityMessage = messages.blocked + ': falta identificación de paciente.';
+                setHsCodeFeedback(missingIdentityMessage, 'error');
+                showBlockedIdentityModal(missingIdentityMessage, messages.missingDetail);
+                return false;
+            }
+            if (isValidHsCode(nuhsa)) {
+                var hsCodeAsNuhsaMessage = messages.blocked + ': el campo NUHSA contiene un código HS.';
+                setHsCodeFeedback(hsCodeAsNuhsaMessage, 'error');
+                showBlockedIdentityModal(
+                    hsCodeAsNuhsaMessage,
+                    'Busque el paciente por código HS desde la barra lateral para recuperar su NUHSA o revise el Excel maestro.'
+                );
+                return false;
+            }
             if (!isValidHsCode(code)) {
-                code = ensureHsCodeForPatient(nuhsa, { source: 'before-export' });
+                code = ensureHsCodeForPatient(nuhsa, {
+                    source: 'before-' + (context === 'report' ? 'report' : 'export'),
+                    actionContext: context
+                });
                 if (!isValidHsCode(code)) {
-                    setHsCodeFeedback('Exportación detenida: no se pudo asignar un código HS al paciente.', 'error');
-                    alert('Revise la identificación: es necesario un código HS válido para exportar.');
+                    setHsCodeFeedback(messages.stopped + ': no se pudo asignar un código HS al paciente.', 'error');
+                    showBlockedIdentityModal('Revise la identificación: es necesario un código HS válido para continuar.');
                     return false;
                 }
-                setHsCodeFeedback('Se ha generado automáticamente el código HS antes de exportar. Revise que la identificación sea correcta.', 'warn');
+                setHsCodeFeedback('Se generó automáticamente un código HS para el paciente. Revise identificación y pulse de nuevo ' + messages.retryButton + '.', 'warn');
+                showToast('Código HS generado automáticamente: ' + code + '. Revise y vuelva a pulsar ' + messages.retryButton + '.', 'warn', 5600);
+                return false;
+            }
+            if (isDuplicateHsCodeInMasterDb(code)) {
+                setHsCodeFeedback(messages.stopped + ': el código HS está duplicado en la base cargada.', 'error');
+                showDuplicateHsCodeModal(code, context);
+                return false;
             }
             var knownCode = getPatientHsCode(nuhsa);
             if (isValidHsCode(knownCode) && code !== normalizeHsCode(knownCode)) {
-                syncPatientIdentificationToForms(nuhsa, knownCode);
-                setHsCodeFeedback('Exportación detenida: se ha restaurado el código HS ya asignado al paciente.', 'error');
-                alert('Revise la identificación: el paciente ya tiene un código HS asignado.');
+                resolveHsConflictWithAction(nuhsa, code, prefix, context);
                 return false;
             }
             if (isValidHsCode(code) && codeBelongsToAnotherPatient(code, nuhsa)) {
-                setHsCodeFeedback('Exportación detenida: el código HS pertenece a otro paciente.', 'error');
-                alert('Revise la identificación: el código HS pertenece a otro paciente.');
+                var owners = getHsCodeOwners(code);
+                if (owners.length > 1) {
+                    setHsCodeFeedback(messages.stopped + ': se detectó duplicidad de código HS en la base/session.', 'error');
+                    showCriticalModal({
+                        title: 'Código HS duplicado',
+                        message: 'La base cargada contiene un código HS duplicado (' + code + ').',
+                        detail: 'Pacientes asociados: ' + owners.join(', ') + '\n' + messages.duplicateDetail,
+                        actions: [{ label: 'Aceptar', className: 'btn-primary' }]
+                    });
+                } else {
+                    setHsCodeFeedback(messages.stopped + ': el código HS pertenece a otro paciente.', 'error');
+                    resolveHsConflictWithAction(nuhsa, code, prefix, context);
+                }
                 return false;
             }
             return true;
+        }
+
+        function validateIdentityForExport(prefix) {
+            return validateIdentityForAction(prefix, 'export');
         }
 
         function persistSelectedPatientIdentifier() {
@@ -3332,16 +3997,48 @@
             var summaryEl = document.getElementById('sg_selected_patient_summary');
             if (!summaryEl) return;
             if (!record) {
-                summaryEl.textContent = 'Busque primero el paciente en el panel superior o introduzca NUHSA/código HS manualmente.';
+                summaryEl.textContent = 'Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS manualmente.';
                 return;
             }
             var ihs4Source = clinicalRecord || record;
             var patientCode = normalizeHsCode(getPatientHsCode(record.nuhsa || selectedPatientIdentifier) || record.codigo_hs);
-            summaryEl.innerHTML =
+            summaryEl.textContent =
                 'Paciente activo: ' + (record.nuhsa || selectedPatientIdentifier || 'NR') +
                 ' · Código HS: ' + (isValidHsCode(patientCode) ? patientCode : 'sin asignar') +
                 ' · Última visita: ' + (record.fecha_visita || 'NR') +
                 ' · IHS4: ' + (ihs4Source.ihs4_actual || 'NR');
+        }
+
+        function updateSidebarPatientCard(record, clinicalRecord, options) {
+            var opts = options || {};
+            var cardEl = document.getElementById('sidebar_patient_card');
+            var stateEl = document.getElementById('sidebar_patient_state');
+            var nuhsaEl = document.getElementById('sidebar_patient_nuhsa');
+            var codeLabelEl = document.getElementById('sidebar_patient_code_label');
+            var codeEl = document.getElementById('sidebar_patient_code');
+            var visitEl = document.getElementById('sidebar_patient_visit');
+            var typeEl = document.getElementById('sidebar_patient_type');
+            var ihsEl = document.getElementById('sidebar_patient_ihs4');
+            if (!cardEl || !stateEl || !nuhsaEl || !codeLabelEl || !codeEl || !visitEl || !typeEl || !ihsEl) return;
+            cardEl.classList.toggle('is-new', !!opts.isNew);
+            stateEl.style.display = opts.isNew ? 'block' : 'none';
+            stateEl.textContent = opts.isNew ? 'Paciente nuevo / no registrado en BD' : '';
+            codeLabelEl.textContent = opts.isNew ? 'Código HS reservado:' : 'Código HS:';
+            if (!record) {
+                nuhsaEl.textContent = '—';
+                codeEl.textContent = '—';
+                visitEl.textContent = '—';
+                typeEl.textContent = '—';
+                ihsEl.textContent = '—';
+                return;
+            }
+            var ihs4Source = clinicalRecord || record;
+            var code = normalizeHsCode(record.codigo_hs || getPatientHsCode(record.nuhsa || selectedPatientIdentifier));
+            nuhsaEl.textContent = record.nuhsa || selectedPatientIdentifier || 'NR';
+            codeEl.textContent = isValidHsCode(code) ? code : 'sin asignar';
+            visitEl.textContent = opts.isNew ? 'sin visitas previas' : (record.fecha_visita || 'NR');
+            typeEl.textContent = opts.isNew ? '—' : (record.tipo_visita || 'NR');
+            ihsEl.textContent = opts.isNew ? '—' : (ihs4Source.ihs4_actual || 'NR');
         }
 
         function updateGlobalPatientSummary(record, clinicalRecord, notFound) {
@@ -3350,24 +4047,21 @@
             if (!record) {
                 summaryEl.className = 'global-result' + (notFound ? ' error' : '');
                 summaryEl.textContent = notFound ? 'Paciente no encontrado en la base cargada.' : 'Sin paciente seleccionado.';
+                summaryEl.style.display = notFound ? 'block' : 'none';
+                updateSidebarPatientCard(null, null);
                 return;
             }
-            summaryEl.className = 'global-result';
-            var ihs4Source = clinicalRecord || record;
-            var code = normalizeHsCode(record.codigo_hs || getPatientHsCode(record.nuhsa || selectedPatientIdentifier));
-            summaryEl.innerHTML =
-                'Paciente encontrado' +
-                ' | Última visita: ' + (record.fecha_visita || 'NR') +
-                ' | Tipo: ' + (record.tipo_visita || 'NR') +
-                ' | IHS4: ' + (ihs4Source.ihs4_actual || 'NR') +
-                ' | Código HS: ' + (isValidHsCode(code) ? code : 'NR');
+            summaryEl.style.display = 'none';
+            summaryEl.textContent = '';
+            updateSidebarPatientCard(record, clinicalRecord);
         }
 
         function updateGlobalNewPatientSummary(nuhsa, hsCode) {
             var summaryEl = document.getElementById('global_patient_result_summary');
             if (!summaryEl) return;
-            summaryEl.className = 'global-result';
-            summaryEl.textContent = 'Paciente nuevo iniciado | NUHSA: ' + normalizePatientId(nuhsa) + ' | Código HS: ' + normalizeHsCode(hsCode);
+            summaryEl.style.display = 'none';
+            summaryEl.textContent = '';
+            updateSidebarPatientCard({ nuhsa: normalizePatientId(nuhsa), codigo_hs: normalizeHsCode(hsCode), fecha_visita: '' }, null, { isNew: true });
         }
 
         function getVisiblePatientNuhsas() {
@@ -3437,6 +4131,9 @@
             setupEvaButtons('sg_eva_supuracion', 'sg_eva_supuracion_buttons');
             setupEvaButtons('cx_eva_pre', 'cx_eva_pre_buttons');
             setupEvaButtons('cx_eva_post', 'cx_eva_post_buttons');
+            toggleTabacoDetail_pv();
+            toggleHabitosAdvice_pv();
+            toggleHabitosAdvice_sg();
         }
 
         function resetCurrentPatientContext(options) {
@@ -3446,6 +4143,7 @@
             selectedPatientRecords = [];
             selectedPatientLastRecord = null;
             selectedPatientLastClinicalRecord = null;
+            sgAutoPreloadMarker = '';
             pendingNewPatientIdentifier = '';
             try {
                 sessionStorage.removeItem(HS_SELECTED_PATIENT_SESSION_KEY);
@@ -3457,6 +4155,7 @@
             if (searchInput) searchInput.value = retainedSearch;
             updateSelectedPatientSummary(null, null);
             updateGlobalPatientSummary(null, null, false);
+            updateSgPreloadStatusChip('');
             setHsCodeFeedback('Recuerde copiar la fila Excel para que el código HS quede registrado en la base.');
             updateHsCodeGlobalUI();
         }
@@ -3467,7 +4166,7 @@
             var previousSelected = normalizePatientId(selectedPatientIdentifier);
             var changesPatient = (previousSelected && previousSelected !== nextId) || priorIds.some(function (id) { return id !== nextId; });
             if (!changesPatient) return true;
-            if (hasEnteredClinicalData() && !window.confirm('Está cambiando de paciente. Se limpiarán los formularios actuales para evitar mezclar datos. La base cargada se mantendrá. ¿Continuar?')) {
+            if (hasEnteredClinicalData() && !window.confirm('Va a cambiar de paciente y se limpiarán los formularios actuales. ¿Desea continuar?')) {
                 return false;
             }
             resetCurrentPatientContext({ keepSearch: true, clearForms: true });
@@ -3478,6 +4177,16 @@
             var summary = recordOrSummary || {};
             var lastRecord = summary.lastRecord || summary.record || null;
             var identifier = normalizePatientId(summary.identifier || (lastRecord && lastRecord.nuhsa));
+            if (isValidHsCode(identifier) && !normalizePatientId(lastRecord && lastRecord.nuhsa)) {
+                var incompleteRecordMessage = 'Registro incompleto: el código HS encontrado no tiene NUHSA asociado en la base cargada.';
+                showImportError(incompleteRecordMessage);
+                setHsCodeFeedback('Identidad insuficiente: revise el Excel maestro antes de continuar.', 'error');
+                showBlockedIdentityModal(
+                    incompleteRecordMessage,
+                    'No se ha seleccionado ningún paciente ni se han modificado los formularios. Revise el Excel maestro.'
+                );
+                return false;
+            }
             if (!identifier || !preparePatientContextChange(identifier)) return false;
             var assignedCode = normalizeHsCode(summary.assignedCode || getPatientHsCode(identifier) || (lastRecord && lastRecord.codigo_hs));
             selectedPatientIdentifier = identifier;
@@ -3515,6 +4224,7 @@
                 return true;
             }
             if (currentValue === nextValue) return false;
+            if (opts.onlyIfEmpty) return false;
             var ask = window.confirm('El campo "' + (opts.label || fieldId) + '" ya tiene valor. ¿Desea sobrescribirlo con el dato de la base cargada?');
             if (!ask) return false;
             input.value = nextValue;
@@ -3535,6 +4245,11 @@
                 updateHsCodeGlobalUI();
                 return;
             }
+            if (isValidHsCode(normalizedHsIdentifier) && isDuplicateHsCodeInMasterDb(normalizedHsIdentifier)) {
+                setHsCodeFeedback('Búsqueda bloqueada: el código HS está duplicado en la base cargada.', 'error');
+                showDuplicateHsCodeModal(normalizedHsIdentifier, 'search');
+                return;
+            }
             var sessionPatient = getPatientFromSession(identifier);
             if (sessionPatient && !getPatientRecords(identifier).length) {
                 if (!setSelectedPatientFromRecord({
@@ -3544,6 +4259,7 @@
                     lastClinical: sessionPatient,
                     assignedCode: sessionPatient.codigo_hs
                 }, 'session-search')) return;
+                updateSidebarPatientCard(sessionPatient, null, { isNew: true });
                 showImportSuccess('Paciente recuperado desde los códigos asignados en esta sesión.');
                 setHsCodeFeedback('Código HS reutilizado en sesión: ' + sessionPatient.codigo_hs + '.', 'ok');
                 return;
@@ -3593,6 +4309,17 @@
                 lastClinical: lastClinical
             }, 'global-search')) return;
             showImportSuccess('Paciente seleccionado para la consulta actual.');
+            if (isDuplicateHsCodeInMasterDb(lastRecord.codigo_hs)) {
+                setHsCodeFeedback('Advertencia: el código HS del paciente está duplicado en la base cargada. No se permite exportar ni copiar informe.', 'warn');
+                showCriticalModal({
+                    title: 'Código HS duplicado en la base',
+                    message: 'El paciente seleccionado por NUHSA tiene asignado el código ' + normalizeHsCode(lastRecord.codigo_hs) + ', que está asociado a más de un paciente.',
+                    detail: 'Puede consultar al paciente por NUHSA, pero revise el Excel maestro antes de copiar fila Excel o informe.',
+                    actions: [{ label: 'Aceptar', className: 'btn-primary' }]
+                });
+                updateHsCodeGlobalUI();
+                return;
+            }
             ensureHsCodeForPatient(lastRecord.nuhsa || identifier, { source: 'global-search-found' });
             updateHsCodeGlobalUI();
         }
@@ -3602,18 +4329,21 @@
             syncPatientIdentificationToForms(record.nuhsa || selectedPatientIdentifier, getPatientHsCode(record.nuhsa || selectedPatientIdentifier) || record.codigo_hs);
         }
 
-        function applyLastVisitPreload() {
+        function applyLastVisitPreload(options) {
+            var opts = options || {};
             clearImportError();
             if (!masterDb.length) {
                 showImportWarnings([]);
                 showImportError('No hay base longitudinal cargada. Introduzca los datos manualmente.');
                 updateSelectedPatientSummary(null, null);
+                updateSgPreloadStatusChip('BD no cargada para precarga automática.', 'warn');
                 return;
             }
 
             var identifier = valueOf('sg_nuhsa') || valueOf('sg_codigo_hs') || selectedPatientIdentifier || valueOf('global_patient_search');
             if (!normalizePatientId(identifier)) {
-                showImportError('Busque primero el paciente en el panel superior o introduzca NUHSA/código HS en Seguimiento.');
+                showImportError('Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS en Seguimiento.');
+                updateSgPreloadStatusChip('Sin paciente activo para precarga.', 'warn');
                 return;
             }
 
@@ -3622,12 +4352,8 @@
             var lastClinical = getLastClinicalRecord(identifier, currentVisitDate || null);
             if (!lastRecord) {
                 showImportWarnings([]);
-                showImportError('Paciente no encontrado en la base cargada.');
-                resetCurrentPatientContext({ keepSearch: true, clearForms: true });
-                pendingNewPatientIdentifier = looksLikeNuhsa(identifier) ? normalizePatientId(identifier) : '';
-                updateGlobalPatientSummary(null, null, true);
-                if (pendingNewPatientIdentifier) ensureHsCodeForPatient(pendingNewPatientIdentifier, { source: 'sg-preload' });
-                updateHsCodeGlobalUI();
+                showImportError('Paciente sin datos previos en la BD para precarga.');
+                updateSgPreloadStatusChip('Paciente sin datos previos en la BD para precarga.', 'warn');
                 return;
             }
 
@@ -3642,23 +4368,31 @@
             maybeAutoFillSgPatientIdentifiers(lastRecord);
             showImportWarnings([]);
             var clinicalSource = lastClinical || lastRecord;
-            maybeSetFieldValue('sg_fecha_ultima_consulta', lastRecord.fecha_visita, {
+            var preloadCount = 0;
+            if (maybeSetFieldValue('sg_fecha_ultima_consulta', lastRecord.fecha_visita, {
                 label: 'Fecha última consulta',
-                onSet: function () { calcTiempoDesdeUltima_sg(); }
-            });
+                onSet: function () { calcTiempoDesdeUltima_sg(); },
+                onlyIfEmpty: !!opts.onlyIfEmpty
+            })) preloadCount += 1;
             if (valueOf('sg_fechaVisita')) {
                 var calcText = calculateTimeSinceText(lastRecord.fecha_visita, valueOf('sg_fechaVisita'));
-                if (calcText) maybeSetFieldValue('sg_tiempo_desde_ultima', calcText, { label: 'Tiempo desde última consulta' });
+                if (calcText && maybeSetFieldValue('sg_tiempo_desde_ultima', calcText, { label: 'Tiempo desde última consulta', onlyIfEmpty: !!opts.onlyIfEmpty })) preloadCount += 1;
             } else {
                 showImportWarnings(['No se calculó "Tiempo desde última consulta" porque falta la fecha de visita de seguimiento.']);
             }
-            maybeSetFieldValue('sg_ihs4_previo', clinicalSource.ihs4_actual, { label: 'IHS4 previo' });
-            maybeSetFieldValue('sg_hurley', clinicalSource.hurley_enfermeria, { label: 'Hurley basal' });
-            maybeSetFieldValue('sg_peso', lastRecord.peso_kg, { label: 'Peso previo', onSet: function () { calcIMC_sg(); } });
-            maybeSetFieldValue('sg_tabaco', lastRecord.tabaco_estado, { label: 'Tabaco previo' });
-            maybeSetFieldValue('sg_tratamiento_realizado', lastRecord.tratamiento_activo, { label: 'Tratamiento previo/activo' });
+            if (maybeSetFieldValue('sg_ihs4_previo', clinicalSource.ihs4_actual, { label: 'IHS4 previo', onlyIfEmpty: !!opts.onlyIfEmpty })) preloadCount += 1;
+            if (maybeSetFieldValue('sg_hurley', clinicalSource.hurley_enfermeria, { label: 'Hurley basal', onlyIfEmpty: !!opts.onlyIfEmpty })) preloadCount += 1;
+            if (maybeSetFieldValue('sg_peso', lastRecord.peso_kg, { label: 'Peso previo', onSet: function () { calcIMC_sg(); }, onlyIfEmpty: !!opts.onlyIfEmpty })) preloadCount += 1;
+            if (maybeSetFieldValue('sg_tabaco', lastRecord.tabaco_estado, { label: 'Tabaco previo', onlyIfEmpty: !!opts.onlyIfEmpty })) preloadCount += 1;
             if (lastRecord.nuhsa && lastRecord.codigo_hs) updateHsSessionMapPair(lastRecord.nuhsa, lastRecord.codigo_hs);
-            showImportSuccess('Precarga aplicada desde la última visita encontrada.');
+            var preloadMessage = preloadCount > 0
+                ? 'Datos previos cargados desde última visita.'
+                : 'No se modificaron campos: todos los campos precargables ya tenían valor o no había datos aplicables.';
+            showImportSuccess(preloadMessage);
+            updateSgPreloadStatusChip(preloadMessage, preloadCount > 0 ? 'ok' : 'warn');
+            if (opts.auto) {
+                sgAutoPreloadMarker = normalizePatientId(lastRecord.nuhsa || identifier) + '|' + (valueOf('sg_fecha_ultima_consulta') || '') + '|' + (masterDbLoadedAt || '');
+            }
             updateHsCodeGlobalUI();
         }
 
@@ -3687,12 +4421,23 @@
             return { ok: true, warnings: warnings, error: '' };
         }
 
+        function showMasterUploadFailure(detail) {
+            var hasActiveDb = masterDb.length > 0;
+            updateMasterDbStatus(masterDbWarnings);
+            var message = hasActiveDb
+                ? 'Carga fallida. Se mantiene activa la última BD válida.'
+                : 'Carga fallida. No hay BD activa. Cargue un archivo válido para continuar.';
+            showImportError(detail ? (message + ' ' + detail) : message);
+            var fileInput = document.getElementById('master_excel_file');
+            if (fileInput) fileInput.value = '';
+        }
+
         function handleMasterExcelUpload(file) {
             clearImportError();
             showImportWarnings([]);
             if (!file) return;
             if (!window.XLSX || !XLSX.read) {
-                showImportError('SheetJS no está disponible. Revise que exista vendor/xlsx.full.min.js.');
+                showMasterUploadFailure('SheetJS no está disponible. Revise que exista vendor/xlsx.full.min.js.');
                 return;
             }
 
@@ -3703,20 +4448,20 @@
                     var workbook = XLSX.read(data, { type: 'array' });
                     var sheet = workbook.Sheets['BD_VISITAS_HS'];
                     if (!sheet) {
-                        showImportError('El archivo no contiene la hoja obligatoria BD_VISITAS_HS.');
+                        showMasterUploadFailure('El archivo no contiene la hoja obligatoria BD_VISITAS_HS.');
                         return;
                     }
 
                     var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: true });
                     if (!rows.length || !rows[0] || !rows[0].length) {
-                        showImportError('La hoja BD_VISITAS_HS no contiene cabeceras ni registros.');
+                        showMasterUploadFailure('La hoja BD_VISITAS_HS no contiene cabeceras ni registros.');
                         return;
                     }
 
                     var headers = rows[0].map(function (h) { return String(h || '').trim(); });
                     var validation = validateImportHeaders(headers);
                     if (!validation.ok) {
-                        showImportError(validation.error);
+                        showMasterUploadFailure(validation.error);
                         return;
                     }
 
@@ -3735,7 +4480,7 @@
                     }
 
                     if (!loadedRows.length) {
-                        showImportError('La hoja BD_VISITAS_HS no contiene registros útiles.');
+                        showMasterUploadFailure('La hoja BD_VISITAS_HS no contiene registros útiles.');
                         return;
                     }
 
@@ -3743,16 +4488,24 @@
                     masterDbLoadedAt = new Date().toLocaleString('es-ES');
                     persistMasterDbToSession();
                     updateMasterDbStatus(validation.warnings || []);
-                    showImportSuccess('Archivo cargado correctamente en memoria de sesión.');
+                    var combinedWarnings = (validation.warnings || []).slice();
+                    if (masterDbDuplicateCodes.length) {
+                        combinedWarnings.push('BD cargada con incidencias: códigos HS duplicados detectados (' + masterDbDuplicateCodes.join(', ') + ').');
+                    }
+                    if (combinedWarnings.length) {
+                        showImportWarnings(combinedWarnings);
+                    } else {
+                        showImportSuccess('Archivo cargado correctamente en memoria de sesión.');
+                    }
                     resetCurrentPatientContext({ clearForms: true });
                     updateHsCodeGlobalUI();
                     setHsCodeFeedback('Base cargada. Puede buscar paciente y asignar/reutilizar código HS.', 'ok');
                 } catch (err) {
-                    showImportError('No se pudo procesar el archivo Excel: ' + (err && err.message ? err.message : 'error desconocido'));
+                    showMasterUploadFailure('No se pudo procesar el archivo Excel: ' + (err && err.message ? err.message : 'error desconocido'));
                 }
             };
             reader.onerror = function () {
-                showImportError('No se pudo leer el archivo seleccionado.');
+                showMasterUploadFailure('No se pudo leer el archivo seleccionado.');
             };
             reader.readAsArrayBuffer(file);
         }
@@ -3766,6 +4519,9 @@
             var globalFindBtn = document.getElementById('global_patient_search_btn');
             var globalSearchInput = document.getElementById('global_patient_search');
             var globalHsAssignBtn = document.getElementById('global_hs_assign_btn');
+            var sidebarNewPatientBtn = document.getElementById('sidebar_new_patient_btn');
+            var sidebarToggleBtn = document.getElementById('sidebar_toggle_btn');
+            var sidebarRoot = document.getElementById('app_sidebar');
             var sgPreloadBtn = document.getElementById('sg_preload_btn');
             var pvHsAssignBtn = document.getElementById('pv_hs_assign_btn');
             var sgHsAssignBtn = document.getElementById('sg_hs_assign_btn');
@@ -3804,7 +4560,24 @@
             if (globalHsAssignBtn) globalHsAssignBtn.addEventListener('click', function () {
                 assignHsCodeToCurrentPatient({ identifier: selectedPatientIdentifier || pendingNewPatientIdentifier || valueOf('global_patient_search') });
             });
-            if (sgPreloadBtn) sgPreloadBtn.addEventListener('click', applyLastVisitPreload);
+            if (sidebarNewPatientBtn) sidebarNewPatientBtn.addEventListener('click', function () {
+                startNewPatient();
+            });
+            if (sidebarToggleBtn && sidebarRoot) {
+                if (window.innerWidth <= 1100) sidebarRoot.classList.add('is-collapsed');
+                updateSidebarToggleUI();
+                sidebarToggleBtn.addEventListener('click', function () {
+                    sidebarRoot.classList.toggle('is-collapsed');
+                    updateSidebarToggleUI();
+                });
+                window.addEventListener('resize', function () {
+                    if (window.innerWidth > 1100) {
+                        sidebarRoot.classList.remove('is-collapsed');
+                    }
+                    updateSidebarToggleUI();
+                });
+            }
+            if (sgPreloadBtn) sgPreloadBtn.addEventListener('click', function () { applyLastVisitPreload({ onlyIfEmpty: true }); });
             if (pvHsAssignBtn) pvHsAssignBtn.addEventListener('click', function () {
                 assignHsCodeToCurrentPatient({ identifier: selectedPatientIdentifier || valueOf('pv_nuhsa') || pendingNewPatientIdentifier || valueOf('global_patient_search') });
             });
@@ -3846,6 +4619,17 @@
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById('btn-' + tab).classList.add('active-' + tab);
             activeTab = tab;
+            if (tab === 'sg') {
+                var marker = normalizePatientId(selectedPatientIdentifier || valueOf('sg_nuhsa'));
+                if (masterDb.length && looksLikeNuhsa(marker)) {
+                    var markerKey = marker + '|' + (valueOf('sg_fecha_ultima_consulta') || '') + '|' + (masterDbLoadedAt || '');
+                    if (sgAutoPreloadMarker !== markerKey) {
+                        applyLastVisitPreload({ onlyIfEmpty: true, auto: true });
+                    }
+                } else {
+                    updateSgPreloadStatusChip('');
+                }
+            }
         }
 
         // === FUNCIONES COMUNES ===
@@ -3992,7 +4776,11 @@
         }
         function exportRowToClipboard(row) {
             var line = MASTER_COLUMNS.map(function (column) { return row[column] || ''; }).join('\t');
-            return navigator.clipboard.writeText(line).then(function () { alert("Datos copiados (pegar en Excel)"); });
+            return copyTextToClipboard(
+                line,
+                'Fila Excel copiada. Lista para pegar en BD_VISITAS_HS.',
+                'No se pudo copiar la fila Excel. Revise permisos del portapapeles.'
+            );
         }
         function getMasterHeader() {
             return MASTER_COLUMNS.join('\t');
@@ -4012,6 +4800,7 @@
             else exportData_cx();
         }
         function copyActiveReport() {
+            if (!validateIdentityForAction(activeTab, 'report')) return;
             if (activeTab === 'pv') copyReport_pv();
             else if (activeTab === 'sg') copyReport_sg();
             else copyReport_cx();
@@ -4038,16 +4827,45 @@
         setupEvaButtons('pv_eva_dolor', 'pv_eva_dolor_buttons');
         setupEvaButtons('pv_eva_prurito', 'pv_eva_prurito_buttons');
         setupEvaButtons('pv_eva_supuracion', 'pv_eva_supuracion_buttons');
+        toggleTabacoDetail_pv();
+        toggleHabitosAdvice_pv();
 
         // IMC (PV)
+        function getBmiCategory(imc) {
+            if (imc < 18.5) return 'Bajo peso';
+            if (imc < 25) return 'Normopeso';
+            if (imc < 30) return 'Sobrepeso';
+            if (imc < 35) return 'Obesidad clase I';
+            if (imc < 40) return 'Obesidad clase II';
+            return 'Obesidad clase III';
+        }
+
+        function updateBmiInterpretation(prefix) {
+            var imcValue = document.getElementById(prefix + '_imc').value;
+            var imc = parseFloat(imcValue);
+            var interpretationEl = document.getElementById(prefix + '_imc-interpretation');
+            if (!interpretationEl) return;
+            if (isNaN(imc)) {
+                interpretationEl.style.display = 'none';
+                interpretationEl.textContent = '';
+                return;
+            }
+            var category = getBmiCategory(imc);
+            interpretationEl.className = 'alert-box bmi-interpretation' + (imc >= 25 ? ' is-warning' : '');
+            interpretationEl.textContent = 'IMC ' + imcValue + ' — ' + category + '. Interpretar junto con evolución clínica, comorbilidades y criterio profesional.';
+            interpretationEl.style.display = 'block';
+        }
+
         function calcIMC_pv() {
             var w = parseFloat(document.getElementById('pv_peso').value);
             var h = parseFloat(document.getElementById('pv_talla').value);
             if (w && h) {
-                var imc = (w / (h * h)).toFixed(1);
-                document.getElementById('pv_imc').value = imc;
-                document.getElementById('pv_imc-alert').style.display = imc >= 30 ? 'block' : 'none';
+                document.getElementById('pv_imc').value = (w / (h * h)).toFixed(1);
+            } else {
+                document.getElementById('pv_imc').value = '';
             }
+            updateBmiInterpretation('pv');
+            document.getElementById('pv_imc-alert').style.display = w && h && parseFloat(document.getElementById('pv_imc').value) >= 30 ? 'block' : 'none';
         }
 
         // Retraso diagnóstico
@@ -4067,6 +4885,24 @@
                 document.getElementById(id).style.display = show ? 'block' : 'none';
             });
             document.getElementById('pv_tabaco-consejo').style.display = val === 'Activo' ? 'block' : 'none';
+        }
+
+        function toggleHabitosAdvice_pv() {
+            var ejercicio = valueOf('pv_ejercicio');
+            var sueno = valueOf('pv_sueno');
+            var ejercicioAdvice = document.getElementById('pv_ejercicio-consejo');
+            var suenoAdvice = document.getElementById('pv_sueno-consejo');
+            if (ejercicioAdvice) ejercicioAdvice.style.display = (ejercicio === 'Sedentario') ? 'block' : 'none';
+            if (suenoAdvice) suenoAdvice.style.display = (sueno.indexOf('Mala') >= 0 || sueno.indexOf('Insomnio') >= 0) ? 'block' : 'none';
+        }
+
+        function toggleHabitosAdvice_sg() {
+            var ejercicio = valueOf('sg_ejercicio');
+            var sueno = valueOf('sg_sueno');
+            var ejercicioAdvice = document.getElementById('sg_ejercicio-consejo');
+            var suenoAdvice = document.getElementById('sg_sueno-consejo');
+            if (ejercicioAdvice) ejercicioAdvice.style.display = (ejercicio === 'Ha empeorado') ? 'block' : 'none';
+            if (suenoAdvice) suenoAdvice.style.display = (sueno === 'Ha empeorado') ? 'block' : 'none';
         }
 
         // IHS4 (PV)
@@ -4266,7 +5102,7 @@
                 peso_kg: valueOf('pv_peso'),
                 talla_m: valueOf('pv_talla'),
                 imc: valueOf('pv_imc'),
-                perimetro_abdominal_cm: valueOf('pv_perimetro'),
+                perimetro_abdominal_cm: '',
                 ta: valueOf('pv_ta'),
                 hta: hasComorb('hipertension'),
                 dislipemia: hasComorb('dislipemia'),
@@ -4320,17 +5156,19 @@
             var txt = 'PRIMERA VISITA — ENFERMERÍA EPA HS\n===================================\nHospital Universitario Virgen del Rocío\nFecha: ' + document.getElementById('pv_fechaVisita').value +
                 '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
                 '\nPaciente: ' + document.getElementById('pv_nuhsa').value +
-                '\nEdad/Sexo: ' + document.getElementById('pv_edad').value + ' / ' + document.getElementById('pv_sexo').value +
-                '\nProfesional que diagnostica: ' + (document.getElementById('pv_prof_dx').value || 'NR') +
+                '\nEdad/Sexo al nacimiento: ' + document.getElementById('pv_edad').value + ' / ' + document.getElementById('pv_sexo').value +
+                '\nSituación laboral: ' + (document.getElementById('pv_laboral').value || 'NR') +
+                '\nProfesional/servicio que deriva: ' + (document.getElementById('pv_prof_dx').value || 'NR') +
                 '\nInicio síntomas: ' + document.getElementById('pv_anio_ini').value + ' | Dx: ' + document.getElementById('pv_anio_dx').value + ' | Retraso: ' + (retraso || 'NR') +
+                '\nBrotes último año: ' + (document.getElementById('pv_brotes_ultimo_anio').value || 'NR') + ' | Médicos previos: ' + (document.getElementById('pv_n_medicos').value || 'NR') + ' | Urgencias HS último año: ' + (document.getElementById('pv_n_urgencias').value || 'NR') +
                 '\nFiebre brotes: ' + document.getElementById('pv_fiebre').value + ' | Antecedentes familiares HS: ' + document.getElementById('pv_antecedentes_familiares').value +
                 '\nG/O: ' + (document.getElementById('pv_gine_obst').value || 'NR') + ' | Deseos genésicos: ' + document.getElementById('pv_deseos_genesicos').value +
                 '\nTratamientos previos relevantes: ' + (document.getElementById('pv_tx_previos').value || 'No referidos') +
-                '\nCirugías previas HS: ' + (document.getElementById('pv_n_cirugias').value || '0') +
-                '\nTabaco: ' + document.getElementById('pv_tabaco').value + ' | Cig/día: ' + (document.getElementById('pv_cig_dia').value || 'NR') + ' | Años fumando: ' + (document.getElementById('pv_anios_fumando').value || 'NR') +
+                '\nCirugías previas HS: ' + (document.getElementById('pv_n_cirugias').value || '0') + ' | Biológico previo: ' + document.getElementById('pv_bio_previo').value +
+                '\nTabaco: ' + document.getElementById('pv_tabaco').value + ' | Cig/día: ' + (document.getElementById('pv_cig_dia').value || 'NR') + ' | Años fumando: ' + (document.getElementById('pv_anios_fumando').value || 'NR') + ' | Intentos cesación: ' + document.getElementById('pv_cesacion_previa').value +
                 '\nAlcohol UBE/semana: ' + (document.getElementById('pv_alcohol_ube_semana').value || 'NR') +
                 '\nPeso/Talla/IMC: ' + (document.getElementById('pv_peso').value || 'NR') + 'kg / ' + (document.getElementById('pv_talla').value || 'NR') + 'm / ' + (document.getElementById('pv_imc').value || 'NR') +
-                '\nPerímetro abdominal: ' + (document.getElementById('pv_perimetro').value || 'NR') + ' | TA: ' + (document.getElementById('pv_ta').value || 'NR') +
+                '\nTA: ' + (document.getElementById('pv_ta').value || 'NR') +
                 '\nComorbilidades señaladas:\n' + (coms || 'Ninguna registrada') +
                 '\nHurley basal: ' + (document.getElementById('pv_hurley_val').value || 'No clasificado') +
                 '\nIHS4: ' + ihs4 + ' (' + ihs4_sev + ')' +
@@ -4349,10 +5187,15 @@
                 '\nNotas de evolución: ' + (document.getElementById('pv_notas').value || 'Sin notas') +
                 '\nPróxima cita enfermería: ' + (document.getElementById('pv_prox_cita').value || 'Pendiente') +
                 '\n===================================';
-            navigator.clipboard.writeText(txt).then(function () { alert("Informe clínico copiado al portapapeles"); });
+            copyTextToClipboard(
+                txt,
+                'Informe copiado al portapapeles.',
+                'No se pudo copiar el informe. Revise permisos del portapapeles.'
+            );
         }
 
         initializeCollapsedSections();
+        initNotificationUI();
         initMasterExcelUI();
 
         // =============================================
@@ -4366,6 +5209,7 @@
         setupEvaButtons('sg_eva_dolor', 'sg_eva_dolor_buttons');
         setupEvaButtons('sg_eva_prurito', 'sg_eva_prurito_buttons');
         setupEvaButtons('sg_eva_supuracion', 'sg_eva_supuracion_buttons');
+        toggleHabitosAdvice_sg();
         function calcTiempoDesdeUltima_sg() {
             var fechaActual = document.getElementById('sg_fechaVisita').value;
             var fechaUltima = document.getElementById('sg_fecha_ultima_consulta').value;
@@ -4419,6 +5263,7 @@
             var h = parseFloat(document.getElementById('sg_talla').value);
             if (w && h) document.getElementById('sg_imc').value = (w / (h * h)).toFixed(1);
             else document.getElementById('sg_imc').value = '';
+            updateBmiInterpretation('sg');
         }
 
         function toggleCuraDetail_sg() {
@@ -4476,13 +5321,39 @@
             document.getElementById('sg_active_zone_count').innerText = activeData.count;
             document.getElementById('sg_active_zone_list').innerText = activeData.list;
             // Compare with previous
-            var prev = parseInt(document.getElementById('sg_ihs4_previo').value);
+            var prev = Number(document.getElementById('sg_ihs4_previo').value);
             var alertEl = document.getElementById('sg_ihs4-change');
-            if (prev) {
+            if (Number.isFinite(prev) && prev > 0 && Number.isFinite(score)) {
                 var pct = ((score - prev) / prev * 100).toFixed(0);
-                if (score < prev) { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-down"></i> <strong>Mejoría:</strong> IHS4 ' + prev + ' → ' + score + ' (' + pct + '%)'; }
-                else if (score > prev) { alertEl.className = 'alert-box alert-warning'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-up"></i> <strong>Empeoramiento:</strong> IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)'; }
-                else { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-equals"></i> <strong>Estable:</strong> IHS4 sin cambios (' + score + ')'; }
+                var iconClass = '';
+                var comparisonLabel = '';
+                var comparisonText = '';
+                if (score < prev) {
+                    alertEl.className = 'alert-box alert-success';
+                    iconClass = 'fas fa-arrow-down';
+                    comparisonLabel = 'Mejoría:';
+                    comparisonText = ' IHS4 ' + prev + ' → ' + score + ' (' + pct + '%)';
+                } else if (score > prev) {
+                    alertEl.className = 'alert-box alert-warning';
+                    iconClass = 'fas fa-arrow-up';
+                    comparisonLabel = 'Empeoramiento:';
+                    comparisonText = ' IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)';
+                } else {
+                    alertEl.className = 'alert-box alert-success';
+                    iconClass = 'fas fa-equals';
+                    comparisonLabel = 'Estable:';
+                    comparisonText = ' IHS4 sin cambios (' + score + ')';
+                }
+                alertEl.textContent = '';
+                var iconEl = document.createElement('i');
+                iconEl.className = iconClass;
+                alertEl.appendChild(iconEl);
+                alertEl.appendChild(document.createTextNode(' '));
+                var labelEl = document.createElement('strong');
+                labelEl.textContent = comparisonLabel;
+                alertEl.appendChild(labelEl);
+                alertEl.appendChild(document.createTextNode(comparisonText));
+                alertEl.style.display = 'block';
             } else {
                 alertEl.style.display = 'none';
             }
@@ -4591,7 +5462,7 @@
                 tiempo_desde_ultima_consulta: valueOf('sg_tiempo_desde_ultima'),
                 estado_global_referido: valueOf('sg_estado_global'),
                 brotes_desde_ultima_visita: valueOf('sg_n_brotes'),
-                tratamiento_realizado_desde_ultima: valueOf('sg_tratamiento_realizado'),
+                tratamiento_realizado_desde_ultima: drugs,
                 tratamiento_activo: drugs,
                 suspension_prematura: valueOf('sg_suspension_prematura'),
                 motivo_suspension: valueOf('sg_motivo_suspension'),
@@ -4632,34 +5503,37 @@
                 '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
                 '\nFecha última consulta: ' + (document.getElementById('sg_fecha_ultima_consulta').value || 'NR') + ' | Tiempo desde última: ' + (document.getElementById('sg_tiempo_desde_ultima').value || 'NR') +
                 '\nEstado global referido: ' + document.getElementById('sg_estado_global').value +
-                '\nIHS4 actual: ' + ihs4 + ' (' + sev + ') | IHS4 previo: ' + (document.getElementById('sg_ihs4_previo').value || 'NR') +
+                '\nHurley basal: ' + (document.getElementById('sg_hurley').value || 'NR') + ' | IHS4 actual: ' + ihs4 + ' (' + sev + ') | IHS4 previo: ' + (document.getElementById('sg_ihs4_previo').value || 'NR') +
                 '\nNódulos: ' + document.getElementById('sg_tot_n').innerText + ' | Abscesos: ' + document.getElementById('sg_tot_a').innerText + ' | Fístulas: ' + document.getElementById('sg_tot_f').innerText +
                 '\nZonas activas: ' + activeData.count + ' | ' + activeData.list +
                 '\nEVA dolor/prurito/supuración: ' + (document.getElementById('sg_eva_dolor').value || 'NR') + '/' + (document.getElementById('sg_eva_prurito').value || 'NR') + '/' + (document.getElementById('sg_eva_supuracion').value || 'NR') +
                 '\nBrotes desde última visita: ' + (document.getElementById('sg_n_brotes').value || 'NR') +
-                '\nPeso/IMC: ' + (document.getElementById('sg_peso').value || 'NR') + 'kg / ' + (document.getElementById('sg_imc').value || 'NR') +
+                '\nPeso/Talla/IMC: ' + (document.getElementById('sg_peso').value || 'NR') + 'kg / ' + (document.getElementById('sg_talla').value || 'NR') + 'm / ' + (document.getElementById('sg_imc').value || 'NR') +
                 '\nTabaco actual: ' + document.getElementById('sg_tabaco').value +
-                '\nTratamiento realizado desde última visita: ' + (document.getElementById('sg_tratamiento_realizado').value || 'NR') +
+                '\nTratamiento activo: ' + (drugs.length ? drugs.join('; ') : 'NR') +
                 '\nSuspensión prematura: ' + document.getElementById('sg_suspension_prematura').value + ' | Motivo: ' + (document.getElementById('sg_motivo_suspension').value || 'NR') +
                 '\nSíntomas digestivos: ' + document.getElementById('sg_sint_digestivos').value + (document.getElementById('sg_sint_digestivos_coment').value ? ' (' + document.getElementById('sg_sint_digestivos_coment').value + ')' : '') +
                 '\nSíntomas osteoarticulares: ' + document.getElementById('sg_sint_osteoarticulares').value + (document.getElementById('sg_sint_osteoarticulares_coment').value ? ' (' + document.getElementById('sg_sint_osteoarticulares_coment').value + ')' : '') +
                 '\nSíntomas psiquiátricos/salud mental: ' + document.getElementById('sg_sint_psiquiatricos').value + (document.getElementById('sg_sint_psiquiatricos_coment').value ? ' (' + document.getElementById('sg_sint_psiquiatricos_coment').value + ')' : '') +
                 '\n\n=== REGISTRO AÑADIDO DE ENFERMERÍA ===' +
-                '\nFármacos: ' + (drugs.length ? drugs.join(', ') : 'NR') +
-                '\nAdherencia Morisky Green: ' + (document.getElementById('sg_adherencia_val').value || 'NR') + ' (' + document.getElementById('sg_morisky_score').value + '/4)' +
-                '\nAutoinyección: ' + (document.getElementById('sg_autoinyec') ? document.getElementById('sg_autoinyec').value : 'N/A') +
+                '\nAdherencia Morisky Green: ' + (document.getElementById('sg_adherencia_val').value || 'NR') + ' (' + document.getElementById('sg_morisky_score').value + '/4) | Patrón: ' + (document.getElementById('sg_morisky_pattern').value || 'NR') +
+                '\nAutoinyección: ' + (document.getElementById('sg_autoinyec') ? document.getElementById('sg_autoinyec').value : 'N/A') + ' | Rotación punto de inyección: ' + document.getElementById('sg_rotacion').value + ' | Almacenamiento: ' + document.getElementById('sg_almacen').value +
                 '\nEfectos adversos:\n' + (eas || 'Ninguno') +
                 (document.getElementById('sg_ea_detalle').value ? '\nDetalle: ' + document.getElementById('sg_ea_detalle').value : '') +
                 '\nEjercicio/Sueño: ' + document.getElementById('sg_ejercicio').value + ' / ' + document.getElementById('sg_sueno').value +
                 '\nPROMs: DLQI ' + document.getElementById('sg_dlqi_display').value + '/30 | HSQoL-24 ' + document.getElementById('sg_hsqol_display').value + ' (' + (document.getElementById('sg_hsqol_interp').value || 'No evaluado') + ')' +
                 '\nHADS: ' + document.getElementById('sg_hads_total_display').value +
                 '\nMaterial educativo/refuerzo: ' + document.getElementById('sg_material_refuerzo').value +
-                '\nCura local: ' + (document.getElementById('sg_cura_hoy') && document.getElementById('sg_cura_hoy').value === 'Si' ? 'Tipo ' + (document.getElementById('sg_tipo_herida') ? document.getElementById('sg_tipo_herida').value : '') + ' | Apósito ' + (document.getElementById('sg_aposito') ? document.getElementById('sg_aposito').value : '') : 'No precisa') +
+                '\nCura local: ' + (document.getElementById('sg_cura_hoy') && document.getElementById('sg_cura_hoy').value === 'Si' ? 'Tipo ' + (document.getElementById('sg_tipo_herida') ? document.getElementById('sg_tipo_herida').value : '') + ' | Apósito ' + (document.getElementById('sg_aposito') ? document.getElementById('sg_aposito').value : '') + ' | Notas ' + (document.getElementById('sg_notas_cura').value || 'NR') : 'No precisa') +
                 '\nRecomendaciones/necesidades a comentar con Dermatología: ' + (document.getElementById('sg_derivaciones').value || 'Ninguna') +
                 '\nNotas: ' + (document.getElementById('sg_notas').value || 'Sin notas') +
                 '\nPróxima cita: ' + (document.getElementById('sg_prox_cita').value || 'Pendiente') +
                 '\n================================';
-            navigator.clipboard.writeText(txt).then(function () { alert("Informe copiado al portapapeles"); });
+            copyTextToClipboard(
+                txt,
+                'Informe copiado al portapapeles.',
+                'No se pudo copiar el informe. Revise permisos del portapapeles.'
+            );
         }
 
         // =============================================
@@ -4754,7 +5628,11 @@
                 '\nFrecuencia: ' + document.getElementById('cx_freq_cura').value +
                 '\n\nNOTAS:\n' + (document.getElementById('cx_notas').value || 'Sin notas') +
                 '\n=======================================';
-            navigator.clipboard.writeText(txt).then(function () { alert("Informe copiado al portapapeles"); });
+            copyTextToClipboard(
+                txt,
+                'Informe copiado al portapapeles.',
+                'No se pudo copiar el informe. Revise permisos del portapapeles.'
+            );
         }
 
     </script>
