@@ -1098,6 +1098,137 @@
             border-radius: 8px;
             background: #f8fafc;
         }
+
+        .toast-host {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 2100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: min(420px, calc(100vw - 32px));
+            pointer-events: none;
+        }
+
+        .app-toast {
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 0.9rem;
+            line-height: 1.35;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+            color: #fff;
+            transform: translateY(12px);
+            opacity: 0;
+            animation: toast-in 0.22s ease forwards;
+        }
+
+        .app-toast--ok {
+            background: #166534;
+        }
+
+        .app-toast--warn {
+            background: #92400e;
+        }
+
+        .app-toast--error {
+            background: #991b1b;
+        }
+
+        .app-toast.is-leaving {
+            animation: toast-out 0.2s ease forwards;
+        }
+
+        .critical-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            z-index: 2200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .critical-modal.is-open {
+            display: flex;
+        }
+
+        .critical-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.54);
+        }
+
+        .critical-modal__panel {
+            position: relative;
+            width: min(680px, 100%);
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.3);
+            overflow: hidden;
+        }
+
+        .critical-modal__head {
+            padding: 14px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .critical-modal__title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .critical-modal__body {
+            padding: 16px 18px 10px;
+            color: #1e293b;
+            font-size: 0.93rem;
+            line-height: 1.45;
+            white-space: pre-line;
+        }
+
+        .critical-modal__detail {
+            margin-top: 10px;
+            font-size: 0.86rem;
+            color: #475569;
+            white-space: pre-line;
+        }
+
+        .critical-modal__actions {
+            padding: 14px 18px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toast-out {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+        }
     </style>
 </head>
 
@@ -2590,6 +2721,21 @@
             informe</button>
     </div>
 
+    <div id="toast_host" class="toast-host" aria-live="polite" aria-atomic="false"></div>
+    <div id="critical_modal" class="critical-modal" role="dialog" aria-modal="true" aria-labelledby="critical_modal_title" aria-hidden="true">
+        <div class="critical-modal__backdrop" data-critical-close="1"></div>
+        <div class="critical-modal__panel">
+            <div class="critical-modal__head">
+                <h3 id="critical_modal_title" class="critical-modal__title">Revise identificación</h3>
+            </div>
+            <div class="critical-modal__body">
+                <div id="critical_modal_message"></div>
+                <div id="critical_modal_detail" class="critical-modal__detail" style="display:none;"></div>
+            </div>
+            <div id="critical_modal_actions" class="critical-modal__actions"></div>
+        </div>
+    </div>
+
     <script src="vendor/xlsx.full.min.js"></script>
     <script>
         // === SISTEMA DE PESTAÑAS ===
@@ -2613,6 +2759,7 @@
         let selectedPatientLastClinicalRecord = null;
         let hsSessionCodeMap = {};
         let pendingNewPatientIdentifier = '';
+        let activeCriticalModalConfig = null;
         const MASTER_COLUMNS = [
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
             'fecha_visita', 'nuhsa', 'codigo_hs', 'edad', 'sexo', 'situacion_laboral',
@@ -2643,12 +2790,105 @@
             'necesidades_valorar_dermatologia', 'proxima_cita_enfermeria', 'notas_enfermeria'
         ];
 
+        function showToast(message, type, timeoutMs) {
+            var host = document.getElementById('toast_host');
+            var text = String(message || '').trim();
+            if (!host || !text) return;
+            var mode = (type === 'error' || type === 'warn') ? type : 'ok';
+            var toast = document.createElement('div');
+            toast.className = 'app-toast app-toast--' + mode;
+            toast.textContent = text;
+            host.appendChild(toast);
+            var ttl = typeof timeoutMs === 'number' ? timeoutMs : (mode === 'error' ? 5600 : 3800);
+            window.setTimeout(function () {
+                toast.classList.add('is-leaving');
+                window.setTimeout(function () {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 220);
+            }, ttl);
+        }
+
+        function closeCriticalModal() {
+            var modal = document.getElementById('critical_modal');
+            if (!modal) return;
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            activeCriticalModalConfig = null;
+        }
+
+        function showCriticalModal(config) {
+            var modal = document.getElementById('critical_modal');
+            var titleEl = document.getElementById('critical_modal_title');
+            var messageEl = document.getElementById('critical_modal_message');
+            var detailEl = document.getElementById('critical_modal_detail');
+            var actionsEl = document.getElementById('critical_modal_actions');
+            if (!modal || !titleEl || !messageEl || !detailEl || !actionsEl) return;
+            var cfg = config || {};
+            activeCriticalModalConfig = cfg;
+            titleEl.textContent = cfg.title || 'Revise identificación';
+            messageEl.textContent = cfg.message || 'Se detectó una incoherencia de identidad.';
+            if (cfg.detail) {
+                detailEl.style.display = 'block';
+                detailEl.textContent = cfg.detail;
+            } else {
+                detailEl.style.display = 'none';
+                detailEl.textContent = '';
+            }
+            actionsEl.innerHTML = '';
+            var actions = Array.isArray(cfg.actions) && cfg.actions.length ? cfg.actions : [{ label: 'Aceptar', close: true }];
+            actions.forEach(function (action, idx) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn ' + (action.className || (idx === 0 ? 'btn-primary' : 'btn-outline'));
+                btn.textContent = action.label || 'Aceptar';
+                btn.addEventListener('click', function () {
+                    try {
+                        if (typeof action.onClick === 'function') action.onClick();
+                    } finally {
+                        if (action.close !== false) closeCriticalModal();
+                    }
+                });
+                actionsEl.appendChild(btn);
+            });
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function initNotificationUI() {
+            var modal = document.getElementById('critical_modal');
+            if (!modal) return;
+            modal.querySelectorAll('[data-critical-close]').forEach(function (node) {
+                node.addEventListener('click', function () {
+                    closeCriticalModal();
+                });
+            });
+            document.addEventListener('keydown', function (evt) {
+                if (evt.key === 'Escape' && modal.classList.contains('is-open')) closeCriticalModal();
+            });
+        }
+
+        function copyTextToClipboard(text, successMessage, errorMessage) {
+            var successMsg = successMessage || 'Texto copiado al portapapeles.';
+            var failureMsg = errorMessage || 'No se pudo copiar al portapapeles.';
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                showToast(failureMsg, 'error');
+                return Promise.reject(new Error('Clipboard API no disponible'));
+            }
+            return navigator.clipboard.writeText(text).then(function () {
+                showToast(successMsg, 'ok');
+            }).catch(function (err) {
+                showToast(failureMsg, 'error', 6200);
+                throw err;
+            });
+        }
+
         function showImportError(message) {
             var el = document.getElementById('master_excel_error');
             if (!el) return;
             el.className = 'import-error';
             el.style.display = 'block';
             el.textContent = message || '';
+            showToast(message || 'Error durante la operación.', 'error', 6200);
         }
 
         function clearImportError() {
@@ -2671,6 +2911,7 @@
             el.className = 'import-warning';
             el.style.display = 'block';
             el.innerHTML = list.map(function (msg) { return '- ' + msg; }).join('<br>');
+            showToast(list.join(' | '), 'warn', 5200);
         }
 
         function showImportSuccess(message) {
@@ -2679,6 +2920,7 @@
             el.className = 'import-ok';
             el.style.display = 'block';
             el.textContent = message || '';
+            if (message) showToast(message, 'ok');
         }
 
         function setMasterStatusDot(mode) {
@@ -3191,13 +3433,86 @@
             ensureHsCodeForPatient(identifier, { source: 'manual-nuhsa' });
         }
 
+        function getConflictOwnersDetail(hsCode) {
+            var owners = getHsCodeOwners(hsCode);
+            return owners.length ? owners.join(', ') : 'No identificado';
+        }
+
+        function buildIdentityMismatchMessage(prefix, nuhsa) {
+            var activeNuhsa = normalizePatientId(selectedPatientIdentifier);
+            if (!activeNuhsa || !nuhsa || isValidHsCode(nuhsa)) return '';
+            if (activeNuhsa !== nuhsa) {
+                return 'Paciente activo: ' + activeNuhsa + '\nFormulario ' + prefix.toUpperCase() + ': ' + nuhsa;
+            }
+            return '';
+        }
+
+        function showBlockedIdentityModal(message, detail) {
+            showCriticalModal({
+                title: 'Revise identificación',
+                message: message,
+                detail: detail || '',
+                actions: [{ label: 'Aceptar', className: 'btn-primary' }]
+            });
+        }
+
+        function resolveHsConflictWithAction(nuhsa, enteredCode, prefix) {
+            var patientId = normalizePatientId(nuhsa);
+            var conflictingCode = normalizeHsCode(enteredCode);
+            var knownCode = normalizeHsCode(getPatientHsCode(patientId));
+            var conflictOwners = getConflictOwnersDetail(conflictingCode);
+            var isHistoricalMismatch = isValidHsCode(knownCode) && knownCode !== conflictingCode;
+            if (isHistoricalMismatch) {
+                syncPatientIdentificationToForms(patientId, knownCode);
+                setHsCodeFeedback('Exportación detenida: se restauró el código HS histórico del paciente (' + knownCode + '). Revise identificación y pulse de nuevo "Copiar fila Excel".', 'error');
+                showToast('Código HS histórico restaurado: ' + knownCode + '.', 'warn', 5400);
+                showCriticalModal({
+                    title: 'Código HS restaurado',
+                    message: 'El código HS introducido (' + conflictingCode + ') no corresponde al paciente actual. Se ha restaurado ' + knownCode + '.',
+                    detail: 'Paciente actual: ' + patientId + '\nCódigo en conflicto asignado a: ' + conflictOwners + '\nPara continuar, revise los datos y vuelva a pulsar "Copiar fila Excel".',
+                    actions: [{ label: 'Entendido', className: 'btn-primary' }]
+                });
+                return false;
+            }
+
+            showCriticalModal({
+                title: 'Conflicto de código HS',
+                message: 'El código HS ' + conflictingCode + ' ya pertenece a otro paciente.',
+                detail: 'Paciente actual: ' + patientId + '\nCódigo en conflicto asignado a: ' + conflictOwners + '\nPuede generar un nuevo código seguro para este paciente.',
+                actions: [
+                    {
+                        label: 'Generar nuevo código seguro',
+                        className: 'btn-primary',
+                        onClick: function () {
+                            var generatedCode = ensureHsCodeForPatient(patientId, { source: 'conflict-resolution', silent: true });
+                            if (isValidHsCode(generatedCode)) {
+                                setHsCodeFeedback('Se generó un nuevo código HS seguro (' + generatedCode + '). Revise y pulse de nuevo "Copiar fila Excel".', 'warn');
+                                showToast('Código HS corregido: ' + generatedCode + '.', 'ok');
+                            } else {
+                                setHsCodeFeedback('No se pudo generar un nuevo código HS seguro. Revise identificación.', 'error');
+                                showToast('No se pudo resolver el conflicto de código HS.', 'error');
+                            }
+                        }
+                    },
+                    { label: 'Cancelar exportación', className: 'btn-outline' }
+                ]
+            });
+            return false;
+        }
+
         function validateIdentityForExport(prefix) {
             var nuhsa = normalizePatientId(valueOf(prefix + '_nuhsa'));
             var code = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
+            var mismatchDetail = buildIdentityMismatchMessage(prefix, nuhsa);
+            if (mismatchDetail) {
+                setHsCodeFeedback('Exportación detenida: paciente activo y formulario no coinciden.', 'error');
+                showBlockedIdentityModal('Exportación bloqueada por incoherencia entre paciente activo y formulario.', mismatchDetail);
+                return false;
+            }
             if (!nuhsa && isValidHsCode(code)) {
                 var missingNuhsaMessage = 'Revise identificación: no se puede exportar código HS sin NUHSA asociado.';
                 setHsCodeFeedback(missingNuhsaMessage, 'error');
-                alert(missingNuhsaMessage);
+                showBlockedIdentityModal(missingNuhsaMessage);
                 return false;
             }
             if (!nuhsa) return true;
@@ -3205,21 +3520,32 @@
                 code = ensureHsCodeForPatient(nuhsa, { source: 'before-export' });
                 if (!isValidHsCode(code)) {
                     setHsCodeFeedback('Exportación detenida: no se pudo asignar un código HS al paciente.', 'error');
-                    alert('Revise la identificación: es necesario un código HS válido para exportar.');
+                    showBlockedIdentityModal('Revise la identificación: es necesario un código HS válido para exportar.');
                     return false;
                 }
-                setHsCodeFeedback('Se ha generado automáticamente el código HS antes de exportar. Revise que la identificación sea correcta.', 'warn');
+                setHsCodeFeedback('Se generó automáticamente un código HS para el paciente. Revise identificación y pulse de nuevo "Copiar fila Excel".', 'warn');
+                showToast('Código HS generado automáticamente: ' + code + '. Revise y vuelva a pulsar "Copiar fila Excel".', 'warn', 5600);
+                return false;
             }
             var knownCode = getPatientHsCode(nuhsa);
             if (isValidHsCode(knownCode) && code !== normalizeHsCode(knownCode)) {
-                syncPatientIdentificationToForms(nuhsa, knownCode);
-                setHsCodeFeedback('Exportación detenida: se ha restaurado el código HS ya asignado al paciente.', 'error');
-                alert('Revise la identificación: el paciente ya tiene un código HS asignado.');
+                resolveHsConflictWithAction(nuhsa, code, prefix);
                 return false;
             }
             if (isValidHsCode(code) && codeBelongsToAnotherPatient(code, nuhsa)) {
-                setHsCodeFeedback('Exportación detenida: el código HS pertenece a otro paciente.', 'error');
-                alert('Revise la identificación: el código HS pertenece a otro paciente.');
+                var owners = getHsCodeOwners(code);
+                if (owners.length > 1) {
+                    setHsCodeFeedback('Exportación detenida: se detectó duplicidad de código HS en la base/session.', 'error');
+                    showCriticalModal({
+                        title: 'Código HS duplicado',
+                        message: 'La base cargada contiene un código HS duplicado (' + code + ').',
+                        detail: 'Pacientes asociados: ' + owners.join(', ') + '\nRevise el Excel maestro antes de exportar.',
+                        actions: [{ label: 'Aceptar', className: 'btn-primary' }]
+                    });
+                } else {
+                    setHsCodeFeedback('Exportación detenida: el código HS pertenece a otro paciente.', 'error');
+                    resolveHsConflictWithAction(nuhsa, code, prefix);
+                }
                 return false;
             }
             return true;
@@ -3992,7 +4318,11 @@
         }
         function exportRowToClipboard(row) {
             var line = MASTER_COLUMNS.map(function (column) { return row[column] || ''; }).join('\t');
-            return navigator.clipboard.writeText(line).then(function () { alert("Datos copiados (pegar en Excel)"); });
+            return copyTextToClipboard(
+                line,
+                'Fila Excel copiada. Lista para pegar en BD_VISITAS_HS.',
+                'No se pudo copiar la fila Excel. Revise permisos del portapapeles.'
+            );
         }
         function getMasterHeader() {
             return MASTER_COLUMNS.join('\t');
@@ -4349,10 +4679,15 @@
                 '\nNotas de evolución: ' + (document.getElementById('pv_notas').value || 'Sin notas') +
                 '\nPróxima cita enfermería: ' + (document.getElementById('pv_prox_cita').value || 'Pendiente') +
                 '\n===================================';
-            navigator.clipboard.writeText(txt).then(function () { alert("Informe clínico copiado al portapapeles"); });
+            copyTextToClipboard(
+                txt,
+                'Informe copiado al portapapeles.',
+                'No se pudo copiar el informe. Revise permisos del portapapeles.'
+            );
         }
 
         initializeCollapsedSections();
+        initNotificationUI();
         initMasterExcelUI();
 
         // =============================================
@@ -4659,7 +4994,11 @@
                 '\nNotas: ' + (document.getElementById('sg_notas').value || 'Sin notas') +
                 '\nPróxima cita: ' + (document.getElementById('sg_prox_cita').value || 'Pendiente') +
                 '\n================================';
-            navigator.clipboard.writeText(txt).then(function () { alert("Informe copiado al portapapeles"); });
+            copyTextToClipboard(
+                txt,
+                'Informe copiado al portapapeles.',
+                'No se pudo copiar el informe. Revise permisos del portapapeles.'
+            );
         }
 
         // =============================================
@@ -4754,7 +5093,11 @@
                 '\nFrecuencia: ' + document.getElementById('cx_freq_cura').value +
                 '\n\nNOTAS:\n' + (document.getElementById('cx_notas').value || 'Sin notas') +
                 '\n=======================================';
-            navigator.clipboard.writeText(txt).then(function () { alert("Informe copiado al portapapeles"); });
+            copyTextToClipboard(
+                txt,
+                'Informe copiado al portapapeles.',
+                'No se pudo copiar el informe. Revise permisos del portapapeles.'
+            );
         }
 
     </script>
