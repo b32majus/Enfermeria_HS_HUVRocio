@@ -36,6 +36,37 @@
             margin: 0;
         }
 
+        .app-shell {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            min-height: 100vh;
+        }
+
+        .app-sidebar {
+            border-right: 1px solid #dbe3ef;
+            background: #f8fbff;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 14px;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            width: 100%;
+            margin-bottom: 10px;
+            justify-content: space-between;
+        }
+
+        .app-sidebar-body {
+            display: block;
+        }
+
+        .app-main {
+            min-width: 0;
+        }
+
         /* TAB BAR */
         .tab-bar {
             background: #1e293b;
@@ -825,9 +856,8 @@
         }
 
         .global-panel {
-            max-width: 1200px;
-            margin: 18px auto 0;
-            padding: 0 30px;
+            margin: 0;
+            padding: 0;
         }
 
         .global-panel-card {
@@ -895,6 +925,47 @@
             padding: 8px 10px;
             font-size: 0.86rem;
             margin-top: 8px;
+        }
+
+        .sidebar-section {
+            margin-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.86rem;
+            color: #334155;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-metrics {
+            font-size: 0.86rem;
+            color: #334155;
+            border-radius: 6px;
+            border: 1px solid #dbe5f0;
+            background: #f8fafc;
+            padding: 8px 10px;
+            margin-top: 6px;
+        }
+
+        .sidebar-patient-card {
+            border: 1px solid #dbe5f0;
+            border-radius: 8px;
+            background: #fff;
+            padding: 10px;
+            font-size: 0.86rem;
+            color: #334155;
+            display: grid;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-patient-row strong {
+            color: #0f172a;
         }
 
         .fab-bar {
@@ -1139,6 +1210,27 @@
             animation: toast-out 0.2s ease forwards;
         }
 
+        @media (max-width: 1100px) {
+            .app-shell {
+                display: block;
+            }
+
+            .app-sidebar {
+                position: static;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #dbe3ef;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+            }
+
+            .app-sidebar.is-collapsed .app-sidebar-body {
+                display: none;
+            }
+        }
+
         .critical-modal {
             position: fixed;
             inset: 0;
@@ -1233,38 +1325,60 @@
 </head>
 
 <body>
-    <div class="global-panel">
-        <div class="global-panel-card">
-            <div class="global-panel-head">
-                <h2 class="global-panel-title">Base y paciente</h2>
-                <span style="font-size:0.8rem;color:#64748b;" title="Orientativo para priorización/lectura rápida.">Flujo recomendado</span>
-            </div>
-            <div class="import-panel-row" style="margin-bottom:6px;">
-                <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
-                <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar / recargar BD</button>
-                <div class="import-status status-inline">
-                    <span class="status-dot status-dot--empty" id="master_excel_status_dot"></span>
-                    <span id="master_excel_status">BD no cargada</span>
-                </div>
-                <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
-            </div>
-            <div class="import-panel-row">
-                <input type="text" id="global_patient_search" placeholder="Buscar por NUHSA o código HS">
-                <button type="button" class="btn btn-outline" id="global_patient_search_btn"><i class="fas fa-search"></i> Buscar paciente</button>
-            </div>
-            <div id="global_patient_result_summary" class="global-result">Sin paciente seleccionado.</div>
-            <div class="hs-code-row">
-                <span id="global_hs_code_status" class="hs-code-status">Introduzca primero NUHSA o busque paciente.</span>
-                <button type="button" class="btn btn-outline" id="global_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Asignar código HS</button>
-            </div>
-            <div id="global_hs_code_feedback" class="hs-code-feedback">Recuerde copiar la fila Excel para que el código HS quede registrado en la base.</div>
-            <div id="master_excel_warnings" style="display:none;"></div>
-            <div id="master_excel_error" style="display:none;"></div>
-        </div>
-    </div>
+    <div class="app-shell">
+        <aside class="app-sidebar" id="app_sidebar">
+            <button type="button" class="btn btn-outline sidebar-toggle" id="sidebar_toggle_btn">
+                <span><i class="fas fa-database"></i> Base y paciente</span>
+                <span id="sidebar_toggle_icon"><i class="fas fa-chevron-up"></i></span>
+            </button>
+            <div class="app-sidebar-body" id="app_sidebar_body">
+                <div class="global-panel">
+                    <div class="global-panel-card">
+                        <div class="global-panel-head">
+                            <h2 class="global-panel-title">Base de datos</h2>
+                            <span style="font-size:0.8rem;color:#64748b;" title="Orientativo para priorización/lectura rápida.">Consulta activa</span>
+                        </div>
+                        <div class="import-panel-row" style="margin-bottom:6px;">
+                            <input type="file" id="master_excel_file" accept=".xlsx" style="display:none;">
+                            <button type="button" class="btn btn-outline" id="master_excel_load_btn"><i class="fas fa-file-upload"></i> Cargar / recargar BD</button>
+                        </div>
+                        <div class="import-status status-inline">
+                            <span class="status-dot status-dot--empty" id="master_excel_status_dot"></span>
+                            <span id="master_excel_status">BD no cargada</span>
+                        </div>
+                        <div class="import-status" id="master_excel_loaded_at">Última carga: —</div>
+                        <div class="sidebar-metrics" id="master_excel_metrics">Registros: 0 | Pacientes: 0 | Códigos HS únicos: 0</div>
 
-    <!-- BARRA DE PESTAÑAS -->
-    <div class="tab-bar">
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">Paciente</div>
+                            <div class="import-panel-row">
+                                <input type="text" id="global_patient_search" placeholder="Buscar por NUHSA o código HS">
+                                <button type="button" class="btn btn-outline" id="global_patient_search_btn"><i class="fas fa-search"></i> Buscar</button>
+                            </div>
+                            <div id="global_patient_result_summary" class="global-result">Sin paciente seleccionado.</div>
+                            <div class="sidebar-patient-card" id="sidebar_patient_card">
+                                <div class="sidebar-patient-row"><strong>NUHSA:</strong> <span id="sidebar_patient_nuhsa">—</span></div>
+                                <div class="sidebar-patient-row"><strong>Código HS:</strong> <span id="sidebar_patient_code">—</span></div>
+                                <div class="sidebar-patient-row"><strong>Última visita:</strong> <span id="sidebar_patient_visit">—</span></div>
+                                <div class="sidebar-patient-row"><strong>IHS4 último:</strong> <span id="sidebar_patient_ihs4">—</span></div>
+                            </div>
+                            <div class="hs-code-row">
+                                <span id="global_hs_code_status" class="hs-code-status">Introduzca primero NUHSA o busque paciente.</span>
+                                <button type="button" class="btn btn-outline" id="global_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Asignar código HS</button>
+                            </div>
+                            <div id="global_hs_code_feedback" class="hs-code-feedback">Recuerde copiar la fila Excel para que el código HS quede registrado en la base.</div>
+                            <button type="button" class="btn btn-outline" id="sidebar_new_patient_btn"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar formulario</button>
+                        </div>
+                        <div id="master_excel_warnings" style="display:none;"></div>
+                        <div id="master_excel_error" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <!-- BARRA DE PESTAÑAS -->
+            <div class="tab-bar">
         <button class="tab-btn active-pv" id="btn-pv" onclick="switchTab('pv')">
             <i class="fas fa-user-nurse"></i> Primera Visita <span class="tab-badge tab-badge-pv">1ª</span>
         </button>
@@ -1835,7 +1949,7 @@
             médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
             posterior.</div>
         <div class="active-patient-inline" id="sg_selected_patient_panel">
-            <div class="import-status" id="sg_selected_patient_summary">Busque primero el paciente en el panel superior o introduzca NUHSA/código HS manualmente.</div>
+            <div class="import-status" id="sg_selected_patient_summary">Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS manualmente.</div>
             <div class="import-panel-row" style="margin-top:8px;">
                 <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-bolt"></i> Precargar seguimiento</button>
             </div>
@@ -2713,12 +2827,13 @@
     </div>
 
     <!-- BARRA INFERIOR -->
-    <div class="fab-bar">
-        <button class="btn btn-outline" onclick="startNewPatient()"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar formulario</button>
-        <button class="btn btn-excel" onclick="exportActiveTab()"><i class="fas fa-file-excel"></i> Copiar
-            fila Excel</button>
-        <button class="btn btn-primary" onclick="copyActiveReport()"><i class="fas fa-file-medical"></i> Copiar
-            informe</button>
+            <div class="fab-bar">
+                <button class="btn btn-excel" onclick="exportActiveTab()"><i class="fas fa-file-excel"></i> Copiar
+                    fila Excel</button>
+                <button class="btn btn-primary" onclick="copyActiveReport()"><i class="fas fa-file-medical"></i> Copiar
+                    informe</button>
+            </div>
+        </main>
     </div>
 
     <div id="toast_host" class="toast-host" aria-live="polite" aria-atomic="false"></div>
@@ -2758,6 +2873,7 @@
         let selectedPatientLastRecord = null;
         let selectedPatientLastClinicalRecord = null;
         let hsSessionCodeMap = {};
+        let masterDbDuplicateCodes = [];
         let pendingNewPatientIdentifier = '';
         let activeCriticalModalConfig = null;
         const MASTER_COLUMNS = [
@@ -2867,6 +2983,14 @@
             });
         }
 
+        function updateSidebarToggleUI() {
+            var sidebar = document.getElementById('app_sidebar');
+            var iconEl = document.getElementById('sidebar_toggle_icon');
+            if (!sidebar || !iconEl) return;
+            var collapsed = sidebar.classList.contains('is-collapsed');
+            iconEl.innerHTML = collapsed ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-up"></i>';
+        }
+
         function copyTextToClipboard(text, successMessage, errorMessage) {
             var successMsg = successMessage || 'Texto copiado al portapapeles.';
             var failureMsg = errorMessage || 'No se pudo copiar al portapapeles.';
@@ -2932,26 +3056,54 @@
             else dotEl.classList.add('status-dot--empty');
         }
 
+        function analyzeMasterDbStats() {
+            var uniquePatients = {};
+            var uniqueCodes = {};
+            var codeOwnersMap = {};
+            masterDb.forEach(function (row) {
+                var patientKey = normalizePatientId(row.nuhsa || row.codigo_hs);
+                var nuhsa = normalizePatientId(row.nuhsa);
+                var code = normalizeHsCode(row.codigo_hs);
+                if (patientKey) uniquePatients[patientKey] = true;
+                if (isValidHsCode(code)) {
+                    uniqueCodes[code] = true;
+                    if (!codeOwnersMap[code]) codeOwnersMap[code] = {};
+                    if (nuhsa) codeOwnersMap[code][nuhsa] = true;
+                }
+            });
+            var duplicateCodes = Object.keys(codeOwnersMap).filter(function (code) {
+                return Object.keys(codeOwnersMap[code]).length > 1;
+            });
+            return {
+                nPatients: Object.keys(uniquePatients).length,
+                nCodes: Object.keys(uniqueCodes).length,
+                duplicateCodes: duplicateCodes
+            };
+        }
+
         function updateMasterDbStatus(warnings) {
             var statusEl = document.getElementById('master_excel_status');
             var loadedEl = document.getElementById('master_excel_loaded_at');
+            var metricsEl = document.getElementById('master_excel_metrics');
             if (Array.isArray(warnings)) masterDbWarnings = warnings.filter(Boolean);
-            var uniquePatients = {};
-            masterDb.forEach(function (row) {
-                var key = normalizePatientId(row.nuhsa || row.codigo_hs);
-                if (key) uniquePatients[key] = true;
-            });
-            var nPatients = Object.keys(uniquePatients).length;
-            var hasWarnings = masterDb.length && masterDbWarnings.length;
+            var stats = analyzeMasterDbStats();
+            masterDbDuplicateCodes = stats.duplicateCodes.slice();
+            var hasWarnings = masterDb.length && (masterDbWarnings.length || masterDbDuplicateCodes.length);
             if (statusEl) {
                 if (!masterDb.length) statusEl.textContent = 'BD no cargada';
-                else if (hasWarnings) statusEl.textContent = 'BD cargada con advertencias';
-                else statusEl.textContent = 'BD cargada: ' + masterDb.length + ' registros / ' + nPatients + ' pacientes';
+                else if (hasWarnings) statusEl.textContent = 'BD cargada con incidencias';
+                else statusEl.textContent = 'BD cargada correctamente';
             }
             if (loadedEl) {
                 loadedEl.textContent = masterDbLoadedAt ? ('Última carga: ' + masterDbLoadedAt) : 'Última carga: —';
             }
+            if (metricsEl) {
+                metricsEl.textContent = 'Registros: ' + masterDb.length + ' | Pacientes: ' + stats.nPatients + ' | Códigos HS únicos: ' + stats.nCodes;
+            }
             setMasterStatusDot(!masterDb.length ? 'empty' : (hasWarnings ? 'warning' : 'loaded'));
+            if (masterDb.length && masterDbDuplicateCodes.length) {
+                console.warn('Códigos HS duplicados detectados en BD cargada:', masterDbDuplicateCodes);
+            }
         }
 
         function persistMasterDbToSession() {
@@ -2974,7 +3126,11 @@
                 masterDbLoadedAt = loadedAt || null;
                 masterDbWarnings = [];
                 updateMasterDbStatus([]);
-                showImportSuccess('Base restaurada desde la sesión actual.');
+                if (masterDbDuplicateCodes.length) {
+                    showImportWarnings(['BD restaurada con incidencias: códigos HS duplicados detectados (' + masterDbDuplicateCodes.join(', ') + ').']);
+                } else {
+                    showImportSuccess('Base restaurada desde la sesión actual.');
+                }
                 updateHsCodeGlobalUI();
             } catch (err) {
                 masterDb = [];
@@ -3658,7 +3814,7 @@
             var summaryEl = document.getElementById('sg_selected_patient_summary');
             if (!summaryEl) return;
             if (!record) {
-                summaryEl.textContent = 'Busque primero el paciente en el panel superior o introduzca NUHSA/código HS manualmente.';
+                summaryEl.textContent = 'Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS manualmente.';
                 return;
             }
             var ihs4Source = clinicalRecord || record;
@@ -3670,12 +3826,34 @@
                 ' · IHS4: ' + (ihs4Source.ihs4_actual || 'NR');
         }
 
+        function updateSidebarPatientCard(record, clinicalRecord) {
+            var nuhsaEl = document.getElementById('sidebar_patient_nuhsa');
+            var codeEl = document.getElementById('sidebar_patient_code');
+            var visitEl = document.getElementById('sidebar_patient_visit');
+            var ihsEl = document.getElementById('sidebar_patient_ihs4');
+            if (!nuhsaEl || !codeEl || !visitEl || !ihsEl) return;
+            if (!record) {
+                nuhsaEl.textContent = '—';
+                codeEl.textContent = '—';
+                visitEl.textContent = '—';
+                ihsEl.textContent = '—';
+                return;
+            }
+            var ihs4Source = clinicalRecord || record;
+            var code = normalizeHsCode(record.codigo_hs || getPatientHsCode(record.nuhsa || selectedPatientIdentifier));
+            nuhsaEl.textContent = record.nuhsa || selectedPatientIdentifier || 'NR';
+            codeEl.textContent = isValidHsCode(code) ? code : 'sin asignar';
+            visitEl.textContent = record.fecha_visita || 'NR';
+            ihsEl.textContent = ihs4Source.ihs4_actual || 'NR';
+        }
+
         function updateGlobalPatientSummary(record, clinicalRecord, notFound) {
             var summaryEl = document.getElementById('global_patient_result_summary');
             if (!summaryEl) return;
             if (!record) {
                 summaryEl.className = 'global-result' + (notFound ? ' error' : '');
                 summaryEl.textContent = notFound ? 'Paciente no encontrado en la base cargada.' : 'Sin paciente seleccionado.';
+                updateSidebarPatientCard(null, null);
                 return;
             }
             summaryEl.className = 'global-result';
@@ -3687,6 +3865,7 @@
                 ' | Tipo: ' + (record.tipo_visita || 'NR') +
                 ' | IHS4: ' + (ihs4Source.ihs4_actual || 'NR') +
                 ' | Código HS: ' + (isValidHsCode(code) ? code : 'NR');
+            updateSidebarPatientCard(record, clinicalRecord);
         }
 
         function updateGlobalNewPatientSummary(nuhsa, hsCode) {
@@ -3694,6 +3873,7 @@
             if (!summaryEl) return;
             summaryEl.className = 'global-result';
             summaryEl.textContent = 'Paciente nuevo iniciado | NUHSA: ' + normalizePatientId(nuhsa) + ' | Código HS: ' + normalizeHsCode(hsCode);
+            updateSidebarPatientCard({ nuhsa: normalizePatientId(nuhsa), codigo_hs: normalizeHsCode(hsCode), fecha_visita: '' }, null);
         }
 
         function getVisiblePatientNuhsas() {
@@ -3793,7 +3973,7 @@
             var previousSelected = normalizePatientId(selectedPatientIdentifier);
             var changesPatient = (previousSelected && previousSelected !== nextId) || priorIds.some(function (id) { return id !== nextId; });
             if (!changesPatient) return true;
-            if (hasEnteredClinicalData() && !window.confirm('Está cambiando de paciente. Se limpiarán los formularios actuales para evitar mezclar datos. La base cargada se mantendrá. ¿Continuar?')) {
+            if (hasEnteredClinicalData() && !window.confirm('Va a cambiar de paciente y se limpiarán los formularios actuales. ¿Desea continuar?')) {
                 return false;
             }
             resetCurrentPatientContext({ keepSearch: true, clearForms: true });
@@ -3939,7 +4119,7 @@
 
             var identifier = valueOf('sg_nuhsa') || valueOf('sg_codigo_hs') || selectedPatientIdentifier || valueOf('global_patient_search');
             if (!normalizePatientId(identifier)) {
-                showImportError('Busque primero el paciente en el panel superior o introduzca NUHSA/código HS en Seguimiento.');
+                showImportError('Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS en Seguimiento.');
                 return;
             }
 
@@ -4069,7 +4249,15 @@
                     masterDbLoadedAt = new Date().toLocaleString('es-ES');
                     persistMasterDbToSession();
                     updateMasterDbStatus(validation.warnings || []);
-                    showImportSuccess('Archivo cargado correctamente en memoria de sesión.');
+                    var combinedWarnings = (validation.warnings || []).slice();
+                    if (masterDbDuplicateCodes.length) {
+                        combinedWarnings.push('BD cargada con incidencias: códigos HS duplicados detectados (' + masterDbDuplicateCodes.join(', ') + ').');
+                    }
+                    if (combinedWarnings.length) {
+                        showImportWarnings(combinedWarnings);
+                    } else {
+                        showImportSuccess('Archivo cargado correctamente en memoria de sesión.');
+                    }
                     resetCurrentPatientContext({ clearForms: true });
                     updateHsCodeGlobalUI();
                     setHsCodeFeedback('Base cargada. Puede buscar paciente y asignar/reutilizar código HS.', 'ok');
@@ -4092,6 +4280,9 @@
             var globalFindBtn = document.getElementById('global_patient_search_btn');
             var globalSearchInput = document.getElementById('global_patient_search');
             var globalHsAssignBtn = document.getElementById('global_hs_assign_btn');
+            var sidebarNewPatientBtn = document.getElementById('sidebar_new_patient_btn');
+            var sidebarToggleBtn = document.getElementById('sidebar_toggle_btn');
+            var sidebarRoot = document.getElementById('app_sidebar');
             var sgPreloadBtn = document.getElementById('sg_preload_btn');
             var pvHsAssignBtn = document.getElementById('pv_hs_assign_btn');
             var sgHsAssignBtn = document.getElementById('sg_hs_assign_btn');
@@ -4130,6 +4321,23 @@
             if (globalHsAssignBtn) globalHsAssignBtn.addEventListener('click', function () {
                 assignHsCodeToCurrentPatient({ identifier: selectedPatientIdentifier || pendingNewPatientIdentifier || valueOf('global_patient_search') });
             });
+            if (sidebarNewPatientBtn) sidebarNewPatientBtn.addEventListener('click', function () {
+                startNewPatient();
+            });
+            if (sidebarToggleBtn && sidebarRoot) {
+                if (window.innerWidth <= 1100) sidebarRoot.classList.add('is-collapsed');
+                updateSidebarToggleUI();
+                sidebarToggleBtn.addEventListener('click', function () {
+                    sidebarRoot.classList.toggle('is-collapsed');
+                    updateSidebarToggleUI();
+                });
+                window.addEventListener('resize', function () {
+                    if (window.innerWidth > 1100) {
+                        sidebarRoot.classList.remove('is-collapsed');
+                    }
+                    updateSidebarToggleUI();
+                });
+            }
             if (sgPreloadBtn) sgPreloadBtn.addEventListener('click', applyLastVisitPreload);
             if (pvHsAssignBtn) pvHsAssignBtn.addEventListener('click', function () {
                 assignHsCodeToCurrentPatient({ identifier: selectedPatientIdentifier || valueOf('pv_nuhsa') || pendingNewPatientIdentifier || valueOf('global_patient_search') });
