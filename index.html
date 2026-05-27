@@ -1396,18 +1396,19 @@
                                 <input type="text" id="global_patient_search" placeholder="Buscar por NUHSA o código HS">
                                 <button type="button" class="btn btn-outline" id="global_patient_search_btn"><i class="fas fa-search"></i> Buscar</button>
                             </div>
-                            <div id="global_patient_result_summary" class="global-result">Sin paciente seleccionado.</div>
+                            <div id="global_patient_result_summary" class="global-result" style="display:none;"></div>
                             <div class="sidebar-patient-card" id="sidebar_patient_card">
                                 <div class="sidebar-patient-row"><strong>NUHSA:</strong> <span id="sidebar_patient_nuhsa">—</span></div>
                                 <div class="sidebar-patient-row"><strong>Código HS:</strong> <span id="sidebar_patient_code">—</span></div>
                                 <div class="sidebar-patient-row"><strong>Última visita:</strong> <span id="sidebar_patient_visit">—</span></div>
+                                <div class="sidebar-patient-row"><strong>Tipo:</strong> <span id="sidebar_patient_type">—</span></div>
                                 <div class="sidebar-patient-row"><strong>IHS4 último:</strong> <span id="sidebar_patient_ihs4">—</span></div>
                             </div>
                             <div class="hs-code-row">
                                 <span id="global_hs_code_status" class="hs-code-status">Introduzca primero NUHSA o busque paciente.</span>
                                 <button type="button" class="btn btn-outline" id="global_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Asignar código HS</button>
                             </div>
-                            <div id="global_hs_code_feedback" class="hs-code-feedback">Recuerde copiar la fila Excel para que el código HS quede registrado en la base.</div>
+                            <div id="global_hs_code_feedback" class="hs-code-feedback" style="display:none;"></div>
                             <button type="button" class="btn btn-outline" id="sidebar_new_patient_btn"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar formulario</button>
                         </div>
                         <div id="master_excel_warnings" style="display:none;"></div>
@@ -2005,7 +2006,6 @@
             médica. Sin asterisco: campo añadido para registro enfermero, seguimiento estructurado y explotación
             posterior.</div>
         <div class="active-patient-inline" id="sg_selected_patient_panel">
-            <div class="import-status" id="sg_selected_patient_summary">Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS manualmente.</div>
             <div id="sg_preload_status_chip" class="status-chip" style="display:none; margin-top:8px;">Datos previos cargados desde última visita</div>
             <div class="import-panel-row" style="margin-top:8px;">
                 <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-redo"></i> Reaplicar precarga</button>
@@ -3108,9 +3108,9 @@
         function showImportSuccess(message) {
             var el = document.getElementById('master_excel_warnings');
             if (!el) return;
-            el.className = 'import-ok';
-            el.style.display = 'block';
-            el.textContent = message || '';
+            el.className = '';
+            el.style.display = 'none';
+            el.textContent = '';
             if (message) showToast(message, 'ok');
         }
 
@@ -3288,11 +3288,22 @@
         function setHsCodeFeedback(message, mode) {
             var el = document.getElementById('global_hs_code_feedback');
             if (!el) return;
+            if (el._hideTimer) window.clearTimeout(el._hideTimer);
+            if (!message || message === 'Recuerde copiar la fila Excel para que el código HS quede registrado en la base.') {
+                el.style.display = 'none';
+                el.textContent = '';
+                return;
+            }
             el.className = 'hs-code-feedback';
             if (mode === 'warn') el.classList.add('is-warn');
             if (mode === 'error') el.classList.add('is-error');
             if (mode === 'ok') el.classList.add('is-ok');
-            el.textContent = message || 'Recuerde copiar la fila Excel para que el código HS quede registrado en la base.';
+            el.textContent = message;
+            el.style.display = 'block';
+            el._hideTimer = window.setTimeout(function () {
+                el.style.display = 'none';
+                el.textContent = '';
+            }, mode === 'error' ? 6200 : 4800);
         }
 
         function updateSgPreloadStatusChip(message, mode) {
@@ -3490,9 +3501,10 @@
             actionBtn.disabled = true;
             actionBtn.title = '';
             actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
+            statusEl.style.display = '';
 
             if (hasValidCode) {
-                statusEl.textContent = 'Código HS: ' + selectedCode;
+                statusEl.style.display = 'none';
                 updateFormHsButtons(selectedCode);
                 return;
             }
@@ -3948,12 +3960,14 @@
             var nuhsaEl = document.getElementById('sidebar_patient_nuhsa');
             var codeEl = document.getElementById('sidebar_patient_code');
             var visitEl = document.getElementById('sidebar_patient_visit');
+            var typeEl = document.getElementById('sidebar_patient_type');
             var ihsEl = document.getElementById('sidebar_patient_ihs4');
-            if (!nuhsaEl || !codeEl || !visitEl || !ihsEl) return;
+            if (!nuhsaEl || !codeEl || !visitEl || !typeEl || !ihsEl) return;
             if (!record) {
                 nuhsaEl.textContent = '—';
                 codeEl.textContent = '—';
                 visitEl.textContent = '—';
+                typeEl.textContent = '—';
                 ihsEl.textContent = '—';
                 return;
             }
@@ -3962,6 +3976,7 @@
             nuhsaEl.textContent = record.nuhsa || selectedPatientIdentifier || 'NR';
             codeEl.textContent = isValidHsCode(code) ? code : 'sin asignar';
             visitEl.textContent = record.fecha_visita || 'NR';
+            typeEl.textContent = record.tipo_visita || 'NR';
             ihsEl.textContent = ihs4Source.ihs4_actual || 'NR';
         }
 
@@ -3971,26 +3986,20 @@
             if (!record) {
                 summaryEl.className = 'global-result' + (notFound ? ' error' : '');
                 summaryEl.textContent = notFound ? 'Paciente no encontrado en la base cargada.' : 'Sin paciente seleccionado.';
+                summaryEl.style.display = notFound ? 'block' : 'none';
                 updateSidebarPatientCard(null, null);
                 return;
             }
-            summaryEl.className = 'global-result';
-            var ihs4Source = clinicalRecord || record;
-            var code = normalizeHsCode(record.codigo_hs || getPatientHsCode(record.nuhsa || selectedPatientIdentifier));
-            summaryEl.textContent =
-                'Paciente encontrado' +
-                ' | Última visita: ' + (record.fecha_visita || 'NR') +
-                ' | Tipo: ' + (record.tipo_visita || 'NR') +
-                ' | IHS4: ' + (ihs4Source.ihs4_actual || 'NR') +
-                ' | Código HS: ' + (isValidHsCode(code) ? code : 'NR');
+            summaryEl.style.display = 'none';
+            summaryEl.textContent = '';
             updateSidebarPatientCard(record, clinicalRecord);
         }
 
         function updateGlobalNewPatientSummary(nuhsa, hsCode) {
             var summaryEl = document.getElementById('global_patient_result_summary');
             if (!summaryEl) return;
-            summaryEl.className = 'global-result';
-            summaryEl.textContent = 'Paciente nuevo iniciado | NUHSA: ' + normalizePatientId(nuhsa) + ' | Código HS: ' + normalizeHsCode(hsCode);
+            summaryEl.style.display = 'none';
+            summaryEl.textContent = '';
             updateSidebarPatientCard({ nuhsa: normalizePatientId(nuhsa), codigo_hs: normalizeHsCode(hsCode), fecha_visita: '' }, null);
         }
 
