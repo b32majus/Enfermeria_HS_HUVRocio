@@ -13,17 +13,17 @@ Uso previsto: apoyo al registro estructurado de consulta, generación de informe
 ## 0. Guía rápida de uso
 
 1. Abrir la herramienta en el navegador.
-2. En el panel superior **Base y paciente**, pulsar **Cargar / recargar BD** y seleccionar el Excel correspondiente.
+2. En la barra lateral **Base de datos**, pulsar **Cargar / recargar BD** y seleccionar el Excel correspondiente.
 3. Buscar al paciente por **NUHSA** o **código HS**.
 4. Si el paciente no existe, la herramienta inicia paciente nuevo y genera `codigo_hs` automáticamente.
 5. Elegir la pestaña de trabajo: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
 6. Completar los campos de la visita actual.
-7. En Seguimiento, usar **Precargar seguimiento** si procede.
+7. En Seguimiento, revisar la precarga automática y usar **Reaplicar precarga** si procede.
 8. Pulsar **Copiar informe** y pegarlo donde corresponda según el circuito asistencial.
 9. Pulsar **Copiar fila Excel** y pegarla en la hoja `BD_VISITAS_HS` del Excel maestro.
 10. Antes de pasar a otro paciente, pulsar **Nuevo paciente / limpiar formulario**.
 
-> **Regla de oro:** nunca pasar a otro paciente sin buscarlo en el panel superior o pulsar **Nuevo paciente / limpiar formulario**. Así se evita mezclar NUHSA, código HS o datos clínicos de pacientes distintos.
+> **Regla de oro:** nunca pasar a otro paciente sin buscarlo en la barra lateral o pulsar **Nuevo paciente / limpiar formulario**. Así se evita mezclar NUHSA, código HS o datos clínicos de pacientes distintos.
 
 ---
 
@@ -56,15 +56,15 @@ Uso previsto: apoyo al registro estructurado de consulta, generación de informe
 
 ---
 
-## 3. Panel superior: Base y paciente
+## 3. Barra lateral: Base de datos y paciente
 
-El panel superior es el punto de entrada de la herramienta. Antes de elegir el tipo de visita, debe usarse para cargar la base y buscar al paciente.
+La barra lateral es el punto de entrada de la herramienta. Antes de elegir el tipo de visita, debe usarse para cargar la base y buscar al paciente.
 
 Pasos:
 
 1. Pulsar **Cargar / recargar BD**.
 2. Seleccionar el Excel con la hoja `BD_VISITAS_HS`.
-3. Comprobar que aparece **BD cargada: X registros / Y pacientes**.
+3. Comprobar estado de BD y métricas visibles (`registros`, `pacientes`, `códigos HS únicos`).
 4. Introducir NUHSA o código HS en el buscador.
 5. Pulsar **Buscar paciente** o Enter.
 
@@ -104,7 +104,7 @@ Si la base contiene `HS0001` a `HS0006` y se inicia un paciente nuevo, la herram
 
 ## 5. Primera Visita (PV)
 
-1. Buscar paciente en el panel superior o introducir NUHSA en la pestaña PV.
+1. Buscar paciente en la barra lateral o introducir NUHSA en la pestaña PV.
 2. Confirmar que aparece NUHSA y código HS en Filiación e historia de la HS.
 3. Completar filiación, historia de enfermedad, hábitos, antecedentes y comorbilidades.
 4. Registrar exploración, EVAs e IHS4 actual.
@@ -120,7 +120,7 @@ Campos especialmente importantes:
 - Fecha de visita.
 - Año de inicio de síntomas.
 - Año de diagnóstico.
-- Profesional que diagnostica.
+- Profesional/servicio que deriva.
 - Antecedentes familiares.
 - Brotes último año.
 - Tratamientos previos.
@@ -136,10 +136,11 @@ Campos especialmente importantes:
 
 ## 6. Seguimiento (SG)
 
-1. Buscar paciente en el panel superior.
+1. Buscar paciente en la barra lateral.
 2. Entrar en **Seguimiento**.
 3. Revisar el bloque de paciente activo.
-4. Pulsar **Precargar seguimiento** si hay base cargada y visita previa.
+4. La herramienta aplica precarga automática si hay base cargada y paciente activo (solo en campos vacíos).
+5. Usar **Reaplicar precarga** si se necesita repetir la carga en campos vacíos.
 5. Revisar los datos precargados.
 6. Completar siempre la valoración actual.
 7. Copiar informe y copiar fila Excel.
@@ -167,11 +168,13 @@ La precarga no sustituye la valoración actual. Deben rellenarse siempre, según
 - PROMs actuales.
 - Plan y notas.
 
+> **Nota documental (tratamiento activo):** pendiente definir con Enfermería/Dermatología/Farmacia si el tratamiento activo se mantiene como registro simple, por grupos terapéuticos o extraído de historia/Farmacia.
+
 ---
 
 ## 7. Cura Post-Qx (CX)
 
-1. Buscar paciente en el panel superior o introducir NUHSA en CX.
+1. Buscar paciente en la barra lateral o introducir NUHSA en CX.
 2. Confirmar NUHSA y código HS.
 3. Completar datos de intervención, tipo de cierre, localización, número de cura y fecha.
 4. Registrar dolor pre/post cura, analgesia/anestesia si aplica.
@@ -218,7 +221,7 @@ La acción:
 | BD no cargada | No se ha cargado Excel maestro. Puede trabajar manualmente, pero no habrá búsqueda/precarga. |
 | Paciente no encontrado | Ese NUHSA/código no está en la base cargada. Si es paciente nuevo, la herramienta generará código HS. |
 | Código HS generado automáticamente | La herramienta ha reservado un código nuevo. Hay que copiar la fila Excel para dejarlo registrado. |
-| Código HS asignado | El paciente ya tiene código; no debe generarse otro. |
+| Código HS histórico restaurado | El código introducido no correspondía al NUHSA activo. La herramienta restaura el histórico y exige volver a pulsar `Copiar fila Excel`. |
 | No se puede exportar código HS sin NUHSA asociado | Hay código pero falta NUHSA. Revisar identificación antes de exportar. |
 | El código pertenece a otro paciente | No usar ese código; buscar el paciente correcto o revisar la base. |
 

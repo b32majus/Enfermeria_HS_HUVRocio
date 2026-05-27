@@ -284,6 +284,41 @@ Todo paciente con `NUHSA` activo dispone de `codigo_hs` antes de exportar, sin d
 
 ---
 
+## Fase 4.4 — Ajustes beta consulta: UX segura y robustez funcional
+
+### Objetivo
+Corregir problemas detectados en consulta real para mejorar visibilidad de estados críticos, minimizar bloqueos no clínicos y reforzar seguridad operativa sin modificar la estructura longitudinal de exportación.
+
+### Subfase 4.4A — Notificaciones y validaciones de identidad
+- Sustituir alertas no visibles por toasts y modal crítico.
+- Mantener bloqueo de exportación solo por identidad (`NUHSA`/`codigo_hs`) e incoherencias de paciente activo.
+- Corregir conflictos de `codigo_hs` sin perder formulario y sin exportación automática tras corrección.
+
+### Subfase 4.4B — Sidebar de base y paciente
+- Mantener en lateral el estado de BD, buscador y paciente activo.
+- Mostrar métricas de carga (`registros`, `pacientes`, `códigos HS únicos`) y avisos de incidencias por duplicados de código.
+- Mantener confirmación explícita al cambiar de paciente con formularios ya rellenados.
+
+### Subfase 4.4C — Seguimiento y ajustes clínicos/textuales
+- Precarga automática en Seguimiento al entrar en pestaña con paciente activo + BD cargada.
+- Precarga solo sobre campos vacíos (sin sobrescribir entrada de Enfermería).
+- Botón secundario de `Reaplicar precarga` para campos vacíos.
+- Ajustes de formulario beta:
+  - `Sexo` -> `Sexo al nacimiento`.
+  - `Año inicio síntomas` y `Año diagnóstico` sin asterisco.
+  - `Profesional/servicio que deriva` como desplegable.
+  - eliminación visual de perímetro abdominal.
+  - `TA` sin asterisco.
+  - consejos breves no culpabilizantes para sedentarismo y alteración del sueño.
+- Mantener tratamiento activo sin módulos terapéuticos nuevos; decisión de detalle pendiente con Enfermería/Dermatología/Farmacia.
+
+### Restricciones de la fase
+- No modificar `MASTER_COLUMNS`.
+- No modificar PROMs.
+- No introducir Forms, QR, dashboard, backend ni refactor modular.
+
+---
+
 ## Fase 5 — Carga Excel maestro y sessionStorage
 
 ### Objetivo

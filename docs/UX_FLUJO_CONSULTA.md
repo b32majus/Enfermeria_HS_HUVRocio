@@ -1,10 +1,10 @@
-# UX Flujo de Consulta — Fase 3.3
+# UX Flujo de Consulta — Fase 4.4
 
 ## Flujo recomendado de uso
 
 1. Abrir la herramienta.
 2. Cargar BD si existe (`Cargar / recargar BD`).
-3. Buscar paciente por `NUHSA` o `código HS` en el panel global.
+3. Buscar paciente por `NUHSA` o `código HS` en la barra lateral de paciente.
 4. La herramienta reutiliza o genera `código HS` automáticamente al iniciar/seleccionar paciente.
 5. Elegir ruta clínica (Primera Visita, Seguimiento o Cura Post-Qx).
 6. Completar la visita actual.
@@ -47,7 +47,15 @@ Al cambiar de paciente, la herramienta sincroniza conjuntamente `NUHSA` y `codig
 
 ## Precarga en Seguimiento
 
-Con paciente seleccionado (o identificador manual en SG), `Precargar seguimiento` puede completar:
+Con paciente activo y base cargada, al entrar en la pestaña de Seguimiento la herramienta intenta precarga automática de datos previos:
+
+- solo sobre campos vacíos;
+- sin sobrescribir datos ya escritos por Enfermería;
+- mostrando el badge `Datos previos cargados desde última visita`.
+
+Además, queda disponible el botón secundario `Reaplicar precarga` para volver a intentar la carga (siempre en campos vacíos).
+
+La precarga puede completar:
 
 - fecha última consulta;
 - tiempo desde última consulta (si hay fecha de visita SG actual);
@@ -68,11 +76,18 @@ La precarga no sustituye la valoración clínica actual. Deben registrarse en la
 - PROMs actuales;
 - plan y notas de la consulta actual.
 
-## Estado de BD (panel global)
+## Estado de BD (barra lateral)
 
 - `BD no cargada`: sin base en la sesión.
-- `BD cargada: X registros / Y pacientes`: carga válida.
-- `BD cargada con advertencias`: carga válida con columnas faltantes no críticas o columnas extra.
+- `BD cargada correctamente`: carga válida.
+- `BD cargada con incidencias`: carga válida con advertencias y/o códigos HS duplicados detectados.
+- Métricas visibles: `registros`, `pacientes`, `códigos HS únicos`.
+
+Si hay códigos HS duplicados en la base cargada:
+
+- se muestra aviso visible de incidencias;
+- se listan en consola para revisión;
+- la herramienta sigue operativa, pero la exportación mantiene bloqueos de identidad para evitar cruces inseguros.
 
 ## Semáforos visuales (orientativos)
 

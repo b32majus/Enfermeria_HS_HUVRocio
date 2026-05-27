@@ -968,6 +968,17 @@
             color: #0f172a;
         }
 
+        .advice-card {
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
         .fab-bar {
             position: static;
             margin: 26px auto 0;
@@ -1160,6 +1171,36 @@
 
         .hs-code-feedback.is-ok {
             color: #065f46;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            padding: 4px 10px;
+            font-size: 0.82rem;
+            color: #334155;
+        }
+
+        .status-chip.is-ok {
+            border-color: #86efac;
+            background: #ecfdf5;
+            color: #166534;
+        }
+
+        .status-chip.is-warn {
+            border-color: #fcd34d;
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .status-chip.is-error {
+            border-color: #fca5a5;
+            background: #fef2f2;
+            color: #991b1b;
         }
 
         .active-patient-inline {
@@ -1420,7 +1461,7 @@
                     </div>
                     <div class="form-group"><label>Edad <span class="label-star">(*)</span></label><input type="number" id="pv_edad" placeholder="Años">
                     </div>
-                    <div class="form-group"><label>Sexo <span class="label-star">(*)</span></label>
+                    <div class="form-group"><label>Sexo al nacimiento <span class="label-star">(*)</span></label>
                         <select id="pv_sexo">
                             <option value="">Seleccionar</option>
                             <option>Mujer</option>
@@ -1441,18 +1482,30 @@
                     </div>
                 </div>
                 <div class="import-panel-row" style="margin-top:10px;">
-                    <button type="button" class="btn btn-outline" id="pv_hs_assign_btn"><i class="fas fa-id-card"></i> Generar código HS</button>
+                    <button type="button" class="btn btn-outline" id="pv_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Generar código HS</button>
                 </div>
                 <div class="subsection-title">Historia de la enfermedad</div>
                 <div class="grid-4">
-                    <div class="form-group"><label>Año inicio síntomas <span class="label-star">(*)</span></label><input type="number" id="pv_anio_ini"
+                    <div class="form-group"><label>Año inicio síntomas</label><input type="number" id="pv_anio_ini"
                             placeholder="Ej: 2015"></div>
-                    <div class="form-group"><label>Año diagnóstico <span class="label-star">(*)</span></label><input type="number" id="pv_anio_dx"
+                    <div class="form-group"><label>Año diagnóstico</label><input type="number" id="pv_anio_dx"
                             placeholder="Ej: 2020"></div>
                     <div class="form-group"><label>Retraso diagnóstico <span class="label-star">(*)</span></label><input type="text" id="pv_retraso_dx"
                             readonly style="background:#eee; font-weight:700;" placeholder="Auto"></div>
-                    <div class="form-group"><label>Profesional que diagnostica <span class="label-star">(*)</span></label><input type="text" id="pv_prof_dx"
-                            placeholder="Dermatología, AP, Urgencias..."></div>
+                    <div class="form-group"><label>Profesional/servicio que deriva <span class="label-star">(*)</span></label>
+                        <select id="pv_prof_dx">
+                            <option value="">Seleccionar</option>
+                            <option>Dermatología general</option>
+                            <option>Atención Primaria</option>
+                            <option>Cirugía General</option>
+                            <option>Cirugía Plástica</option>
+                            <option>Urgencias</option>
+                            <option>Digestivo</option>
+                            <option>Ginecología</option>
+                            <option>Urología</option>
+                            <option>Otro / no consta</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="grid-4" style="margin-top:15px;">
                     <div class="form-group"><label>Nº médicos previos</label><input type="number" id="pv_n_medicos"
@@ -1554,7 +1607,7 @@
                         style="color:#f59e0b;margin-right:6px;"></i> Hábitos generales</div>
                 <div class="grid-3">
                     <div class="form-group"><label>Actividad física</label>
-                        <select id="pv_ejercicio">
+                        <select id="pv_ejercicio" onchange="toggleHabitosAdvice_pv()">
                             <option value="">Seleccionar</option>
                             <option>Sedentario</option>
                             <option>Ligera (paseos)</option>
@@ -1563,7 +1616,7 @@
                         </select>
                     </div>
                     <div class="form-group"><label>Calidad del sueño</label>
-                        <select id="pv_sueno">
+                        <select id="pv_sueno" onchange="toggleHabitosAdvice_pv()">
                             <option value="">Seleccionar</option>
                             <option>Buena</option>
                             <option>Regular (despertares)</option>
@@ -1578,6 +1631,12 @@
                         </select>
                     </div>
                 </div>
+                <div id="pv_ejercicio-consejo" class="advice-card" style="display:none;">
+                    Valorar consejo breve de actividad física adaptada a dolor, brotes y situación funcional.
+                </div>
+                <div id="pv_sueno-consejo" class="advice-card" style="display:none;">
+                    Registrar si la alteración del sueño parece asociada a dolor, prurito o supuración. Reforzar medidas básicas de higiene del sueño si procede.
+                </div>
             </div>
         </div>
 
@@ -1588,7 +1647,7 @@
                 <i class="fas fa-chevron-down caret"></i>
             </div>
             <div id="pv_sec-comorb" class="section-content">
-                <div class="grid-5"
+                <div class="grid-4"
                     style="background:#f8fafc; padding:20px; border-radius:8px; margin-bottom:25px; border:1px solid #e2e8f0;">
                     <div><label>Peso (kg) <span class="label-star">(*)</span></label><input type="number" id="pv_peso" onchange="calcIMC_pv()"></div>
                     <div><label>Talla (m) <span class="label-star">(*)</span></label><input type="number" id="pv_talla" step="0.01" onchange="calcIMC_pv()">
@@ -1596,10 +1655,7 @@
                     <div><label>IMC <span class="label-star">(*)</span></label><input type="text" id="pv_imc" readonly
                             style="background:#eee; font-weight:700;">
                     </div>
-                    <div><label>P. Abdominal (cm) <span class="label-star">(*)</span></label><input type="number" id="pv_perimetro"
-                            placeholder="S. Metabólico">
-                    </div>
-                    <div><label>TA (mmHg) <span class="label-star">(*)</span></label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
+                    <div><label>TA (mmHg)</label><input type="text" id="pv_ta" placeholder="Ej: 130/85"></div>
                 </div>
                 <div id="pv_imc-alert" class="alert-box alert-warning"><i class="fas fa-weight"></i> <strong>IMC
                         ≥30:</strong>
@@ -1950,8 +2006,9 @@
             posterior.</div>
         <div class="active-patient-inline" id="sg_selected_patient_panel">
             <div class="import-status" id="sg_selected_patient_summary">Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS manualmente.</div>
+            <div id="sg_preload_status_chip" class="status-chip" style="display:none; margin-top:8px;">Datos previos cargados desde última visita</div>
             <div class="import-panel-row" style="margin-top:8px;">
-                <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-bolt"></i> Precargar seguimiento</button>
+                <button type="button" class="btn btn-outline" id="sg_preload_btn"><i class="fas fa-redo"></i> Reaplicar precarga</button>
             </div>
         </div>
 
@@ -1980,7 +2037,7 @@
             </div>
             <div class="section-content" style="padding-top:0;">
                 <div class="import-panel-row" style="margin-bottom:12px;">
-                    <button type="button" class="btn btn-outline" id="sg_hs_assign_btn"><i class="fas fa-id-card"></i> Generar / asignar código HS</button>
+                    <button type="button" class="btn btn-outline" id="sg_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Generar / asignar código HS</button>
                 </div>
                 <p class="info-text">IHS4 previo y Hurley basal se mantienen como entrada manual temporal. En la fase
                     de carga de Excel maestro se precargarán automáticamente desde la última visita registrada del
@@ -2095,19 +2152,25 @@
                 </div>
                 <div class="grid-2" style="margin-top:15px;">
                     <div><label>Ejercicio</label>
-                        <select id="sg_ejercicio">
+                        <select id="sg_ejercicio" onchange="toggleHabitosAdvice_sg()">
                             <option>Sin cambio</option>
                             <option>Ha mejorado</option>
                             <option>Ha empeorado</option>
                         </select>
                     </div>
                     <div><label>Sueño</label>
-                        <select id="sg_sueno">
+                        <select id="sg_sueno" onchange="toggleHabitosAdvice_sg()">
                             <option>Sin cambio</option>
                             <option>Ha mejorado</option>
                             <option>Ha empeorado</option>
                         </select>
                     </div>
+                </div>
+                <div id="sg_ejercicio-consejo" class="advice-card" style="display:none;">
+                    Valorar consejo breve de actividad física adaptada a dolor, brotes y situación funcional.
+                </div>
+                <div id="sg_sueno-consejo" class="advice-card" style="display:none;">
+                    Registrar si la alteración del sueño parece asociada a dolor, prurito o supuración. Reforzar medidas básicas de higiene del sueño si procede.
                 </div>
             </div>
         </div>
@@ -2120,6 +2183,9 @@
             </div>
             <div id="sg_sec-tx" class="section-content">
                 <div class="subsection-title">Tratamiento actual</div>
+                <div class="advice-card" style="margin-bottom:12px;">
+                    Pendiente definir con Enfermería/Dermatología/Farmacia si el tratamiento activo se registra de forma simple, por grupos terapéuticos o se extrae de historia/Farmacia.
+                </div>
                 <div class="grid-3" style="margin-bottom:15px;">
                     <div><label>Tratamiento realizado desde última visita <span class="label-star">(*)</span></label>
                         <textarea id="sg_tratamiento_realizado" rows="2" placeholder="Resumen breve"></textarea>
@@ -2454,7 +2520,7 @@
                     <div><label>Fecha intervención</label><input type="date" id="cx_fecha_qx"></div>
                 </div>
                 <div class="import-panel-row" style="margin-top:10px;">
-                    <button type="button" class="btn btn-outline" id="cx_hs_assign_btn"><i class="fas fa-id-card"></i> Generar código HS</button>
+                    <button type="button" class="btn btn-outline" id="cx_hs_assign_btn" style="display:none;"><i class="fas fa-id-card"></i> Generar código HS</button>
                 </div>
                 <div class="grid-4" style="margin-top:15px;">
                     <div><label>Cirujano</label><input type="text" id="cx_cirujano" placeholder="Nombre"></div>
@@ -2875,6 +2941,7 @@
         let hsSessionCodeMap = {};
         let masterDbDuplicateCodes = [];
         let pendingNewPatientIdentifier = '';
+        let sgAutoPreloadMarker = '';
         let activeCriticalModalConfig = null;
         const MASTER_COLUMNS = [
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
@@ -3228,6 +3295,23 @@
             el.textContent = message || 'Recuerde copiar la fila Excel para que el código HS quede registrado en la base.';
         }
 
+        function updateSgPreloadStatusChip(message, mode) {
+            var chip = document.getElementById('sg_preload_status_chip');
+            if (!chip) return;
+            if (!message) {
+                chip.style.display = 'none';
+                chip.className = 'status-chip';
+                chip.textContent = '';
+                return;
+            }
+            chip.style.display = 'inline-flex';
+            chip.className = 'status-chip';
+            if (mode === 'ok') chip.classList.add('is-ok');
+            else if (mode === 'warn') chip.classList.add('is-warn');
+            else if (mode === 'error') chip.classList.add('is-error');
+            chip.textContent = message;
+        }
+
         function getHsCodeOwners(hsCode) {
             var code = normalizeHsCode(hsCode);
             var owners = {};
@@ -3402,21 +3486,19 @@
             var selectedCode = normalizeHsCode(identifier ? getPatientHsCode(identifier) : '');
             var hasValidCode = isValidHsCode(selectedCode);
 
-            actionBtn.style.display = '';
+            actionBtn.style.display = 'none';
             actionBtn.disabled = true;
             actionBtn.title = '';
-            actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Introduzca NUHSA';
+            actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
 
             if (hasValidCode) {
                 statusEl.textContent = 'Código HS: ' + selectedCode;
-                actionBtn.disabled = true;
-                actionBtn.title = 'Paciente ya tiene código HS asignado';
-                actionBtn.innerHTML = '<i class="fas fa-check"></i> Código HS asignado';
                 updateFormHsButtons(selectedCode);
                 return;
             }
             if (identifier && (selectedRecord || pendingNewPatientIdentifier)) {
                 statusEl.textContent = 'Paciente sin código HS asignado.';
+                actionBtn.style.display = '';
                 actionBtn.disabled = false;
                 actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
                 updateFormHsButtons('');
@@ -3439,11 +3521,11 @@
                 var fieldCode = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
                 var assigned = isValidHsCode(code) || isValidHsCode(fieldCode);
                 var hasNuhsa = looksLikeNuhsa(valueOf(prefix + '_nuhsa') || selectedPatientIdentifier || pendingNewPatientIdentifier);
-                button.disabled = assigned || !hasNuhsa;
-                button.title = assigned ? 'Paciente ya tiene código HS asignado' : (!hasNuhsa ? 'Introduzca NUHSA primero' : '');
-                button.innerHTML = assigned
-                    ? '<i class="fas fa-check"></i> Código HS asignado'
-                    : (!hasNuhsa ? '<i class="fas fa-id-card"></i> Introduzca NUHSA' : '<i class="fas fa-id-card"></i> ' + config.emptyText);
+                var canAssign = !assigned && hasNuhsa;
+                button.style.display = canAssign ? '' : 'none';
+                button.disabled = !canAssign;
+                button.title = canAssign ? '' : '';
+                button.innerHTML = '<i class="fas fa-id-card"></i> ' + config.emptyText;
             });
         }
 
@@ -3943,6 +4025,9 @@
             setupEvaButtons('sg_eva_supuracion', 'sg_eva_supuracion_buttons');
             setupEvaButtons('cx_eva_pre', 'cx_eva_pre_buttons');
             setupEvaButtons('cx_eva_post', 'cx_eva_post_buttons');
+            toggleTabacoDetail_pv();
+            toggleHabitosAdvice_pv();
+            toggleHabitosAdvice_sg();
         }
 
         function resetCurrentPatientContext(options) {
@@ -3952,6 +4037,7 @@
             selectedPatientRecords = [];
             selectedPatientLastRecord = null;
             selectedPatientLastClinicalRecord = null;
+            sgAutoPreloadMarker = '';
             pendingNewPatientIdentifier = '';
             try {
                 sessionStorage.removeItem(HS_SELECTED_PATIENT_SESSION_KEY);
@@ -3963,6 +4049,7 @@
             if (searchInput) searchInput.value = retainedSearch;
             updateSelectedPatientSummary(null, null);
             updateGlobalPatientSummary(null, null, false);
+            updateSgPreloadStatusChip('');
             setHsCodeFeedback('Recuerde copiar la fila Excel para que el código HS quede registrado en la base.');
             updateHsCodeGlobalUI();
         }
@@ -4021,6 +4108,7 @@
                 return true;
             }
             if (currentValue === nextValue) return false;
+            if (opts.onlyIfEmpty) return false;
             var ask = window.confirm('El campo "' + (opts.label || fieldId) + '" ya tiene valor. ¿Desea sobrescribirlo con el dato de la base cargada?');
             if (!ask) return false;
             input.value = nextValue;
@@ -4108,18 +4196,21 @@
             syncPatientIdentificationToForms(record.nuhsa || selectedPatientIdentifier, getPatientHsCode(record.nuhsa || selectedPatientIdentifier) || record.codigo_hs);
         }
 
-        function applyLastVisitPreload() {
+        function applyLastVisitPreload(options) {
+            var opts = options || {};
             clearImportError();
             if (!masterDb.length) {
                 showImportWarnings([]);
                 showImportError('No hay base longitudinal cargada. Introduzca los datos manualmente.');
                 updateSelectedPatientSummary(null, null);
+                updateSgPreloadStatusChip('BD no cargada para precarga automática.', 'warn');
                 return;
             }
 
             var identifier = valueOf('sg_nuhsa') || valueOf('sg_codigo_hs') || selectedPatientIdentifier || valueOf('global_patient_search');
             if (!normalizePatientId(identifier)) {
                 showImportError('Busque primero el paciente en la barra lateral o introduzca NUHSA/código HS en Seguimiento.');
+                updateSgPreloadStatusChip('Sin paciente activo para precarga.', 'warn');
                 return;
             }
 
@@ -4134,6 +4225,7 @@
                 updateGlobalPatientSummary(null, null, true);
                 if (pendingNewPatientIdentifier) ensureHsCodeForPatient(pendingNewPatientIdentifier, { source: 'sg-preload' });
                 updateHsCodeGlobalUI();
+                updateSgPreloadStatusChip('No se encontraron datos previos para este paciente.', 'warn');
                 return;
             }
 
@@ -4150,21 +4242,26 @@
             var clinicalSource = lastClinical || lastRecord;
             maybeSetFieldValue('sg_fecha_ultima_consulta', lastRecord.fecha_visita, {
                 label: 'Fecha última consulta',
-                onSet: function () { calcTiempoDesdeUltima_sg(); }
+                onSet: function () { calcTiempoDesdeUltima_sg(); },
+                onlyIfEmpty: !!opts.onlyIfEmpty
             });
             if (valueOf('sg_fechaVisita')) {
                 var calcText = calculateTimeSinceText(lastRecord.fecha_visita, valueOf('sg_fechaVisita'));
-                if (calcText) maybeSetFieldValue('sg_tiempo_desde_ultima', calcText, { label: 'Tiempo desde última consulta' });
+                if (calcText) maybeSetFieldValue('sg_tiempo_desde_ultima', calcText, { label: 'Tiempo desde última consulta', onlyIfEmpty: !!opts.onlyIfEmpty });
             } else {
                 showImportWarnings(['No se calculó "Tiempo desde última consulta" porque falta la fecha de visita de seguimiento.']);
             }
-            maybeSetFieldValue('sg_ihs4_previo', clinicalSource.ihs4_actual, { label: 'IHS4 previo' });
-            maybeSetFieldValue('sg_hurley', clinicalSource.hurley_enfermeria, { label: 'Hurley basal' });
-            maybeSetFieldValue('sg_peso', lastRecord.peso_kg, { label: 'Peso previo', onSet: function () { calcIMC_sg(); } });
-            maybeSetFieldValue('sg_tabaco', lastRecord.tabaco_estado, { label: 'Tabaco previo' });
-            maybeSetFieldValue('sg_tratamiento_realizado', lastRecord.tratamiento_activo, { label: 'Tratamiento previo/activo' });
+            maybeSetFieldValue('sg_ihs4_previo', clinicalSource.ihs4_actual, { label: 'IHS4 previo', onlyIfEmpty: !!opts.onlyIfEmpty });
+            maybeSetFieldValue('sg_hurley', clinicalSource.hurley_enfermeria, { label: 'Hurley basal', onlyIfEmpty: !!opts.onlyIfEmpty });
+            maybeSetFieldValue('sg_peso', lastRecord.peso_kg, { label: 'Peso previo', onSet: function () { calcIMC_sg(); }, onlyIfEmpty: !!opts.onlyIfEmpty });
+            maybeSetFieldValue('sg_tabaco', lastRecord.tabaco_estado, { label: 'Tabaco previo', onlyIfEmpty: !!opts.onlyIfEmpty });
+            maybeSetFieldValue('sg_tratamiento_realizado', lastRecord.tratamiento_activo, { label: 'Tratamiento previo/activo', onlyIfEmpty: !!opts.onlyIfEmpty });
             if (lastRecord.nuhsa && lastRecord.codigo_hs) updateHsSessionMapPair(lastRecord.nuhsa, lastRecord.codigo_hs);
-            showImportSuccess('Precarga aplicada desde la última visita encontrada.');
+            showImportSuccess(opts.auto ? 'Datos previos cargados desde última visita.' : 'Precarga aplicada desde la última visita encontrada.');
+            updateSgPreloadStatusChip('Datos previos cargados desde última visita', 'ok');
+            if (opts.auto) {
+                sgAutoPreloadMarker = normalizePatientId(lastRecord.nuhsa || identifier) + '|' + (valueOf('sg_fecha_ultima_consulta') || '') + '|' + (masterDbLoadedAt || '');
+            }
             updateHsCodeGlobalUI();
         }
 
@@ -4338,7 +4435,7 @@
                     updateSidebarToggleUI();
                 });
             }
-            if (sgPreloadBtn) sgPreloadBtn.addEventListener('click', applyLastVisitPreload);
+            if (sgPreloadBtn) sgPreloadBtn.addEventListener('click', function () { applyLastVisitPreload({ onlyIfEmpty: true }); });
             if (pvHsAssignBtn) pvHsAssignBtn.addEventListener('click', function () {
                 assignHsCodeToCurrentPatient({ identifier: selectedPatientIdentifier || valueOf('pv_nuhsa') || pendingNewPatientIdentifier || valueOf('global_patient_search') });
             });
@@ -4380,6 +4477,17 @@
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById('btn-' + tab).classList.add('active-' + tab);
             activeTab = tab;
+            if (tab === 'sg') {
+                var marker = normalizePatientId(selectedPatientIdentifier || valueOf('sg_nuhsa'));
+                if (masterDb.length && looksLikeNuhsa(marker)) {
+                    var markerKey = marker + '|' + (valueOf('sg_fecha_ultima_consulta') || '') + '|' + (masterDbLoadedAt || '');
+                    if (sgAutoPreloadMarker !== markerKey) {
+                        applyLastVisitPreload({ onlyIfEmpty: true, auto: true });
+                    }
+                } else {
+                    updateSgPreloadStatusChip('');
+                }
+            }
         }
 
         // === FUNCIONES COMUNES ===
@@ -4576,6 +4684,8 @@
         setupEvaButtons('pv_eva_dolor', 'pv_eva_dolor_buttons');
         setupEvaButtons('pv_eva_prurito', 'pv_eva_prurito_buttons');
         setupEvaButtons('pv_eva_supuracion', 'pv_eva_supuracion_buttons');
+        toggleTabacoDetail_pv();
+        toggleHabitosAdvice_pv();
 
         // IMC (PV)
         function calcIMC_pv() {
@@ -4605,6 +4715,24 @@
                 document.getElementById(id).style.display = show ? 'block' : 'none';
             });
             document.getElementById('pv_tabaco-consejo').style.display = val === 'Activo' ? 'block' : 'none';
+        }
+
+        function toggleHabitosAdvice_pv() {
+            var ejercicio = valueOf('pv_ejercicio');
+            var sueno = valueOf('pv_sueno');
+            var ejercicioAdvice = document.getElementById('pv_ejercicio-consejo');
+            var suenoAdvice = document.getElementById('pv_sueno-consejo');
+            if (ejercicioAdvice) ejercicioAdvice.style.display = (ejercicio === 'Sedentario') ? 'block' : 'none';
+            if (suenoAdvice) suenoAdvice.style.display = (sueno.indexOf('Mala') >= 0 || sueno.indexOf('Insomnio') >= 0) ? 'block' : 'none';
+        }
+
+        function toggleHabitosAdvice_sg() {
+            var ejercicio = valueOf('sg_ejercicio');
+            var sueno = valueOf('sg_sueno');
+            var ejercicioAdvice = document.getElementById('sg_ejercicio-consejo');
+            var suenoAdvice = document.getElementById('sg_sueno-consejo');
+            if (ejercicioAdvice) ejercicioAdvice.style.display = (ejercicio === 'Ha empeorado') ? 'block' : 'none';
+            if (suenoAdvice) suenoAdvice.style.display = (sueno === 'Ha empeorado') ? 'block' : 'none';
         }
 
         // IHS4 (PV)
@@ -4804,7 +4932,7 @@
                 peso_kg: valueOf('pv_peso'),
                 talla_m: valueOf('pv_talla'),
                 imc: valueOf('pv_imc'),
-                perimetro_abdominal_cm: valueOf('pv_perimetro'),
+                perimetro_abdominal_cm: '',
                 ta: valueOf('pv_ta'),
                 hta: hasComorb('hipertension'),
                 dislipemia: hasComorb('dislipemia'),
@@ -4858,8 +4986,8 @@
             var txt = 'PRIMERA VISITA — ENFERMERÍA EPA HS\n===================================\nHospital Universitario Virgen del Rocío\nFecha: ' + document.getElementById('pv_fechaVisita').value +
                 '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
                 '\nPaciente: ' + document.getElementById('pv_nuhsa').value +
-                '\nEdad/Sexo: ' + document.getElementById('pv_edad').value + ' / ' + document.getElementById('pv_sexo').value +
-                '\nProfesional que diagnostica: ' + (document.getElementById('pv_prof_dx').value || 'NR') +
+                '\nEdad/Sexo al nacimiento: ' + document.getElementById('pv_edad').value + ' / ' + document.getElementById('pv_sexo').value +
+                '\nProfesional/servicio que deriva: ' + (document.getElementById('pv_prof_dx').value || 'NR') +
                 '\nInicio síntomas: ' + document.getElementById('pv_anio_ini').value + ' | Dx: ' + document.getElementById('pv_anio_dx').value + ' | Retraso: ' + (retraso || 'NR') +
                 '\nFiebre brotes: ' + document.getElementById('pv_fiebre').value + ' | Antecedentes familiares HS: ' + document.getElementById('pv_antecedentes_familiares').value +
                 '\nG/O: ' + (document.getElementById('pv_gine_obst').value || 'NR') + ' | Deseos genésicos: ' + document.getElementById('pv_deseos_genesicos').value +
@@ -4868,7 +4996,7 @@
                 '\nTabaco: ' + document.getElementById('pv_tabaco').value + ' | Cig/día: ' + (document.getElementById('pv_cig_dia').value || 'NR') + ' | Años fumando: ' + (document.getElementById('pv_anios_fumando').value || 'NR') +
                 '\nAlcohol UBE/semana: ' + (document.getElementById('pv_alcohol_ube_semana').value || 'NR') +
                 '\nPeso/Talla/IMC: ' + (document.getElementById('pv_peso').value || 'NR') + 'kg / ' + (document.getElementById('pv_talla').value || 'NR') + 'm / ' + (document.getElementById('pv_imc').value || 'NR') +
-                '\nPerímetro abdominal: ' + (document.getElementById('pv_perimetro').value || 'NR') + ' | TA: ' + (document.getElementById('pv_ta').value || 'NR') +
+                '\nTA: ' + (document.getElementById('pv_ta').value || 'NR') +
                 '\nComorbilidades señaladas:\n' + (coms || 'Ninguna registrada') +
                 '\nHurley basal: ' + (document.getElementById('pv_hurley_val').value || 'No clasificado') +
                 '\nIHS4: ' + ihs4 + ' (' + ihs4_sev + ')' +
@@ -4909,6 +5037,7 @@
         setupEvaButtons('sg_eva_dolor', 'sg_eva_dolor_buttons');
         setupEvaButtons('sg_eva_prurito', 'sg_eva_prurito_buttons');
         setupEvaButtons('sg_eva_supuracion', 'sg_eva_supuracion_buttons');
+        toggleHabitosAdvice_sg();
         function calcTiempoDesdeUltima_sg() {
             var fechaActual = document.getElementById('sg_fechaVisita').value;
             var fechaUltima = document.getElementById('sg_fecha_ultima_consulta').value;
