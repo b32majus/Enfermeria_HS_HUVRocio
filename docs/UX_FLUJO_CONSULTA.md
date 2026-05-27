@@ -13,6 +13,8 @@
 7. Copiar fila Excel (`Copiar fila Excel`).
 8. Copiar informe (`Copiar informe`).
 
+Al cambiar de paciente, la herramienta sincroniza conjuntamente `NUHSA` y `codigo_hs` en PV/SG/CX y limpia los datos del paciente anterior cuando procede.
+
 ## Si no hay BD cargada
 
 - La herramienta sigue funcionando en modo manual.
@@ -34,10 +36,18 @@
 - Si no hay BD cargada, la generación sigue disponible pero se avisa que no puede comprobarse unicidad histórica.
 - El `código HS` no sustituye al `NUHSA` en la consulta interna; se usa como identificador pseudonimizado para seguimiento/PROMs.
 - Para persistir oficialmente el código en la base del proyecto, hay que copiar y pegar la fila Excel exportada.
+- Un código ya asignado no se reescribe desde la interfaz.
+- Los códigos generados durante la sesión no se reutilizan tras limpiar un paciente.
+
+## Nuevo paciente / limpiar formulario
+
+- Limpia buscador, paciente seleccionado e identificación/registro de PV, SG y CX.
+- Mantiene la base Excel cargada durante la sesión.
+- Mantiene reservados los códigos ya generados en esa sesión para evitar duplicados.
 
 ## Precarga en Seguimiento
 
-Con paciente seleccionado (o identificador manual en SG), `Precargar seguimiento con última visita` puede completar:
+Con paciente seleccionado (o identificador manual en SG), `Precargar seguimiento` puede completar:
 
 - fecha última consulta;
 - tiempo desde última consulta (si hay fecha de visita SG actual);

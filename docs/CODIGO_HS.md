@@ -27,6 +27,8 @@ Se reutiliza el mismo `codigo_hs` cuando el paciente ya existe en la base cargad
 
 Si aparecen varios códigos HS para el mismo paciente en el histórico, la herramienta avisa y prioriza el código del registro más reciente.
 
+Un paciente que ya tiene `codigo_hs` válido no puede recibir otro desde la interfaz. Los botones de asignación quedan bloqueados cuando ya existe código.
+
 ## Cuándo se genera uno nuevo
 
 Se genera un código nuevo cuando el paciente no tiene `codigo_hs` previo.
@@ -43,6 +45,8 @@ Ejemplo:
 - siguiente: `HS0005`
 
 No se rellenan huecos intermedios.
+
+Los códigos generados durante una sesión quedan reservados en `sessionStorage`, aunque se pulse **Nuevo paciente / limpiar formulario**. Por tanto, un código recién generado no se recicla para el siguiente paciente de esa sesión.
 
 ## Si no hay BD cargada
 
@@ -65,8 +69,17 @@ En fases posteriores, `codigo_hs` será el identificador de enlace para respuest
 ## Persistencia y advertencias
 
 - El estado temporal de apoyo se mantiene en `sessionStorage` durante la sesión.
+- **Nuevo paciente / limpiar formulario** limpia el paciente activo y los formularios PV/SG/CX, pero conserva la base Excel cargada y la reserva de códigos generados en la sesión.
 - La persistencia oficial del código ocurre al exportar y pegar la fila en `BD_VISITAS_HS`.
 - Recordatorio operativo: copiar siempre la fila Excel para registrar el código en la base.
+
+## Flujo Seguro
+
+1. Cargar la base `BD_VISITAS_HS`, si está disponible.
+2. Buscar al paciente desde el panel global.
+3. Si existe y tiene código, reutilizar el código mostrado.
+4. Si no existe o no tiene código, generar el siguiente código disponible.
+5. Registrar la visita y copiar la fila Excel para persistir la correspondencia.
 
 ## Límites
 

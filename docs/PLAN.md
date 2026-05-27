@@ -253,6 +253,13 @@ Incorporar generación y reutilización operativa de `codigo_hs` como identifica
 - Reutilización automática al encontrar paciente con histórico.
 - Generación manual asistida para pacientes nuevos sin código.
 
+### Hotfix Fase 4.1 — Estado de paciente y código HS
+- Sincronizar `NUHSA` y `codigo_hs` como una única identidad activa en PV/SG/CX.
+- Limpiar contexto y formularios al iniciar nuevo paciente, conservando la BD cargada.
+- Bloquear reasignación de códigos existentes y duplicados entre NUHSA.
+- No reciclar en la misma sesión códigos generados y todavía pendientes de consolidar en Excel.
+- Simplificar la indicación de paciente activo en Seguimiento.
+
 ### Pendiente para fase posterior
 - Integración con Microsoft Forms.
 - Flujo QR para PROMs remotos.
