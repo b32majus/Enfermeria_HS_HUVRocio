@@ -3125,7 +3125,11 @@
             }
             el.className = 'import-warning';
             el.style.display = 'block';
-            el.innerHTML = list.map(function (msg) { return '- ' + msg; }).join('<br>');
+            el.textContent = '';
+            list.forEach(function (msg, idx) {
+                if (idx) el.appendChild(document.createElement('br'));
+                el.appendChild(document.createTextNode('- ' + msg));
+            });
             showToast(list.join(' | '), 'warn', 5200);
         }
 
@@ -5317,13 +5321,39 @@
             document.getElementById('sg_active_zone_count').innerText = activeData.count;
             document.getElementById('sg_active_zone_list').innerText = activeData.list;
             // Compare with previous
-            var prev = parseInt(document.getElementById('sg_ihs4_previo').value);
+            var prev = Number(document.getElementById('sg_ihs4_previo').value);
             var alertEl = document.getElementById('sg_ihs4-change');
-            if (prev) {
+            if (Number.isFinite(prev) && prev > 0 && Number.isFinite(score)) {
                 var pct = ((score - prev) / prev * 100).toFixed(0);
-                if (score < prev) { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-down"></i> <strong>Mejoría:</strong> IHS4 ' + prev + ' → ' + score + ' (' + pct + '%)'; }
-                else if (score > prev) { alertEl.className = 'alert-box alert-warning'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-arrow-up"></i> <strong>Empeoramiento:</strong> IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)'; }
-                else { alertEl.className = 'alert-box alert-success'; alertEl.style.display = 'block'; alertEl.innerHTML = '<i class="fas fa-equals"></i> <strong>Estable:</strong> IHS4 sin cambios (' + score + ')'; }
+                var iconClass = '';
+                var comparisonLabel = '';
+                var comparisonText = '';
+                if (score < prev) {
+                    alertEl.className = 'alert-box alert-success';
+                    iconClass = 'fas fa-arrow-down';
+                    comparisonLabel = 'Mejoría:';
+                    comparisonText = ' IHS4 ' + prev + ' → ' + score + ' (' + pct + '%)';
+                } else if (score > prev) {
+                    alertEl.className = 'alert-box alert-warning';
+                    iconClass = 'fas fa-arrow-up';
+                    comparisonLabel = 'Empeoramiento:';
+                    comparisonText = ' IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)';
+                } else {
+                    alertEl.className = 'alert-box alert-success';
+                    iconClass = 'fas fa-equals';
+                    comparisonLabel = 'Estable:';
+                    comparisonText = ' IHS4 sin cambios (' + score + ')';
+                }
+                alertEl.textContent = '';
+                var iconEl = document.createElement('i');
+                iconEl.className = iconClass;
+                alertEl.appendChild(iconEl);
+                alertEl.appendChild(document.createTextNode(' '));
+                var labelEl = document.createElement('strong');
+                labelEl.textContent = comparisonLabel;
+                alertEl.appendChild(labelEl);
+                alertEl.appendChild(document.createTextNode(comparisonText));
+                alertEl.style.display = 'block';
             } else {
                 alertEl.style.display = 'none';
             }
