@@ -3187,6 +3187,12 @@
         function validateIdentityForExport(prefix) {
             var nuhsa = normalizePatientId(valueOf(prefix + '_nuhsa'));
             var code = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
+            if (!nuhsa && isValidHsCode(code)) {
+                var missingNuhsaMessage = 'Revise identificación: no se puede exportar código HS sin NUHSA asociado.';
+                setHsCodeFeedback(missingNuhsaMessage, 'error');
+                alert(missingNuhsaMessage);
+                return false;
+            }
             if (!nuhsa) return true;
             var knownCode = getPatientHsCode(nuhsa);
             if (isValidHsCode(knownCode) && code !== normalizeHsCode(knownCode)) {
@@ -3261,10 +3267,12 @@
 
         function getPatientRecords(identifier) {
             var normalized = normalizePatientId(identifier);
+            var normalizedHsIdentifier = /^HS\s*\d+$/i.test(String(identifier || '').trim()) ? normalizeHsCode(identifier) : '';
+            if (isValidHsCode(normalizedHsIdentifier)) normalized = normalizedHsIdentifier;
             if (!normalized) return [];
             return masterDb.filter(function (record) {
                 var byNuhsa = normalizePatientId(record.nuhsa) === normalized;
-                var byCode = normalizePatientId(record.codigo_hs) === normalized;
+                var byCode = isValidHsCode(normalizedHsIdentifier) && normalizeHsCode(record.codigo_hs) === normalizedHsIdentifier;
                 return byNuhsa || byCode;
             }).sort(function (a, b) {
                 var da = parseVisitDate(a.fecha_visita);
@@ -3494,6 +3502,11 @@
         function runGlobalPatientSearch() {
             clearImportError();
             var identifier = normalizePatientId(valueOf('global_patient_search'));
+            var normalizedHsIdentifier = /^HS\s*\d+$/i.test(String(valueOf('global_patient_search') || '').trim()) ? normalizeHsCode(identifier) : '';
+            if (isValidHsCode(normalizedHsIdentifier)) {
+                identifier = normalizedHsIdentifier;
+                document.getElementById('global_patient_search').value = identifier;
+            }
             if (!identifier) {
                 showImportError('Introduzca NUHSA o código HS para buscar paciente.');
                 updateHsCodeGlobalUI();
