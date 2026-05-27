@@ -267,6 +267,23 @@ Incorporar generación y reutilización operativa de `codigo_hs` como identifica
 
 ---
 
+## Fase 4.3 — Autogeneración segura de código HS
+
+### Objetivo
+Evitar que la asignación operativa de `codigo_hs` dependa de recordar pulsar un botón, preservando las reglas anti-duplicado, anti-reescritura y la reserva temporal de sesión.
+
+### Tareas
+- Reutilizar o generar automáticamente `codigo_hs` al confirmar el inicio/selección de paciente.
+- No generar mientras solo se escribe en el buscador.
+- Integrar la salvaguarda en búsqueda global, entrada manual de NUHSA, precarga SG y exportación.
+- Mantener botones de generación como fallback.
+- Mantener `MASTER_COLUMNS`, PROMs, importación Excel y persistencia exclusiva en `sessionStorage`.
+
+### Resultado esperado
+Todo paciente con `NUHSA` activo dispone de `codigo_hs` antes de exportar, sin duplicar ni reescribir códigos y con recordatorio de persistencia en `BD_VISITAS_HS`.
+
+---
+
 ## Fase 5 — Carga Excel maestro y sessionStorage
 
 ### Objetivo

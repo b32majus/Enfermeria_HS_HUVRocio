@@ -2999,34 +2999,28 @@
             var statusEl = document.getElementById('global_hs_code_status');
             var actionBtn = document.getElementById('global_hs_assign_btn');
             if (!statusEl || !actionBtn) return;
-            var identifier = normalizePatientId(selectedPatientIdentifier);
+            var identifier = normalizePatientId(selectedPatientIdentifier || pendingNewPatientIdentifier);
             var selectedRecord = selectedPatientLastRecord;
             var selectedCode = normalizeHsCode(identifier ? getPatientHsCode(identifier) : '');
             var hasValidCode = isValidHsCode(selectedCode);
 
-            actionBtn.style.display = 'none';
-            actionBtn.disabled = false;
+            actionBtn.style.display = '';
+            actionBtn.disabled = true;
             actionBtn.title = '';
-            actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
+            actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Introduzca NUHSA';
 
             if (hasValidCode) {
                 statusEl.textContent = 'Código HS: ' + selectedCode;
                 actionBtn.disabled = true;
                 actionBtn.title = 'Paciente ya tiene código HS asignado';
+                actionBtn.innerHTML = '<i class="fas fa-check"></i> Código HS asignado';
                 updateFormHsButtons(selectedCode);
                 return;
             }
-            if (identifier && selectedRecord) {
+            if (identifier && (selectedRecord || pendingNewPatientIdentifier)) {
                 statusEl.textContent = 'Paciente sin código HS asignado.';
-                actionBtn.style.display = '';
+                actionBtn.disabled = false;
                 actionBtn.innerHTML = '<i class="fas fa-id-card"></i> Asignar código HS';
-                updateFormHsButtons('');
-                return;
-            }
-            if (pendingNewPatientIdentifier && looksLikeNuhsa(pendingNewPatientIdentifier)) {
-                statusEl.textContent = 'Paciente no encontrado. Puede generar código HS nuevo.';
-                actionBtn.style.display = '';
-                actionBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Generar código HS nuevo';
                 updateFormHsButtons('');
                 return;
             }
@@ -3046,66 +3040,79 @@
                 var prefix = config.id.slice(0, 2);
                 var fieldCode = normalizeHsCode(valueOf(prefix + '_codigo_hs'));
                 var assigned = isValidHsCode(code) || isValidHsCode(fieldCode);
-                button.disabled = assigned;
-                button.title = assigned ? 'Paciente ya tiene código HS asignado' : '';
+                var hasNuhsa = looksLikeNuhsa(valueOf(prefix + '_nuhsa') || selectedPatientIdentifier || pendingNewPatientIdentifier);
+                button.disabled = assigned || !hasNuhsa;
+                button.title = assigned ? 'Paciente ya tiene código HS asignado' : (!hasNuhsa ? 'Introduzca NUHSA primero' : '');
                 button.innerHTML = assigned
                     ? '<i class="fas fa-check"></i> Código HS asignado'
-                    : '<i class="fas fa-id-card"></i> ' + config.emptyText;
+                    : (!hasNuhsa ? '<i class="fas fa-id-card"></i> Introduzca NUHSA' : '<i class="fas fa-id-card"></i> ' + config.emptyText);
             });
+        }
+
+        function ensureHsCodeForPatient(identifier, options) {
+            var opts = options || {};
+            var patientIdentifier = normalizePatientId(identifier);
+            if (!patientIdentifier) {
+                if (!opts.silent) setHsCodeFeedback('Introduzca primero NUHSA o busque paciente.', 'error');
+                updateHsCodeGlobalUI();
+                return '';
+            }
+            if (isValidHsCode(patientIdentifier)) {
+                var patientFromCode = getPatientFromSession(patientIdentifier);
+                if (patientFromCode && patientFromCode.nuhsa) {
+                    syncPatientIdentificationToForms(patientFromCode.nuhsa, patientIdentifier);
+                }
+                if (!opts.silent) setHsCodeFeedback('Código HS existente reutilizado.', 'ok');
+                updateHsCodeGlobalUI();
+                return patientIdentifier;
+            }
+
+            var existingCode = getPatientHsCode(patientIdentifier);
+            var codeToUse = isValidHsCode(existingCode) ? normalizeHsCode(existingCode) : '';
+            var generatedNew = false;
+            if (!isValidHsCode(codeToUse)) {
+                if (!masterDb.length && opts.allowWithoutMasterDb === false) {
+                    if (!opts.silent) setHsCodeFeedback('No se puede generar código HS sin una BD cargada.', 'error');
+                    updateHsCodeGlobalUI();
+                    return '';
+                }
+                codeToUse = getNextHsCode();
+                generatedNew = true;
+            }
+            if (!isValidHsCode(codeToUse)) {
+                if (!opts.silent) setHsCodeFeedback('No se pudo generar un código HS válido.', 'error');
+                updateHsCodeGlobalUI();
+                return '';
+            }
+
+            if (codeBelongsToAnotherPatient(codeToUse, patientIdentifier) || !updateHsSessionMapPair(patientIdentifier, codeToUse)) {
+                if (!opts.silent) setHsCodeFeedback('No se puede asignar ' + codeToUse + ': ya está asociado a otro paciente o este paciente ya tiene otro código.', 'error');
+                updateHsCodeGlobalUI();
+                return '';
+            }
+
+            syncPatientIdentificationToForms(patientIdentifier, codeToUse);
+            if (!opts.silent) {
+                if (!masterDb.length && generatedNew) {
+                    setHsCodeFeedback('Sin BD cargada: no se puede comprobar unicidad histórica. Se reservará el código en esta sesión. Código HS: ' + codeToUse + '.', 'warn');
+                } else if (generatedNew) {
+                    setHsCodeFeedback('Código HS generado automáticamente: ' + codeToUse + '. Recuerde copiar la fila Excel para registrarlo en la base.', 'ok');
+                } else {
+                    setHsCodeFeedback('Código HS existente reutilizado.', 'ok');
+                }
+            }
+            updateHsCodeGlobalUI();
+            return codeToUse;
         }
 
         function assignHsCodeToCurrentPatient(options) {
             var opts = options || {};
             var identifier = normalizePatientId(opts.identifier || selectedPatientIdentifier || pendingNewPatientIdentifier || getCurrentPatientIdentifier());
-            if (!identifier) {
-                setHsCodeFeedback('Introduzca primero NUHSA o busque paciente.', 'error');
-                updateHsCodeGlobalUI();
-                return '';
+            var code = ensureHsCodeForPatient(identifier, { source: 'manual-button' });
+            if (isValidHsCode(code)) {
+                showImportSuccess('Código HS asignado: ' + code + '.');
             }
-            if (isValidHsCode(identifier)) {
-                setHsCodeFeedback('Introduzca un NUHSA antes de asignar código HS.', 'error');
-                return '';
-            }
-
-            var existingCode = getPatientHsCode(identifier);
-            var codeToUse = isValidHsCode(existingCode) ? normalizeHsCode(existingCode) : '';
-            var generatedNew = false;
-            if (!isValidHsCode(codeToUse)) {
-                codeToUse = getNextHsCode();
-                generatedNew = true;
-            }
-            if (!isValidHsCode(codeToUse)) {
-                setHsCodeFeedback('No se pudo generar un código HS válido.', 'error');
-                updateHsCodeGlobalUI();
-                return '';
-            }
-
-            if (codeBelongsToAnotherPatient(codeToUse, identifier) || !updateHsSessionMapPair(identifier, codeToUse)) {
-                setHsCodeFeedback('No se puede asignar ' + codeToUse + ': ya está asociado a otro paciente o este paciente ya tiene otro código.', 'error');
-                updateHsCodeGlobalUI();
-                return '';
-            }
-
-            var matchingRecords = getPatientRecords(identifier);
-            var stateRecord = matchingRecords.length ? matchingRecords[matchingRecords.length - 1] : { nuhsa: identifier, codigo_hs: codeToUse };
-            setSelectedPatientFromRecord({
-                identifier: identifier,
-                records: matchingRecords,
-                lastRecord: stateRecord,
-                lastClinical: getLastClinicalRecord(identifier, null) || stateRecord,
-                assignedCode: codeToUse
-            }, 'hs-code');
-
-            if (!masterDb.length && generatedNew) {
-                setHsCodeFeedback('Sin base cargada: no se puede comprobar si el código ya existe en registros previos.', 'warn');
-            } else if (generatedNew) {
-                setHsCodeFeedback('Código HS generado: ' + codeToUse + '.', 'ok');
-            } else {
-                setHsCodeFeedback('Código HS reutilizado: ' + codeToUse + '.', 'ok');
-            }
-            showImportSuccess(generatedNew ? ('Código HS asignado: ' + codeToUse + '.') : ('Código HS reutilizado: ' + codeToUse + '.'));
-            updateHsCodeGlobalUI();
-            return codeToUse;
+            return code;
         }
 
         function normalizeHsCodeField(fieldId, linkedNuhsaFieldId) {
@@ -3166,22 +3173,22 @@
 
         function handleManualNuhsaFieldBlur(fieldId) {
             var identifier = normalizePatientId(valueOf(fieldId));
-            if (!identifier) return;
+            if (!identifier || !looksLikeNuhsa(identifier)) return;
             var activeIdentifier = normalizePatientId(selectedPatientIdentifier);
-            if (activeIdentifier && identifier !== activeIdentifier) {
-                if (!preparePatientContextChange(identifier)) {
-                    syncPatientIdentificationToForms(activeIdentifier, getPatientHsCode(activeIdentifier));
+            if (!activeIdentifier || identifier !== activeIdentifier) {
+                var records = getPatientRecords(identifier);
+                var stateRecord = records.length ? records[records.length - 1] : { nuhsa: identifier, codigo_hs: '' };
+                if (!setSelectedPatientFromRecord({
+                    identifier: identifier,
+                    records: records,
+                    lastRecord: stateRecord,
+                    lastClinical: getLastClinicalRecord(identifier, null) || stateRecord
+                }, 'manual-id')) {
+                    if (activeIdentifier) syncPatientIdentificationToForms(activeIdentifier, getPatientHsCode(activeIdentifier));
                     return;
                 }
-                setSelectedPatientFromRecord({
-                    identifier: identifier,
-                    records: [],
-                    lastRecord: { nuhsa: identifier, codigo_hs: '' },
-                    lastClinical: { nuhsa: identifier, codigo_hs: '' }
-                }, 'manual-id');
-            } else {
-                maybeFillHsCodeFromIdentifier(identifier, fieldId.replace('_nuhsa', '_codigo_hs'));
             }
+            ensureHsCodeForPatient(identifier, { source: 'manual-nuhsa' });
         }
 
         function validateIdentityForExport(prefix) {
@@ -3194,6 +3201,15 @@
                 return false;
             }
             if (!nuhsa) return true;
+            if (!isValidHsCode(code)) {
+                code = ensureHsCodeForPatient(nuhsa, { source: 'before-export' });
+                if (!isValidHsCode(code)) {
+                    setHsCodeFeedback('Exportación detenida: no se pudo asignar un código HS al paciente.', 'error');
+                    alert('Revise la identificación: es necesario un código HS válido para exportar.');
+                    return false;
+                }
+                setHsCodeFeedback('Se ha generado automáticamente el código HS antes de exportar. Revise que la identificación sea correcta.', 'warn');
+            }
             var knownCode = getPatientHsCode(nuhsa);
             if (isValidHsCode(knownCode) && code !== normalizeHsCode(knownCode)) {
                 syncPatientIdentificationToForms(nuhsa, knownCode);
@@ -3345,6 +3361,13 @@
                 ' | Tipo: ' + (record.tipo_visita || 'NR') +
                 ' | IHS4: ' + (ihs4Source.ihs4_actual || 'NR') +
                 ' | Código HS: ' + (isValidHsCode(code) ? code : 'NR');
+        }
+
+        function updateGlobalNewPatientSummary(nuhsa, hsCode) {
+            var summaryEl = document.getElementById('global_patient_result_summary');
+            if (!summaryEl) return;
+            summaryEl.className = 'global-result';
+            summaryEl.textContent = 'Paciente nuevo iniciado | NUHSA: ' + normalizePatientId(nuhsa) + ' | Código HS: ' + normalizeHsCode(hsCode);
         }
 
         function getVisiblePatientNuhsas() {
@@ -3532,6 +3555,13 @@
                 resetCurrentPatientContext({ keepSearch: true, clearForms: true });
                 pendingNewPatientIdentifier = looksLikeNuhsa(identifier) ? identifier : '';
                 updateGlobalPatientSummary(null, null, true);
+                if (pendingNewPatientIdentifier) {
+                    var newCodeWithoutDb = ensureHsCodeForPatient(pendingNewPatientIdentifier, { source: 'global-search-new' });
+                    if (isValidHsCode(newCodeWithoutDb)) {
+                        updateGlobalNewPatientSummary(pendingNewPatientIdentifier, newCodeWithoutDb);
+                        showImportSuccess('Paciente iniciado como nuevo con código ' + newCodeWithoutDb + '.');
+                    }
+                }
                 updateHsCodeGlobalUI();
                 return;
             }
@@ -3542,7 +3572,15 @@
                 resetCurrentPatientContext({ keepSearch: true, clearForms: true });
                 pendingNewPatientIdentifier = looksLikeNuhsa(identifier) ? identifier : '';
                 updateGlobalPatientSummary(null, null, true);
-                setHsCodeFeedback('Paciente no encontrado en la base cargada. Puede continuar en manual.', 'warn');
+                if (pendingNewPatientIdentifier) {
+                    var newCode = ensureHsCodeForPatient(pendingNewPatientIdentifier, { source: 'global-search-new' });
+                    if (isValidHsCode(newCode)) {
+                        updateGlobalNewPatientSummary(pendingNewPatientIdentifier, newCode);
+                        showImportSuccess('Paciente no encontrado. Se ha iniciado como nuevo paciente con código ' + newCode + '.');
+                    }
+                } else {
+                    setHsCodeFeedback('Paciente no encontrado en la base cargada. Introduzca un NUHSA para iniciar paciente.', 'warn');
+                }
                 updateHsCodeGlobalUI();
                 return;
             }
@@ -3555,9 +3593,7 @@
                 lastClinical: lastClinical
             }, 'global-search')) return;
             showImportSuccess('Paciente seleccionado para la consulta actual.');
-            if (!isValidHsCode(normalizeHsCode(getPatientHsCode(lastRecord.nuhsa || identifier)))) {
-                setHsCodeFeedback('Paciente sin código HS asignado.', 'warn');
-            }
+            ensureHsCodeForPatient(lastRecord.nuhsa || identifier, { source: 'global-search-found' });
             updateHsCodeGlobalUI();
         }
 
@@ -3590,6 +3626,7 @@
                 resetCurrentPatientContext({ keepSearch: true, clearForms: true });
                 pendingNewPatientIdentifier = looksLikeNuhsa(identifier) ? normalizePatientId(identifier) : '';
                 updateGlobalPatientSummary(null, null, true);
+                if (pendingNewPatientIdentifier) ensureHsCodeForPatient(pendingNewPatientIdentifier, { source: 'sg-preload' });
                 updateHsCodeGlobalUI();
                 return;
             }
@@ -3601,6 +3638,7 @@
                 lastRecord: lastRecord,
                 lastClinical: lastClinical || lastRecord
             }, 'sg-preload')) return;
+            ensureHsCodeForPatient(lastRecord.nuhsa || identifier, { source: 'sg-preload' });
             maybeAutoFillSgPatientIdentifiers(lastRecord);
             showImportWarnings([]);
             var clinicalSource = lastClinical || lastRecord;

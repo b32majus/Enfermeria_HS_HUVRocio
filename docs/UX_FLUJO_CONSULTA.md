@@ -5,12 +5,10 @@
 1. Abrir la herramienta.
 2. Cargar BD si existe (`Cargar / recargar BD`).
 3. Buscar paciente por `NUHSA` o `código HS` en el panel global.
-4. Revisar `código HS`:
-   - si existe, reutilizarlo;
-   - si no existe, asignarlo/generarlo desde el panel global o desde PV/SG/CX.
+4. La herramienta reutiliza o genera `código HS` automáticamente al iniciar/seleccionar paciente.
 5. Elegir ruta clínica (Primera Visita, Seguimiento o Cura Post-Qx).
 6. Completar la visita actual.
-7. Copiar fila Excel (`Copiar fila Excel`).
+7. Copiar fila Excel (`Copiar fila Excel`) para persistir el código y la visita.
 8. Copiar informe (`Copiar informe`).
 
 Al cambiar de paciente, la herramienta sincroniza conjuntamente `NUHSA` y `codigo_hs` en PV/SG/CX y limpia los datos del paciente anterior cuando procede.
@@ -32,7 +30,9 @@ Al cambiar de paciente, la herramienta sincroniza conjuntamente `NUHSA` y `codig
 
 - Formato obligatorio: `HS0001`, `HS0002`, `HS0003`...
 - Si el paciente ya tiene código en la base cargada, se reutiliza ese mismo código.
-- Si no tiene código, se genera el siguiente disponible (`max + 1`).
+- Si no tiene código, se genera automáticamente el siguiente disponible (`max + 1`) tras confirmar la búsqueda, introducir NUHSA en una visita o exportar.
+- No se genera código mientras solo se escribe en el buscador.
+- Los botones de generación se mantienen como fallback.
 - Si no hay BD cargada, la generación sigue disponible pero se avisa que no puede comprobarse unicidad histórica.
 - El `código HS` no sustituye al `NUHSA` en la consulta interna; se usa como identificador pseudonimizado para seguimiento/PROMs.
 - Para persistir oficialmente el código en la base del proyecto, hay que copiar y pegar la fila Excel exportada.

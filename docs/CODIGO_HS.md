@@ -31,7 +31,14 @@ Un paciente que ya tiene `codigo_hs` válido no puede recibir otro desde la inte
 
 ## Cuándo se genera uno nuevo
 
-Se genera un código nuevo cuando el paciente no tiene `codigo_hs` previo.
+Se genera automáticamente un código nuevo cuando se inicia o selecciona un paciente por `NUHSA` y no tiene `codigo_hs` previo:
+
+- al confirmar una búsqueda global;
+- al introducir un `NUHSA` manualmente en PV, SG o CX y salir del campo;
+- al iniciar la precarga de seguimiento;
+- como salvaguarda final antes de exportar si todavía faltase el código.
+
+No se genera código mientras únicamente se está escribiendo en el buscador. Los botones de generación/asignación permanecen disponibles como fallback, pero no son necesarios en el flujo normal.
 
 Estrategia de generación:
 
@@ -54,7 +61,7 @@ La herramienta permite generar código HS igualmente para no bloquear la consult
 
 Se muestra aviso funcional:
 
-`Sin base cargada: no se puede comprobar si el código ya existe en registros previos.`
+`Sin BD cargada: no se puede comprobar unicidad histórica. Se reservará el código en esta sesión.`
 
 ## Relación con NUHSA
 
@@ -70,15 +77,15 @@ En fases posteriores, `codigo_hs` será el identificador de enlace para respuest
 
 - El estado temporal de apoyo se mantiene en `sessionStorage` durante la sesión.
 - **Nuevo paciente / limpiar formulario** limpia el paciente activo y los formularios PV/SG/CX, pero conserva la base Excel cargada y la reserva de códigos generados en la sesión.
-- La persistencia oficial del código ocurre al exportar y pegar la fila en `BD_VISITAS_HS`.
+- El código generado queda reservado para evitar duplicados, pero no es oficial hasta copiar y pegar la fila Excel en `BD_VISITAS_HS`.
 - Recordatorio operativo: copiar siempre la fila Excel para registrar el código en la base.
 
 ## Flujo Seguro
 
 1. Cargar la base `BD_VISITAS_HS`, si está disponible.
 2. Buscar al paciente desde el panel global.
-3. Si existe y tiene código, reutilizar el código mostrado.
-4. Si no existe o no tiene código, generar el siguiente código disponible.
+3. La herramienta reutiliza automáticamente el código existente o genera el siguiente código disponible.
+4. Elegir PV, SG o CX y completar la visita.
 5. Registrar la visita y copiar la fila Excel para persistir la correspondencia.
 
 ## Límites
