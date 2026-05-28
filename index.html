@@ -3166,6 +3166,7 @@
         const TOOL_VERSION_IMPORT = "v1.4-excel-master-import";
         const MASTER_DB_SESSION_KEY = 'hs_master_db';
         const MASTER_DB_LOADED_AT_SESSION_KEY = 'hs_master_db_loaded_at';
+        const MASTER_DB_ACTIVE_SESSION_KEY = 'hs_master_db_active';
         const HS_SELECTED_PATIENT_SESSION_KEY = 'hs_selected_patient';
         const HS_SESSION_CODE_MAP_KEY = 'hs_session_code_map';
         const REQUIRED_IMPORT_COLUMNS = [
@@ -3173,6 +3174,7 @@
             'hurley_enfermeria', 'peso_kg', 'tabaco_estado', 'tratamiento_activo'
         ];
         let masterDb = [];
+        let masterDbIsLoaded = false;
         let masterDbLoadedAt = null;
         let masterDbWarnings = [];
         let selectedPatientIdentifier = '';
@@ -3400,9 +3402,10 @@
             if (Array.isArray(warnings)) masterDbWarnings = warnings.filter(Boolean);
             var stats = analyzeMasterDbStats();
             masterDbDuplicateCodes = stats.duplicateCodes.slice();
-            var hasWarnings = masterDb.length && (masterDbWarnings.length || masterDbDuplicateCodes.length);
+            var hasWarnings = masterDbIsLoaded && (masterDbWarnings.length || masterDbDuplicateCodes.length);
             if (statusEl) {
-                if (!masterDb.length) statusEl.textContent = 'BD no cargada';
+                if (!masterDbIsLoaded) statusEl.textContent = 'BD no cargada';
+                else if (!masterDb.length) statusEl.textContent = 'BD cargada sin registros previos';
                 else if (hasWarnings) statusEl.textContent = 'BD cargada con incidencias';
                 else statusEl.textContent = 'BD cargada correctamente';
             }
@@ -3412,8 +3415,8 @@
             if (metricsEl) {
                 metricsEl.textContent = 'Registros: ' + masterDb.length + ' | Pacientes: ' + stats.nPatients + ' | Códigos HS únicos: ' + stats.nCodes;
             }
-            setMasterStatusDot(!masterDb.length ? 'empty' : (hasWarnings ? 'warning' : 'loaded'));
-            if (masterDb.length && masterDbDuplicateCodes.length) {
+            setMasterStatusDot(!masterDbIsLoaded ? 'empty' : (hasWarnings ? 'warning' : 'loaded'));
+            if (masterDbIsLoaded && masterDb.length && masterDbDuplicateCodes.length) {
                 console.warn('Códigos HS duplicados detectados en BD cargada:', masterDbDuplicateCodes);
             }
         }
@@ -3422,6 +3425,7 @@
             try {
                 sessionStorage.setItem(MASTER_DB_SESSION_KEY, JSON.stringify(masterDb));
                 sessionStorage.setItem(MASTER_DB_LOADED_AT_SESSION_KEY, masterDbLoadedAt || '');
+                sessionStorage.setItem(MASTER_DB_ACTIVE_SESSION_KEY, masterDbIsLoaded ? '1' : '0');
             } catch (err) {
                 showImportWarnings(['No se pudo guardar la base en sessionStorage (límite del navegador o política de seguridad).']);
             }
@@ -3431,21 +3435,40 @@
             try {
                 var raw = sessionStorage.getItem(MASTER_DB_SESSION_KEY);
                 var loadedAt = sessionStorage.getItem(MASTER_DB_LOADED_AT_SESSION_KEY);
-                if (!raw) return;
+                var activeRaw = sessionStorage.getItem(MASTER_DB_ACTIVE_SESSION_KEY);
+                if (!raw) {
+                    masterDb = [];
+                    masterDbIsLoaded = false;
+                    masterDbLoadedAt = null;
+                    masterDbWarnings = [];
+                    updateMasterDbStatus([]);
+                    return;
+                }
                 var parsed = JSON.parse(raw);
-                if (!Array.isArray(parsed)) return;
+                if (!Array.isArray(parsed)) {
+                    masterDb = [];
+                    masterDbIsLoaded = false;
+                    masterDbLoadedAt = null;
+                    masterDbWarnings = [];
+                    updateMasterDbStatus([]);
+                    return;
+                }
                 masterDb = parsed.filter(function (row) { return row && typeof row === 'object'; });
+                masterDbIsLoaded = activeRaw === null ? true : (activeRaw === '1');
                 masterDbLoadedAt = loadedAt || null;
                 masterDbWarnings = [];
                 updateMasterDbStatus([]);
-                if (masterDbDuplicateCodes.length) {
+                if (masterDbIsLoaded && masterDbDuplicateCodes.length) {
                     showImportWarnings(['BD restaurada con incidencias: códigos HS duplicados detectados (' + masterDbDuplicateCodes.join(', ') + ').']);
+                } else if (masterDbIsLoaded && !masterDb.length) {
+                    showImportSuccess('Base restaurada vacía desde la sesión actual.');
                 } else {
                     showImportSuccess('Base restaurada desde la sesión actual.');
                 }
                 updateHsCodeGlobalUI();
             } catch (err) {
                 masterDb = [];
+                masterDbIsLoaded = false;
                 masterDbLoadedAt = null;
                 masterDbWarnings = [];
                 updateMasterDbStatus([]);
@@ -3830,7 +3853,7 @@
             var codeToUse = isValidHsCode(existingCode) ? normalizeHsCode(existingCode) : '';
             var generatedNew = false;
             if (!isValidHsCode(codeToUse)) {
-                if (!masterDb.length && opts.allowWithoutMasterDb === false) {
+                if (!masterDbIsLoaded && opts.allowWithoutMasterDb === false) {
                     if (!opts.silent) setHsCodeFeedback('No se puede generar código HS sin una BD cargada.', 'error');
                     updateHsCodeGlobalUI();
                     return '';
@@ -3852,7 +3875,7 @@
 
             syncPatientIdentificationToForms(patientIdentifier, codeToUse);
             if (!opts.silent) {
-                if (!masterDb.length && generatedNew) {
+                if (!masterDbIsLoaded && generatedNew) {
                     setHsCodeFeedback('Sin BD cargada: no se puede comprobar unicidad histórica. Se reservará el código en esta sesión. Código HS: ' + codeToUse + '.', 'warn');
                 } else if (generatedNew) {
                     var generatedCodeNextStep = opts.actionContext === 'report'
@@ -4428,7 +4451,7 @@
             }
             resetCurrentPatientContext({ clearForms: true });
             clearImportError();
-            showImportSuccess(masterDb.length ? 'Nuevo paciente preparado. La base cargada se mantiene disponible.' : 'Nuevo paciente preparado.');
+            showImportSuccess(masterDbIsLoaded ? 'Nuevo paciente preparado. La base cargada se mantiene disponible.' : 'Nuevo paciente preparado.');
         }
 
         function maybeSetFieldValue(fieldId, value, options) {
@@ -4483,7 +4506,7 @@
                 setHsCodeFeedback('Código HS reutilizado en sesión: ' + sessionPatient.codigo_hs + '.', 'ok');
                 return;
             }
-            if (!masterDb.length) {
+            if (!masterDbIsLoaded) {
                 showImportWarnings([]);
                 showImportError('No hay BD cargada. Puede trabajar en manual o cargar la base.');
                 if (!preparePatientContextChange(identifier)) return;
@@ -4551,11 +4574,18 @@
         function applyLastVisitPreload(options) {
             var opts = options || {};
             clearImportError();
-            if (!masterDb.length) {
+            if (!masterDbIsLoaded) {
                 showImportWarnings([]);
                 showImportError('No hay base longitudinal cargada. Introduzca los datos manualmente.');
                 updateSelectedPatientSummary(null, null);
                 updateSgPreloadStatusChip('BD no cargada para precarga automática.', 'warn');
+                return;
+            }
+            if (!masterDb.length) {
+                showImportWarnings([]);
+                clearImportError();
+                updateSgPreloadStatusChip('BD cargada sin visitas previas para precargar.', 'warn');
+                showImportSuccess('BD cargada sin visitas previas para precargar.');
                 return;
             }
 
@@ -4641,7 +4671,7 @@
         }
 
         function showMasterUploadFailure(detail) {
-            var hasActiveDb = masterDb.length > 0;
+            var hasActiveDb = masterDbIsLoaded;
             updateMasterDbStatus(masterDbWarnings);
             var message = hasActiveDb
                 ? 'Carga fallida. Se mantiene activa la última BD válida.'
@@ -4699,11 +4729,26 @@
                     }
 
                     if (!loadedRows.length) {
-                        showMasterUploadFailure('La hoja BD_VISITAS_HS no contiene registros útiles.');
+                        masterDb = [];
+                        masterDbIsLoaded = true;
+                        masterDbLoadedAt = new Date().toLocaleString('es-ES');
+                        masterDbWarnings = [];
+                        persistMasterDbToSession();
+                        updateMasterDbStatus(validation.warnings || []);
+                        resetCurrentPatientContext({ clearForms: true });
+                        clearImportError();
+                        if ((validation.warnings || []).length) {
+                            showImportWarnings(validation.warnings);
+                        } else {
+                            showImportSuccess('BD cargada vacía — lista para nuevos pacientes.');
+                        }
+                        setHsCodeFeedback('Base cargada sin registros previos. Puede iniciar nuevos pacientes.', 'ok');
+                        updateHsCodeGlobalUI();
                         return;
                     }
 
                     masterDb = loadedRows;
+                    masterDbIsLoaded = true;
                     masterDbLoadedAt = new Date().toLocaleString('es-ES');
                     persistMasterDbToSession();
                     updateMasterDbStatus(validation.warnings || []);
