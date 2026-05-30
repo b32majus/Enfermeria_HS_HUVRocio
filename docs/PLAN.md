@@ -558,6 +558,10 @@ Completada como MVP. Mantener vigilancia de QA funcional y visual en entorno Pag
 ### Objetivo
 Evolucionar el dashboard desde resumen MVP a analítica básica con filtros de cohorte y visualización agregada simple.
 
+### Referencias de diseño
+- Referencia principal: Hub Clínico HS Canarias (más alineado con semántica clínica HS: IHS-4, Hurley, tratamiento activo, cirugía/procedimientos y ecografía cuando aplique).
+- Referencia secundaria: Hub Clínico Badajoz (estructura de dashboard de servicio, filtros colapsables y visualización agregada).
+
 ### Alcance previsto
 - Filtros por periodo (desde/hasta, último mes, último trimestre, todo).
 - Filtros por tipo de visita (PV/SG/CX).
