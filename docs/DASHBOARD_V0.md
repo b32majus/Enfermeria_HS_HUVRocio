@@ -280,7 +280,8 @@ La primera implementación del dashboard debe incluir solo:
 Pasar de dashboard resumen MVP a dashboard analítico básico para consulta operativa.
 
 ### Inspiración y enfoque
-- Inspiración: dashboard de estadísticas de Hub Clínico Badajoz, con filtros de cohorte y visualización agregada.
+- Referencia principal: Hub Clínico HS Canarias (semántica clínica HS más directa para IHS-4, Hurley, tratamiento activo, cirugía/procedimientos y ecografía cuando aplique).
+- Referencia secundaria: Hub Clínico Badajoz (patrón visual/arquitectónico de dashboard de servicio, filtros colapsables y visualización agregada).
 - Adaptación HS HUVRocío: mantener una implementación más ligera, sin Chart.js inicialmente, usando gráficos simples con HTML/CSS.
 
 ### Filtros previstos en Fase 8C
