@@ -1953,6 +1953,174 @@
         .dashboard-badge--moderado { background: #fef3c7; color: #92400e; border-color: #fde68a; }
         .dashboard-badge--grave { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
         .dashboard-badge--nr { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
+        .dashboard-filters {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: #f8fafc;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+        .dashboard-filters summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 9px 12px;
+            cursor: pointer;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .dashboard-filters-summary { display: flex; align-items: center; gap: 8px; }
+        .dashboard-filter-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 0.68rem;
+            letter-spacing: 0;
+        }
+        .dashboard-filter-body {
+            border-top: 1px solid var(--border-color);
+            padding: 10px 12px 12px;
+        }
+        .dashboard-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .dashboard-filter-group {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 8px;
+        }
+        .dashboard-filter-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+        }
+        .dashboard-filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .dashboard-filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .dashboard-filter-field label {
+            font-size: 0.66rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .dashboard-filter-field input,
+        .dashboard-filter-field select {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 5px 6px;
+            font-size: 0.74rem;
+            color: var(--text-color);
+            background: #fff;
+        }
+        .dashboard-filter-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .dashboard-chip-btn {
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+        }
+        .dashboard-chip-btn:hover { background: #f1f5f9; }
+        .dashboard-filter-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.76rem;
+            color: #64748b;
+        }
+        .dashboard-clear-btn {
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: var(--border-radius);
+            padding: 5px 10px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+        .dashboard-clear-btn:disabled { color: #94a3b8; cursor: not-allowed; }
+        .dashboard-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .dashboard-chart-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: #fff;
+            padding: 9px 10px;
+        }
+        .dashboard-chart-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        .dashboard-bar-row {
+            display: grid;
+            grid-template-columns: minmax(76px, 0.8fr) minmax(70px, 2fr) 32px;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+            font-size: 0.72rem;
+        }
+        .dashboard-bar-label { color: #475569; font-weight: 600; }
+        .dashboard-bar-track {
+            height: 9px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        .dashboard-bar-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: var(--primary-color);
+        }
+        .dashboard-bar-fill--soft { background: #0f766e; }
+        .dashboard-bar-fill--warn { background: #d97706; }
+        .dashboard-bar-fill--danger { background: #dc2626; }
+        .dashboard-bar-value {
+            text-align: right;
+            color: #64748b;
+            font-weight: 700;
+        }
         .dashboard-table-wrap { overflow-x: auto; }
         .dashboard-table {
             width: 100%;
@@ -2006,6 +2174,9 @@
                 border-radius: 0;
             }
             .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-filter-row { grid-template-columns: 1fr; }
+            .dashboard-filter-actions { align-items: flex-start; flex-direction: column; }
+            .dashboard-bar-row { grid-template-columns: 70px 1fr 28px; }
         }
     </style>
 </head>
@@ -6748,10 +6919,160 @@
             return lower !== 'nr' && lower !== 'n/r' && lower !== 'no registrado' && lower !== 'no consta';
         }
 
-        function getDashboardPatientGroups() {
+        function dashboardEscapeHtml(value) {
+            return String(value === null || value === undefined ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function normalizeDashboardFilterToken(value) {
+            return String(value || '').trim().toUpperCase();
+        }
+
+        function getDashboardDefaultFilters() {
+            return {
+                dateFrom: '',
+                dateTo: '',
+                visitType: 'TODOS',
+                ihs4Severity: 'TODOS',
+                trend: 'TODAS',
+                hurley: 'TODOS',
+                treatment: 'TODOS',
+                suspPrematura: 'TODOS',
+                efectosAdv: 'TODOS',
+                dermNeeds: 'TODOS',
+                curaActiva: 'TODOS'
+            };
+        }
+
+        function getDashboardFilterValue(id, fallback) {
+            var el = document.getElementById(id);
+            return el ? el.value : fallback;
+        }
+
+        function getDashboardFilterState() {
+            var defaults = getDashboardDefaultFilters();
+            return {
+                dateFrom: getDashboardFilterValue('dashboard_filter_date_from', defaults.dateFrom),
+                dateTo: getDashboardFilterValue('dashboard_filter_date_to', defaults.dateTo),
+                visitType: getDashboardFilterValue('dashboard_filter_visit_type', defaults.visitType),
+                ihs4Severity: getDashboardFilterValue('dashboard_filter_ihs4', defaults.ihs4Severity),
+                trend: getDashboardFilterValue('dashboard_filter_trend', defaults.trend),
+                hurley: getDashboardFilterValue('dashboard_filter_hurley', defaults.hurley),
+                treatment: getDashboardFilterValue('dashboard_filter_treatment', defaults.treatment),
+                suspPrematura: getDashboardFilterValue('dashboard_filter_susp', defaults.suspPrematura),
+                efectosAdv: getDashboardFilterValue('dashboard_filter_adverse', defaults.efectosAdv),
+                dermNeeds: getDashboardFilterValue('dashboard_filter_derm', defaults.dermNeeds),
+                curaActiva: getDashboardFilterValue('dashboard_filter_cura', defaults.curaActiva)
+            };
+        }
+
+        function countDashboardActiveFilters(filters) {
+            var defaults = getDashboardDefaultFilters();
+            var count = 0;
+            Object.keys(defaults).forEach(function (key) {
+                if (String(filters[key] || '') !== String(defaults[key] || '')) count++;
+            });
+            return count;
+        }
+
+        function setDashboardDatePreset(preset) {
+            var fromEl = document.getElementById('dashboard_filter_date_from');
+            var toEl = document.getElementById('dashboard_filter_date_to');
+            if (!fromEl || !toEl) return;
+            if (preset === 'todo') {
+                fromEl.value = '';
+                toEl.value = '';
+            } else {
+                var end = new Date();
+                var start = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+                if (preset === 'mes') start.setMonth(start.getMonth() - 1);
+                if (preset === 'trimestre') start.setMonth(start.getMonth() - 3);
+                fromEl.value = formatDateToYmd(start);
+                toEl.value = formatDateToYmd(end);
+            }
+            updateDashboardAfterFilters();
+        }
+
+        function resetDashboardFilters() {
+            var defaults = getDashboardDefaultFilters();
+            var map = {
+                dashboard_filter_date_from: defaults.dateFrom,
+                dashboard_filter_date_to: defaults.dateTo,
+                dashboard_filter_visit_type: defaults.visitType,
+                dashboard_filter_ihs4: defaults.ihs4Severity,
+                dashboard_filter_trend: defaults.trend,
+                dashboard_filter_hurley: defaults.hurley,
+                dashboard_filter_treatment: defaults.treatment,
+                dashboard_filter_susp: defaults.suspPrematura,
+                dashboard_filter_adverse: defaults.efectosAdv,
+                dashboard_filter_derm: defaults.dermNeeds,
+                dashboard_filter_cura: defaults.curaActiva
+            };
+            Object.keys(map).forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.value = map[id];
+            });
+            updateDashboardAfterFilters();
+        }
+
+        function dashboardDateInRange(row, filters) {
+            if (!filters.dateFrom && !filters.dateTo) return true;
+            var d = parseVisitDate(row.fecha_visita);
+            if (!d) return false;
+            var time = d.getTime();
+            var from = filters.dateFrom ? parseVisitDate(filters.dateFrom) : null;
+            var to = filters.dateTo ? parseVisitDate(filters.dateTo) : null;
+            if (from && time < from.getTime()) return false;
+            if (to && time > to.getTime()) return false;
+            return true;
+        }
+
+        function applyDashboardVisitFilters(rows, filters) {
+            return rows.filter(function (row) {
+                if (!dashboardDateInRange(row, filters)) return false;
+                var vt = normalizeDashboardFilterToken(row.tipo_visita);
+                if (filters.visitType !== 'TODOS' && vt !== filters.visitType) return false;
+                return true;
+            });
+        }
+
+        function dashboardMatchesYesNoFilter(value, filterValue) {
+            if (filterValue === 'TODOS') return true;
+            if (filterValue === 'SI') return value === 'Sí';
+            if (filterValue === 'NO_NR') return value !== 'Sí';
+            return true;
+        }
+
+        function normalizeDashboardHurley(value) {
+            var s = String(value || '').trim().toUpperCase();
+            if (!s || s === 'NR' || s === 'N/R' || s === 'NO REGISTRADO' || s === 'NO CONSTA') return 'NR';
+            if (s.indexOf('III') >= 0 || s === '3') return 'III';
+            if (s.indexOf('II') >= 0 || s === '2') return 'II';
+            if (s.indexOf('I') >= 0 || s === '1') return 'I';
+            return 'NR';
+        }
+
+        function dashboardMatchesPatientFilters(patientModel, filters) {
+            if (filters.ihs4Severity !== 'TODOS' && patientModel.latestIhs4Severity !== filters.ihs4Severity) return false;
+            if (filters.trend !== 'TODAS' && patientModel.trend !== filters.trend) return false;
+            if (filters.hurley !== 'TODOS' && normalizeDashboardHurley(patientModel.hurleyBasal) !== filters.hurley) return false;
+            if (filters.treatment === 'CON' && !patientModel.tratamientoRegistrado) return false;
+            if (filters.treatment === 'SIN_NR' && patientModel.tratamientoRegistrado) return false;
+            if (!dashboardMatchesYesNoFilter(patientModel.suspPrematura, filters.suspPrematura)) return false;
+            if (!dashboardMatchesYesNoFilter(patientModel.efectosAdv, filters.efectosAdv)) return false;
+            if (!dashboardMatchesYesNoFilter(patientModel.necsDermaPositive ? 'Sí' : 'No', filters.dermNeeds)) return false;
+            if (!dashboardMatchesYesNoFilter(patientModel.curaActiva, filters.curaActiva)) return false;
+            return true;
+        }
+
+        function getDashboardPatientGroups(rows) {
             var groups = {};
             var rowsWithoutIdentifier = 0;
-            masterDb.forEach(function (row) {
+            (rows || masterDb).forEach(function (row) {
                 var nuhsa = normalizePatientId(row.nuhsa);
                 if (!nuhsa) {
                     rowsWithoutIdentifier++;
@@ -6865,22 +7186,36 @@
             return alerts;
         }
 
-        function buildDashboardPatientModel(patientId, rows) {
-            var sortedRows = getPatientRecords(patientId);
+        function buildDashboardPatientModel(patientId, rows, options) {
+            var opts = options || {};
+            var sortedRows = opts.useProvidedRows ? (rows || []).slice() : getPatientRecords(patientId);
             if (!sortedRows.length) sortedRows = rows.slice();
+            sortedRows.sort(function (a, b) {
+                var da = parseVisitDate(a.fecha_visita);
+                var db = parseVisitDate(b.fecha_visita);
+                var ta = da ? da.getTime() : -1;
+                var tb = db ? db.getTime() : -1;
+                return ta - tb;
+            });
             var latestVisit = getDashboardLatestVisit(sortedRows);
             var latestIhs4 = getDashboardLatestIhs4(sortedRows);
             var trend = getDashboardIhs4Trend(sortedRows);
             var hurleyBasal = getDashboardHurleyBasal(sortedRows);
             var last = latestVisit || sortedRows[sortedRows.length - 1] || {};
             var tto = safeDisplay(last.tratamiento_activo);
-            var suspPrematura = yesNoFromText(last.suspension_prematura);
-            var efectosAdv = yesNoFromText(last.efectos_adversos);
-            var necsDermaPositive = yesNoFromText(last.necesidades_valorar_dermatologia) === 'Sí';
+            var suspPrematura = 'No';
+            var efectosAdv = 'No';
+            var necsDermaPositive = false;
             var complicacionesQx = false;
+            var curaActiva = 'No';
             sortedRows.forEach(function (r) {
-                if (String(r.tipo_visita || '').trim().toUpperCase() !== 'CX') return;
-                if (yesNoFromText(r.complicaciones) === 'Sí') complicacionesQx = true;
+                if (yesNoFromText(r.suspension_prematura) === 'Sí') suspPrematura = 'Sí';
+                if (yesNoFromText(r.efectos_adversos) === 'Sí') efectosAdv = 'Sí';
+                if (yesNoFromText(r.necesidades_valorar_dermatologia) === 'Sí') necsDermaPositive = true;
+                if (yesNoFromText(r.cura_hoy) === 'Sí') curaActiva = 'Sí';
+                if (String(r.tipo_visita || '').trim().toUpperCase() === 'CX') {
+                    if (yesNoFromText(r.complicaciones) === 'Sí') complicacionesQx = true;
+                }
             });
             var visitDate = parseVisitDate(last.fecha_visita);
             var codigoHs = normalizeHsCode(getPatientHsCode(patientId) || last.codigo_hs || '');
@@ -6902,41 +7237,17 @@
                 efectosAdv: efectosAdv,
                 necsDermaPositive: necsDermaPositive,
                 complicacionesQx: complicacionesQx,
+                curaActiva: curaActiva,
                 tratamientoRegistrado: isDashboardTreatmentRegistered(last.tratamiento_activo)
             };
             model.alerts = getDashboardPatientAlerts(model);
             return model;
         }
 
-        function buildDashboardModel() {
-            if (!masterDbIsLoaded) {
-                return { state: 'no_db', rowsWithoutIdentifier: 0, pilotWarning: false, globalCards: null, ihs4Distribution: null, patients: [] };
-            }
-            if (!masterDb.length) {
-                return {
-                    state: 'empty',
-                    rowsWithoutIdentifier: 0,
-                    pilotWarning: false,
-                    globalCards: {
-                        uniquePatients: 0,
-                        totalVisits: 0,
-                        pv: 0,
-                        sg: 0,
-                        cx: 0,
-                        ihs4ModGrave: 0,
-                        dermNeeds: 0,
-                        activeTreatment: 0
-                    },
-                    ihs4Distribution: { LEVE: 0, MODERADO: 0, GRAVE: 0, NR: 0 },
-                    patients: []
-                };
-            }
-            var grouped = getDashboardPatientGroups();
-            var groups = grouped.groups;
-            var patientIds = Object.keys(groups);
-            var globalCards = {
-                uniquePatients: patientIds.length,
-                totalVisits: masterDb.length,
+        function getEmptyDashboardGlobalCards(totalVisits) {
+            return {
+                uniquePatients: 0,
+                totalVisits: totalVisits || 0,
                 pv: 0,
                 sg: 0,
                 cx: 0,
@@ -6944,39 +7255,234 @@
                 dermNeeds: 0,
                 activeTreatment: 0
             };
-            var ihs4Distribution = { LEVE: 0, MODERADO: 0, GRAVE: 0, NR: 0 };
+        }
+
+        function getEmptyDashboardCharts() {
+            return {
+                ihs4: { LEVE: 0, MODERADO: 0, GRAVE: 0, NR: 0 },
+                trend: { 'Mejoría': 0, 'Estable': 0, 'Empeoramiento': 0, 'No valorable': 0 },
+                visits: { PV: 0, SG: 0, CX: 0 },
+                treatments: [],
+                alerts: {
+                    'IHS4 grave': 0,
+                    'Empeoramiento': 0,
+                    'Suspensión prematura': 0,
+                    'Efectos adversos': 0,
+                    'Nec. Dermatología': 0,
+                    'Complicaciones Qx': 0
+                }
+            };
+        }
+
+        function buildDashboardModelFromRows(rows, filters) {
+            var sourceRows = rows || [];
+            var activeFilters = filters || getDashboardDefaultFilters();
+            var visitFilteredRows = applyDashboardVisitFilters(sourceRows, activeFilters);
+            var grouped = getDashboardPatientGroups(visitFilteredRows);
+            var groups = grouped.groups;
+            var patientIds = Object.keys(groups);
             var patients = [];
-            masterDb.forEach(function (row) {
-                var t = String(row.tipo_visita || '').trim().toUpperCase();
-                if (t === 'PV') globalCards.pv++;
-                else if (t === 'SG') globalCards.sg++;
-                else if (t === 'CX') globalCards.cx++;
-            });
+            var includedPatientIds = {};
             patientIds.forEach(function (patientId) {
-                var rows = groups[patientId];
-                var pm = buildDashboardPatientModel(patientId, rows);
+                var pm = buildDashboardPatientModel(patientId, groups[patientId], { useProvidedRows: true });
+                if (!dashboardMatchesPatientFilters(pm, activeFilters)) return;
                 patients.push(pm);
+                includedPatientIds[patientId] = true;
+            });
+            var includedRows = visitFilteredRows.filter(function (row) {
+                return includedPatientIds[normalizePatientId(row.nuhsa)];
+            });
+            var globalCards = getEmptyDashboardGlobalCards(includedRows.length);
+            globalCards.uniquePatients = patients.length;
+            var charts = getEmptyDashboardCharts();
+            var ihs4Distribution = charts.ihs4;
+            var treatmentCounts = {};
+            includedRows.forEach(function (row) {
+                var t = normalizeDashboardFilterToken(row.tipo_visita);
+                if (t === 'PV') {
+                    globalCards.pv++;
+                    charts.visits.PV++;
+                } else if (t === 'SG') {
+                    globalCards.sg++;
+                    charts.visits.SG++;
+                } else if (t === 'CX') {
+                    globalCards.cx++;
+                    charts.visits.CX++;
+                }
+            });
+            patients.forEach(function (pm) {
                 var bucket = pm.latestIhs4Severity || 'NR';
                 if (!Object.prototype.hasOwnProperty.call(ihs4Distribution, bucket)) bucket = 'NR';
                 ihs4Distribution[bucket]++;
-                if (pm.latestIhs4Severity === 'MODERADO' || pm.latestIhs4Severity === 'GRAVE') {
-                    globalCards.ihs4ModGrave++;
-                }
+                if (pm.latestIhs4Severity === 'MODERADO' || pm.latestIhs4Severity === 'GRAVE') globalCards.ihs4ModGrave++;
                 if (pm.necsDermaPositive) globalCards.dermNeeds++;
-                if (pm.tratamientoRegistrado) globalCards.activeTreatment++;
+                if (pm.tratamientoRegistrado) {
+                    globalCards.activeTreatment++;
+                    var tto = String(pm.tratamientoActivo || '').trim();
+                    if (isDashboardTreatmentRegistered(tto)) treatmentCounts[tto] = (treatmentCounts[tto] || 0) + 1;
+                }
+                if (!Object.prototype.hasOwnProperty.call(charts.trend, pm.trend)) charts.trend[pm.trend] = 0;
+                charts.trend[pm.trend]++;
+                if (pm.alerts && pm.alerts.length) {
+                    pm.alerts.forEach(function (alert) {
+                        if (!Object.prototype.hasOwnProperty.call(charts.alerts, alert.text)) charts.alerts[alert.text] = 0;
+                        charts.alerts[alert.text]++;
+                    });
+                }
             });
+            charts.treatments = Object.keys(treatmentCounts).map(function (name) {
+                return { label: name, value: treatmentCounts[name] };
+            }).sort(function (a, b) {
+                if (a.value !== b.value) return b.value - a.value;
+                return a.label.localeCompare(b.label);
+            }).slice(0, 5);
             patients.sort(function (a, b) {
                 if (a.lastVisitSort !== b.lastVisitSort) return b.lastVisitSort - a.lastVisitSort;
                 return String(a.codigoHs).localeCompare(String(b.codigoHs));
             });
             return {
-                state: 'loaded',
+                state: patients.length || includedRows.length ? 'loaded' : 'filtered_empty',
                 rowsWithoutIdentifier: grouped.rowsWithoutIdentifier,
                 pilotWarning: patientIds.length > 0 && patientIds.length < 3,
                 globalCards: globalCards,
                 ihs4Distribution: ihs4Distribution,
-                patients: patients
+                charts: charts,
+                patients: patients,
+                filteredVisits: includedRows.length,
+                filters: activeFilters,
+                activeFilterCount: countDashboardActiveFilters(activeFilters)
             };
+        }
+
+        function buildDashboardModel(filters) {
+            if (!masterDbIsLoaded) {
+                return { state: 'no_db', rowsWithoutIdentifier: 0, pilotWarning: false, globalCards: null, ihs4Distribution: null, charts: null, patients: [] };
+            }
+            if (!masterDb.length) {
+                return {
+                    state: 'empty',
+                    rowsWithoutIdentifier: 0,
+                    pilotWarning: false,
+                    globalCards: getEmptyDashboardGlobalCards(0),
+                    ihs4Distribution: { LEVE: 0, MODERADO: 0, GRAVE: 0, NR: 0 },
+                    charts: getEmptyDashboardCharts(),
+                    patients: []
+                };
+            }
+            return buildDashboardModelFromRows(masterDb, filters || getDashboardDefaultFilters());
+        }
+
+        function dashboardSelectOptions(options, selected) {
+            return options.map(function (opt) {
+                var value = dashboardEscapeHtml(opt.value);
+                var label = dashboardEscapeHtml(opt.label);
+                return '<option value="' + value + '"' + (opt.value === selected ? ' selected' : '') + '>' + label + '</option>';
+            }).join('');
+        }
+
+        function renderDashboardFilters(model) {
+            var filters = model.filters || getDashboardDefaultFilters();
+            var activeCount = model.activeFilterCount || 0;
+            var openAttr = activeCount ? ' open' : '';
+            var html = '<details class="dashboard-filters"' + openAttr + '>' +
+                '<summary><span class="dashboard-filters-summary">Filtros de cohorte <span class="dashboard-filter-count">' + activeCount + '</span></span><span>Mostrar/ocultar</span></summary>' +
+                '<div class="dashboard-filter-body"><div class="dashboard-filter-grid">';
+            html += '<div class="dashboard-filter-group"><div class="dashboard-filter-title">Periodo</div>' +
+                '<div class="dashboard-filter-row">' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_date_from">Desde</label><input type="date" id="dashboard_filter_date_from" value="' + dashboardEscapeHtml(filters.dateFrom) + '" onchange="updateDashboardAfterFilters()"></div>' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_date_to">Hasta</label><input type="date" id="dashboard_filter_date_to" value="' + dashboardEscapeHtml(filters.dateTo) + '" onchange="updateDashboardAfterFilters()"></div>' +
+                '</div><div class="dashboard-filter-presets">' +
+                '<button type="button" class="dashboard-chip-btn" onclick="setDashboardDatePreset(\'mes\')">Último mes</button>' +
+                '<button type="button" class="dashboard-chip-btn" onclick="setDashboardDatePreset(\'trimestre\')">Último trimestre</button>' +
+                '<button type="button" class="dashboard-chip-btn" onclick="setDashboardDatePreset(\'todo\')">Todo</button>' +
+                '</div></div>';
+            html += '<div class="dashboard-filter-group"><div class="dashboard-filter-title">Visita</div>' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_visit_type">Tipo</label><select id="dashboard_filter_visit_type" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'PV', label: 'PV' }, { value: 'SG', label: 'SG' }, { value: 'CX', label: 'CX' }], filters.visitType) +
+                '</select></div></div>';
+            html += '<div class="dashboard-filter-group"><div class="dashboard-filter-title">Actividad</div>' +
+                '<div class="dashboard-filter-row">' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_ihs4">IHS4</label><select id="dashboard_filter_ihs4" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'LEVE', label: 'Leve' }, { value: 'MODERADO', label: 'Moderado' }, { value: 'GRAVE', label: 'Grave' }, { value: 'NR', label: 'NR' }], filters.ihs4Severity) +
+                '</select></div>' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_trend">Tendencia</label><select id="dashboard_filter_trend" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODAS', label: 'Todas' }, { value: 'Mejoría', label: 'Mejoría' }, { value: 'Estable', label: 'Estable' }, { value: 'Empeoramiento', label: 'Empeoramiento' }, { value: 'No valorable', label: 'No valorable' }], filters.trend) +
+                '</select></div>' +
+                '</div><div class="dashboard-filter-field"><label for="dashboard_filter_hurley">Hurley</label><select id="dashboard_filter_hurley" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'I', label: 'I' }, { value: 'II', label: 'II' }, { value: 'III', label: 'III' }, { value: 'NR', label: 'NR' }], filters.hurley) +
+                '</select></div></div>';
+            html += '<div class="dashboard-filter-group"><div class="dashboard-filter-title">Tratamiento y seguridad</div>' +
+                '<div class="dashboard-filter-row">' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_treatment">Tratamiento</label><select id="dashboard_filter_treatment" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'CON', label: 'Con tratamiento activo' }, { value: 'SIN_NR', label: 'Sin tratamiento / NR' }], filters.treatment) +
+                '</select></div>' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_susp">Suspensión</label><select id="dashboard_filter_susp" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'SI', label: 'Sí' }, { value: 'NO_NR', label: 'No / NR' }], filters.suspPrematura) +
+                '</select></div>' +
+                '</div><div class="dashboard-filter-field"><label for="dashboard_filter_adverse">Efectos adversos</label><select id="dashboard_filter_adverse" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'SI', label: 'Sí' }, { value: 'NO_NR', label: 'No / NR' }], filters.efectosAdv) +
+                '</select></div></div>';
+            html += '<div class="dashboard-filter-group"><div class="dashboard-filter-title">Pendientes</div>' +
+                '<div class="dashboard-filter-row">' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_derm">Dermatología</label><select id="dashboard_filter_derm" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'SI', label: 'Sí' }, { value: 'NO_NR', label: 'No / NR' }], filters.dermNeeds) +
+                '</select></div>' +
+                '<div class="dashboard-filter-field"><label for="dashboard_filter_cura">Cura activa</label><select id="dashboard_filter_cura" onchange="updateDashboardAfterFilters()">' +
+                dashboardSelectOptions([{ value: 'TODOS', label: 'Todos' }, { value: 'SI', label: 'Sí' }, { value: 'NO_NR', label: 'No / NR' }], filters.curaActiva) +
+                '</select></div></div></div>';
+            html += '</div><div class="dashboard-filter-actions">' +
+                '<span>Mostrando ' + model.globalCards.uniquePatients + ' pacientes y ' + model.globalCards.totalVisits + ' visitas según filtros activos.</span>' +
+                '<button type="button" class="dashboard-clear-btn" onclick="resetDashboardFilters()" ' + (activeCount ? '' : 'disabled') + '>Limpiar filtros</button>' +
+                '</div></div></details>';
+            return html;
+        }
+
+        function renderSimpleBarChart(title, data, options) {
+            var opts = options || {};
+            var max = 0;
+            data.forEach(function (item) { if (item.value > max) max = item.value; });
+            var html = '<div class="dashboard-chart-card"><div class="dashboard-chart-title">' + dashboardEscapeHtml(title) + '</div>';
+            if (!data.length || max === 0) {
+                return html + '<div class="dashboard-message" style="padding:4px 0;">Sin datos suficientes</div></div>';
+            }
+            data.forEach(function (item) {
+                var pct = max > 0 ? Math.round((item.value / max) * 100) : 0;
+                var cls = item.cls ? ' ' + item.cls : '';
+                html += '<div class="dashboard-bar-row">' +
+                    '<div class="dashboard-bar-label">' + dashboardEscapeHtml(item.label) + '</div>' +
+                    '<div class="dashboard-bar-track"><div class="dashboard-bar-fill' + cls + '" style="width:' + pct + '%;"></div></div>' +
+                    '<div class="dashboard-bar-value">' + item.value + '</div>' +
+                    '</div>';
+            });
+            if (opts.note) html += '<div class="dashboard-message" style="padding:4px 0 0;">' + dashboardEscapeHtml(opts.note) + '</div>';
+            return html + '</div>';
+        }
+
+        function renderDashboardCharts(model) {
+            var charts = model.charts || getEmptyDashboardCharts();
+            var html = '<div class="dashboard-section"><div class="dashboard-section-title">Gráficos simples</div><div class="dashboard-charts-grid">';
+            html += renderSimpleBarChart('Distribución último IHS4', [
+                { label: 'Leve', value: charts.ihs4.LEVE || 0, cls: 'dashboard-bar-fill--soft' },
+                { label: 'Moderado', value: charts.ihs4.MODERADO || 0, cls: 'dashboard-bar-fill--warn' },
+                { label: 'Grave', value: charts.ihs4.GRAVE || 0, cls: 'dashboard-bar-fill--danger' },
+                { label: 'NR', value: charts.ihs4.NR || 0 }
+            ]);
+            html += renderSimpleBarChart('Tendencia IHS4', [
+                { label: 'Mejoría', value: charts.trend['Mejoría'] || 0, cls: 'dashboard-bar-fill--soft' },
+                { label: 'Estable', value: charts.trend.Estable || 0 },
+                { label: 'Empeora', value: charts.trend.Empeoramiento || 0, cls: 'dashboard-bar-fill--danger' },
+                { label: 'No val.', value: charts.trend['No valorable'] || 0 }
+            ]);
+            html += renderSimpleBarChart('Tipos de visita', [
+                { label: 'PV', value: charts.visits.PV || 0 },
+                { label: 'SG', value: charts.visits.SG || 0 },
+                { label: 'CX', value: charts.visits.CX || 0 }
+            ]);
+            html += renderSimpleBarChart('Top tratamientos activos', charts.treatments);
+            html += renderSimpleBarChart('Alertas clínicas', Object.keys(charts.alerts).map(function (key) {
+                return { label: key, value: charts.alerts[key], cls: key === 'IHS4 grave' || key === 'Empeoramiento' || key === 'Complicaciones Qx' ? 'dashboard-bar-fill--danger' : 'dashboard-bar-fill--warn' };
+            }));
+            return html + '</div></div>';
         }
 
         function renderDashboard(model) {
@@ -6996,6 +7502,7 @@
                 return;
             }
             var html = '';
+            html += renderDashboardFilters(model);
             if (model.pilotWarning) {
                 html += '<div class="dashboard-notice">Piloto en fase inicial — los agregados pueden no ser representativos.</div>';
             }
@@ -7003,6 +7510,9 @@
                 html += '<div class="dashboard-notice dashboard-notice--muted">' +
                     model.rowsWithoutIdentifier + ' fila' + (model.rowsWithoutIdentifier === 1 ? '' : 's') +
                     ' sin identificador no incluida' + (model.rowsWithoutIdentifier === 1 ? '' : 's') + '.</div>';
+            }
+            if (model.state === 'filtered_empty') {
+                html += '<p class="dashboard-message">No hay registros que cumplan los filtros seleccionados.</p>';
             }
             var gc = model.globalCards;
             html += '<div class="dashboard-grid">' +
@@ -7026,6 +7536,7 @@
                 distBadge('GRAVE', 'Grave', 'grave') +
                 distBadge('NR', 'NR', 'nr') +
                 '</div></div>';
+            html += renderDashboardCharts(model);
             html += '<div class="dashboard-section"><div class="dashboard-section-title">Pacientes</div>';
             html += '<div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr>' +
                 '<th>Código HS</th><th>Última visita</th><th>Tipo</th><th>IHS4</th><th>Tendencia</th>' +
@@ -7042,18 +7553,18 @@
                     var alertsHtml = '—';
                     if (p.alerts && p.alerts.length) {
                         alertsHtml = p.alerts.map(function (a) {
-                            return '<span class="dashboard-alert' + (a.danger ? ' dashboard-alert--danger' : '') + '">' + a.text + '</span>';
+                            return '<span class="dashboard-alert' + (a.danger ? ' dashboard-alert--danger' : '') + '">' + dashboardEscapeHtml(a.text) + '</span>';
                         }).join('');
                     }
                     var pidAttr = String(p.patientId).replace(/"/g, '&quot;');
                     html += '<tr>' +
-                        '<td>' + safeDisplay(p.codigoHs) + '</td>' +
-                        '<td>' + safeDisplay(p.lastVisitDisplay) + '</td>' +
-                        '<td>' + safeDisplay(p.lastVisitType) + '</td>' +
+                        '<td>' + dashboardEscapeHtml(safeDisplay(p.codigoHs)) + '</td>' +
+                        '<td>' + dashboardEscapeHtml(safeDisplay(p.lastVisitDisplay)) + '</td>' +
+                        '<td>' + dashboardEscapeHtml(safeDisplay(p.lastVisitType)) + '</td>' +
                         '<td>' + ihs4Cell + '</td>' +
-                        '<td>' + safeDisplay(p.trend) + '</td>' +
-                        '<td>' + safeDisplay(p.hurleyBasal) + '</td>' +
-                        '<td>' + safeDisplay(p.tratamientoActivo) + '</td>' +
+                        '<td>' + dashboardEscapeHtml(safeDisplay(p.trend)) + '</td>' +
+                        '<td>' + dashboardEscapeHtml(safeDisplay(p.hurleyBasal)) + '</td>' +
+                        '<td>' + dashboardEscapeHtml(safeDisplay(p.tratamientoActivo)) + '</td>' +
                         '<td>' + alertsHtml + '</td>' +
                         '<td><button type="button" class="dashboard-link-btn" data-dashboard-patient="' + pidAttr + '" onclick="openDashboardPatientLongitudinal(this.getAttribute(\'data-dashboard-patient\'))">Ver resumen</button></td>' +
                         '</tr>';
@@ -7068,6 +7579,11 @@
             renderDashboard(buildDashboardModel());
             var overlay = document.getElementById('dashboard_overlay');
             if (overlay) overlay.classList.add('is-open');
+        }
+
+        function updateDashboardAfterFilters() {
+            if (!masterDbIsLoaded) return;
+            renderDashboard(buildDashboardModel(getDashboardFilterState()));
         }
 
         function closeDashboard() {
