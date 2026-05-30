@@ -1,6 +1,6 @@
 # Dashboard v0 — Enfermería HS HUVRocío
 
-> Documento de diseño funcional. Fase 8A — solo documentación, sin cambios en `index.html`.
+> Documento de diseño funcional. Fase 8A (diseño) → Fase 8B (MVP) → Fase 8C (filtros y gráficos) implementadas. Sin cambios en `index.html` para esta fase documental.
 
 ---
 
@@ -274,7 +274,9 @@ La primera implementación del dashboard debe incluir solo:
 
 ---
 
-## 10. Evolución prevista — Fase 8C: filtros y gráficos simples
+## 10. Fase 8C — Filtros y gráficos simples
+
+### Estado: IMPLEMENTADA (mayo 2026)
 
 ### Objetivo
 Pasar de dashboard resumen MVP a dashboard analítico básico para consulta operativa.

@@ -5,7 +5,7 @@
 **Estado:** beta operativa  
 **Uso:** piloto asistencial controlado  
 **Arquitectura:** HTML estático + Excel longitudinal + almacenamiento temporal de sesión  
-**Última fase:** informes TXT ordenados y QuickViews clínicas (visita actual + resumen longitudinal)
+**Última fase:** dashboard piloto con filtros de cohorte y gráficos simples
 
 ---
 
@@ -26,6 +26,8 @@ Genera:
 - código HS pseudonimizado operativo para seguimiento y futura vinculación de PROMs remotos;
 - QuickView de la visita actual (PV/SG/CX) para revisar antes de copiar el informe;
 - resumen longitudinal del paciente desde la BD cargada, accesible desde la barra lateral.
+- dashboard piloto con filtros de cohorte (periodo, tipo visita, IHS4, tendencia, Hurley, tratamiento/seguridad y pendientes) y gráficos simples (distribución IHS4, tendencia, tipos de visita, tratamientos, alertas);
+- limpieza de filtros para volver a la cohorte completa.
 
 ---
 
@@ -152,6 +154,10 @@ http://localhost:8000
 - [ ] Comprobar botón **Ver resumen longitudinal** en la barra lateral.
 - [ ] Comprobar que el panel muestra NUHSA y Código HS correctos.
 - [ ] Comprobar que el informe TXT está ordenado por bloques.
+- [ ] Abrir **Ver dashboard piloto** y comprobar que se muestran tarjetas globales, tabla de pacientes y gráficos.
+- [ ] Aplicar filtro por tipo de visita (PV/SG/CX) y verificar que la tabla se reduce.
+- [ ] Aplicar filtro por severidad IHS4 y verificar que la tabla se actualiza.
+- [ ] Usar **Limpiar filtros** y confirmar que se restaura la cohorte completa.
 
 ---
 
@@ -178,6 +184,8 @@ http://localhost:8000
 | Fase 6.5 | Informes TXT ordenados por bloques. |
 | Fase 7A1 | QuickViews de visita actual (PV/SG/CX). |
 | Fase 7A2 | QuickView longitudinal de paciente desde BD cargada. |
+| Fase 8B | Dashboard v0 MVP con tarjetas globales, distribución IHS4 y tabla operativa. |
+| Fase 8C | Dashboard con filtros de cohorte y gráficos simples HTML/CSS. |
 
 </details>
 
@@ -188,7 +196,6 @@ http://localhost:8000
 - Microsoft Forms institucional para PROMs remotos.
 - QR/tarjetas para pacientes.
 - Importación de respuestas remotas vinculadas por `codigo_hs`.
-- Dashboard para seguimiento y explotación agregada.
 - Refactor modular de HTML/CSS/JS cuando el flujo funcional esté estable.
 
 ---
