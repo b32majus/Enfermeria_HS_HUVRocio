@@ -237,7 +237,49 @@ La **QuickView de visita actual** es un resumen visual de lo que se está regist
 
 ---
 
-## 10. Copiar informe y copiar fila Excel
+## 10. Dashboard piloto
+
+La herramienta incluye un **dashboard piloto** con indicadores agregados, filtros de cohorte y gráficos simples. Se accede desde el botón **Ver dashboard piloto** en la interfaz principal.
+
+El dashboard es un apoyo operativo del piloto. No sustituye la historia clínica oficial ni debe usarse como análisis científico/publicable sin validación de datos.
+
+### Qué muestra
+
+- **Tarjetas globales** en la cabecera: pacientes únicos, visitas totales, desglose por tipo (PV/SG/CX), pacientes con IHS4 moderado/grave, pacientes con necesidades a valorar por Dermatología y pacientes con tratamiento activo registrado.
+- **Distribución IHS4 último** — cuántos pacientes están en nivel Leve, Moderado, Grave o No Registrado.
+- **Tabla operativa de pacientes** — una fila por paciente con código HS, última visita, IHS4, tendencia, Hurley, tratamiento activo y alertas. Desde cada fila puede abrirse **Ver resumen** para ver la trayectoria longitudinal completa del paciente.
+- **Gráficos simples HTML/CSS**: distribución IHS4, tendencia IHS4, tipos de visita, top tratamientos activos y alertas clínicas.
+
+### Cómo usar los filtros
+
+Los filtros permiten acotar la cohorte que se muestra en las tarjetas, la tabla y los gráficos:
+
+| Grupo de filtro | Opciones |
+|---|---|
+| **Periodo** | Desde / Hasta, Último mes, Último trimestre, Todo |
+| **Tipo de visita** | PV, SG, CX |
+| **Actividad** | IHS4 (Leve / Moderado / Grave / NR), Tendencia (Mejoría / Estable / Empeoramiento / NV), Hurley (I / II / III / NR) |
+| **Tratamiento y seguridad** | Tratamiento activo, Suspensión prematura, Efectos adversos |
+| **Pendientes** | Necesidades Dermatología, Cura activa |
+
+Al aplicar un filtro, la tabla se recalcula automáticamente para mostrar solo los pacientes que cumplen las condiciones seleccionadas. Las tarjetas globales y los gráficos también se actualizan.
+
+### Limpiar filtros
+
+El botón **Limpiar filtros** restaura la vista completa de la cohorte sin ninguna restricción activa.
+
+### Reglas importantes
+
+- El dashboard depende de la base Excel cargada: sin BD cargada no hay dashboard.
+- Los datos provienen de la BD cargada en sesión, no de la historia clínica oficial.
+- IHS4=0 se considera válido y se clasifica como Leve.
+- Los campos vacíos o no registrados se muestran como NR (No Registrado), no como "No".
+- El dashboard no guarda datos, no modifica la herramienta ni sustituye la valoración profesional.
+- No usar los agregados del dashboard como análisis publicable sin validación manual de los datos fuente.
+
+---
+
+## 11. Copiar informe y copiar fila Excel
 
 **Copiar informe** genera un texto estructurado por bloques numerados, listo para pegar en la historia clínica o donde indique el circuito asistencial.
 
@@ -262,7 +304,7 @@ Reglas:
 
 ---
 
-## 11. Nuevo paciente / limpiar formulario
+## 12. Nuevo paciente / limpiar formulario
 
 Usar antes de pasar a otro paciente.
 
@@ -276,7 +318,7 @@ La acción:
 
 ---
 
-## 12. Mensajes frecuentes
+## 13. Mensajes frecuentes
 
 | Mensaje | Qué significa |
 |---|---|
@@ -289,7 +331,7 @@ La acción:
 
 ---
 
-## 13. Checklist para beta en consulta
+## 14. Checklist para beta en consulta
 
 - [ ] La herramienta abre correctamente.
 - [ ] La base adecuada está cargada.
@@ -304,10 +346,16 @@ La acción:
 - [ ] Comprobar **resumen longitudinal** desde la barra lateral.
 - [ ] Verificar NUHSA y código HS antes de usar el resumen longitudinal.
 - [ ] Comprobar que **limpiar paciente** oculta el resumen longitudinal.
+- [ ] Abrir **Ver dashboard piloto** desde la interfaz principal.
+- [ ] Comprobar que las tarjetas globales muestran datos coherentes con la BD cargada.
+- [ ] Aplicar filtro por tipo de visita y verificar que la tabla y gráficos se actualizan.
+- [ ] Aplicar filtro por severidad IHS4 y confirmar la reducción de cohorte.
+- [ ] Usar **Limpiar filtros** y comprobar que se restaura la vista completa.
+- [ ] Pulsar **Ver resumen** en una fila de la tabla y confirmar que abre el histórico longitudinal del paciente correcto.
 
 ---
 
-## 14. Puntos para revisar con el equipo
+## 15. Puntos para revisar con el equipo
 
 ### Flujo asistencial y agenda
 
@@ -375,7 +423,7 @@ Pendiente clave para Enfermería y Dermatología/Farmacia:
 
 ---
 
-## 15. Pendientes derivados del acta del 17 de marzo
+## 16. Pendientes derivados del acta del 17 de marzo
 
 | Tema | Pendiente original | Qué decidir ahora |
 |---|---|---|
@@ -391,7 +439,7 @@ Pendiente clave para Enfermería y Dermatología/Farmacia:
 
 ---
 
-## 16. Rutina recomendada para primera beta en consulta
+## 17. Rutina recomendada para primera beta en consulta
 
 1. Empezar con 1-3 pacientes máximo como prueba controlada.
 2. Usar la base real solo si ya está definida la ubicación autorizada; si no, practicar con la sintética.

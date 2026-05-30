@@ -334,6 +334,8 @@ La herramienta ha entrado en uso piloto real en la consulta de Enfermería HS de
 - **Fase 4.5 Sidebar visual** — panel lateral con estado de BD, buscador y paciente activo.
 - **Corrección WI-NRS prurito** — etiqueta corregida en componente EVA.
 - **Hotfix BD vacía válida** — carga de Excel maestro sin registros previos ya no bloquea la herramienta.
+- **Fase 8B Dashboard v0 MVP** — tarjetas globales, distribución IHS4, tabla operativa de pacientes con resumen longitudinal.
+- **Fase 8C Dashboard filtros y gráficos** — filtros de cohorte por periodo, tipo visita, actividad, tratamiento/seguridad y pendientes; gráficos simples HTML/CSS; limpieza de filtros.
 
 ### Pendiente inmediato (próximas fases)
 
@@ -553,7 +555,7 @@ Completada como MVP. Mantener vigilancia de QA funcional y visual en entorno Pag
 
 ## Fase 8C — Dashboard v0: filtros y gráficos simples
 
-### Estado: PENDIENTE / No iniciar hasta validar visualmente Fase 8B en Pages
+### Estado: IMPLEMENTADA (mayo 2026)
 
 ### Objetivo
 Evolucionar el dashboard desde resumen MVP a analítica básica con filtros de cohorte y visualización agregada simple.
@@ -562,7 +564,7 @@ Evolucionar el dashboard desde resumen MVP a analítica básica con filtros de c
 - Referencia principal: Hub Clínico HS Canarias (más alineado con semántica clínica HS: IHS-4, Hurley, tratamiento activo, cirugía/procedimientos y ecografía cuando aplique).
 - Referencia secundaria: Hub Clínico Badajoz (estructura de dashboard de servicio, filtros colapsables y visualización agregada).
 
-### Alcance previsto
+### Alcance implementado
 - Filtros por periodo (desde/hasta, último mes, último trimestre, todo).
 - Filtros por tipo de visita (PV/SG/CX).
 - Filtros de actividad (IHS4, tendencia, Hurley).
@@ -570,9 +572,15 @@ Evolucionar el dashboard desde resumen MVP a analítica básica con filtros de c
 - Filtros de pendientes (necesidades Dermatología, cura activa).
 - Gráficos simples HTML/CSS: distribución IHS4, tendencia IHS4, tipos de visita, top tratamientos activos, alertas clínicas.
 
-### Restricciones
+### Restricciones aplicadas
 - No modificar `masterDb`.
 - No interpretar NR como No.
 - IHS4=0 se considera válido y leve.
 - Sin librerías externas en primera iteración (sin Chart.js).
 - Sin exportación de dashboard en Fase 8C.
+
+### Próximas mejoras (futuras, no planificadas)
+- Refinamiento visual del dashboard.
+- Filtros avanzados (combinación cruzada, guardado de vista).
+- Exportación del dashboard (PDF/CSV).
+- Dashboard externo / Power BI si procede.
