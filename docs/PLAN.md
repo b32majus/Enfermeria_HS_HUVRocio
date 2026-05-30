@@ -188,12 +188,12 @@ La pestaña de Seguimiento puede apoyarse en una base longitudinal temporal, sin
 
 ---
 
-## Fase futura — Refactor modular
+## Refactor modular (pospuesto)
 
 ### Objetivo
 Separar HTML, CSS y JS sin cambiar comportamiento.
 
-### Tareas
+### Tareas pendientes
 - Extraer CSS a `assets/css/styles.css`.
 - Extraer JS común a módulos:
   - config;
@@ -207,6 +207,9 @@ Separar HTML, CSS y JS sin cambiar comportamiento.
 
 ### Resultado esperado
 Código más mantenible, sin cambio funcional.
+
+### Prioridad
+Baja (pospuesto) — el refactor modular amplio queda en espera mientras la herramienta está en uso piloto real. Cualquier cambio debe hacerse en el `index.html` monolítico actual. No iniciar refactor sin aprobación explícita.
 
 ---
 
@@ -319,18 +322,40 @@ Corregir problemas detectados en consulta real para mejorar visibilidad de estad
 
 ---
 
+---
+
+## Estado actual tras uso piloto real
+
+### Implantado y validado en consulta real
+
+La herramienta ha entrado en uso piloto real en la consulta de Enfermería HS del HUVR. Las siguientes fases están implantadas y validadas:
+
+- **Fase 4.4 UX segura, identidad robusta y QA** — toasts, modales críticos, validación de identidad, sidebar de base y paciente, precarga automática en seguimiento, ajustes clínicos/textuales beta.
+- **Fase 4.5 Sidebar visual** — panel lateral con estado de BD, buscador y paciente activo.
+- **Corrección WI-NRS prurito** — etiqueta corregida en componente EVA.
+- **Hotfix BD vacía válida** — carga de Excel maestro sin registros previos ya no bloquea la herramienta.
+
+### Pendiente inmediato (próximas fases)
+
+Las fases que siguen reflejan el orden de prioridad actual tras la entrada en piloto real.
+
+---
+
 ## Fase 5 — Carga Excel maestro y sessionStorage
+
+### Estado: IMPLANTADA Y VALIDADA EN USO REAL / Vigilancia post-implantación
 
 ### Objetivo
 Permitir carga manual de Excel maestro y precarga de datos previos durante la sesión.
 
-### Tareas
+### Tareas implantadas
 - Vendorizar SheetJS en `/vendor/xlsx.full.min.js`.
-- Añadir botón “Cargar Excel maestro”.
-- Leer hoja `BD_VISITAS_HS`.
-- Guardar base cargada en memoria y `sessionStorage`.
-- Buscar paciente por NUHSA o codigo_hs.
-- Precargar última visita en seguimiento:
+- Botón “Cargar Excel maestro” en panel global.
+- Lectura de hoja `BD_VISITAS_HS` con validación de columnas críticas.
+- Guardado de base cargada en memoria y `sessionStorage`.
+- Recuperación de base cargada al recargar dentro de la misma sesión.
+- Búsqueda de paciente por NUHSA o codigo_hs.
+- Precarga de última visita en seguimiento:
   - fecha última consulta;
   - IHS4 previo;
   - peso previo;
@@ -338,11 +363,13 @@ Permitir carga manual de Excel maestro y precarga de datos previos durante la se
   - tabaco previo;
   - comorbilidades conocidas;
   - último tratamiento registrado si existe.
-- Calcular tiempo desde última consulta si hay fecha previa.
-- Validar cálculo automático de tiempo desde última consulta con datos sintéticos tras la importación.
+- Cálculo de tiempo desde última consulta si hay fecha previa.
+- **Soporte de BD vacía válida** — la herramienta no bloquea si el Excel cargado no tiene registros previos.
+- **Reemplazo seguro de BD previa** — al cargar un nuevo Excel, la base previa se reemplaza sin residuos en sessionStorage.
 
-### Resultado esperado
-La herramienta ayuda a recuperar datos previos sin backend y sin persistencia tras cierre de sesión.
+### Vigilancia post-implantación
+- Confirmar que la búsqueda por NUHSA/codigo_hs funciona con bases de tamaño real.
+- Verificar que la precarga no sobrescribe datos introducidos por Enfermería en la sesión actual.
 
 ---
 
@@ -372,27 +399,55 @@ Mayor granularidad de tratamiento sin comprometer usabilidad en consulta.
 
 ## Fase 6 — Código anónimo HS
 
+### Estado: IMPLANTADA Y VALIDADA MANUALMENTE / Vigilancia de duplicidades
+
 ### Objetivo
-Crear identificador simple para PROMs remotos.
+Crear identificador simple para PROMs remotos y seguimiento pseudonimizado.
 
-### Tareas
-- Añadir campo `codigo_hs`.
-- Añadir botón “Generar código HS”.
-- Formato:
-  - HS0001
-  - HS0002
-  - HS0003
-- Si el paciente ya existe en base cargada, reutilizar código.
-- Si no existe, generar siguiente código disponible.
-- Exportar `codigo_hs` en hoja maestra.
-- No usar NUHSA en formularios remotos.
+### Tareas implantadas
+- Campo `codigo_hs` integrado en formularios y exportación.
+- Generación automática en formato `HS0001`, `HS0002`, `HS0003`...
+- Reutilización de código existente si el paciente ya tiene histórico en la base cargada.
+- Prevención de duplicados — no se asigna un código ya existente a otro paciente.
+- Bloqueo de incoherencias NUHSA/código HS — no permite cambiar NUHSA si el código ya está ligado a otro paciente.
+- Exportación de `codigo_hs` en la hoja maestra `BD_VISITAS_HS`.
 
-### Resultado esperado
-Cada paciente tiene un código anónimo fácil de escribir en Microsoft Forms.
+### Vigilancia post-implantación
+- Confirmar que no se generan duplicados entre sesiones (consolidación manual en Excel).
+- Verificar que el formulario Microsoft Forms recibe códigos válidos.
 
 ---
 
-## Fase 7 — PROMs remotos vía Microsoft Forms
+## Fase 6.5 — Rediseño de informes TXT para historia clínica
+
+### Objetivo
+Rediseñar los informes de texto plano (PV, SG, CX) para que sean compatibles con el volcado directo en la historia clínica (Iraya/Diraya), sin asumir formato HTML, negritas ni maquetación web.
+
+### Tareas
+- Rediseñar informe de Primera Visita (PV):
+  - texto plano sin HTML;
+  - estructura clínica ordenada: motivo de consulta, antecedentes, exploración, IHS4, EVAs, necesidades a valorar por Dermatología, registro añadido de Enfermería;
+  - incluir zonas activas detalladas con nódulos, abscesos y fístulas por región anatómica;
+  - incluir totales IHS4.
+- Rediseñar informe de Seguimiento (SG):
+  - mismo formato texto plano;
+  - reflejar cambios desde última visita;
+  - incluir IHS4 actual vs previo si existe;
+  - zonas activas detalladas.
+- Rediseñar informe de Cura Post-Qx (CX):
+  - mismo formato texto plano;
+  - incluir localización, tipo de cura, complicaciones si aplica.
+- Validar que el informe se puede copiar y pegar directamente en Iraya/Diraya sin pérdida de información.
+
+### Dependencias
+- Confirmar con el servicio de informática del HUVR si Iraya/Diraya acepta algún marcado mínimo o requiere texto plano estricto.
+
+---
+
+## Fase 7 — PROMs remotos vía Microsoft Forms (pospuesta)
+
+### Prioridad actual
+Baja — se retoma tras estabilizar informe TXT (Fase 6.5), QuickViews (Fase 7A) y Dashboard v0 (Fase 8).
 
 ### Objetivo
 Preparar conexión con cuestionarios domiciliarios.
@@ -410,12 +465,36 @@ Integración remota sin identificadores directos.
 
 ---
 
-## Fase 8 — Dashboard futuro
+## Fase 7A — QuickViews clínicos
 
 ### Objetivo
-Visualizar seguimiento paciente y resultados agregados.
+Proporcionar vistas rápidas de indicadores clave durante la consulta, sin necesidad de exportar ni abrir el Excel maestro.
 
-### Tareas futuras
+### Tareas
+- QuickView paciente activo:
+  - última visita (fecha y tipo);
+  - IHS4 previo;
+  - Hurley;
+  - DLQI previo;
+  - tratamiento activo;
+  - EVAs previas (dolor, prurito, supuración).
+- QuickView brotes:
+  - número de brotes desde última visita;
+  - localización.
+- QuickView curas:
+  - tipo y localización de curas activas;
+  - próxima cura programada si aplica.
+- Integrar en panel lateral o cabecera de cada pestaña.
+- No requerir recarga de Excel para actualizar (leer de base en memoria).
+
+---
+
+## Fase 8 — Dashboard operativo inicial
+
+### Objetivo
+Visualizar indicadores agregados del proyecto para uso clínico-operativo y de publicación.
+
+### Tareas
 - Vista paciente:
   - última visita;
   - IHS4 previo/actual;
@@ -425,12 +504,14 @@ Visualizar seguimiento paciente y resultados agregados.
   - PROMs;
   - curas.
 - Vista proyecto:
-  - número de visitas;
-  - primeras/seguimientos/curas;
-  - educación sanitaria;
-  - evolución IHS4;
-  - evolución DLQI;
-  - necesidades detectadas.
+  - número de visitas totales;
+  - primeras visitas / seguimientos / curas;
+  - educación sanitaria impartida;
+  - evolución IHS4 media;
+  - evolución DLQI media;
+  - necesidades detectadas más frecuentes.
+- Dashboard en pestaña dedicada dentro de la herramienta.
+- Alimentado desde la base cargada en memoria (sin backend).
 
-### Resultado esperado
-Dashboard clínico-operativo y de publicación.
+### Prioridad
+Media-alta: ejecutar tras estabilizar informe TXT (Fase 6.5) y QuickViews (Fase 7A).

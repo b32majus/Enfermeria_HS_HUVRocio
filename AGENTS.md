@@ -113,3 +113,32 @@ Usar mensajes claros:
 - `fase 3 modulariza estructura frontend`
 - `fase 4 añade importacion excel temporal`
 - `fase 5 añade codigo anonimo hs`
+
+## Prioridades actuales tras entrada en piloto real
+
+La herramienta está en uso piloto real en consulta de Enfermería HS del HUVR. El orden de prioridad actual es:
+
+### 1. Incidencias de uso real (máxima prioridad)
+- Cualquier bug, bloqueo o comportamiento inesperado reportado desde consulta se atiende antes que cualquier desarrollo nuevo.
+
+### 2. Informe TXT para historia clínica (prioridad alta)
+- Rediseñar informes PV, SG, CX como texto plano compatible con Iraya/Diraya.
+- Sin HTML, sin negritas, sin maquetación web.
+- Estructura clínica ordenada: motivo de consulta, exploración, IHS4, EVAs, zonas activas detalladas (nódulos/abscesos/fístulas por región), necesidades a valorar por Dermatología, registro añadido de Enfermería.
+- No asumir que la historia clínica soporta negritas ni formato — usar solo texto plano a menos que se confirme lo contrario con el servicio de informática del HUVR.
+
+### 3. QuickViews clínicos (prioridad media-alta)
+- Vistas rápidas de indicadores del paciente activo sin salir de la pestaña actual.
+
+### 4. Dashboard v0 (prioridad media)
+- Vista de indicadores agregados del proyecto en pestaña dedicada.
+
+### 5. Refactor modular (pospuesto)
+- No iniciar refactor amplio mientras la herramienta está en uso real.
+- Cualquier cambio debe hacerse sobre el `index.html` monolítico actual.
+
+### Reglas de trabajo reforzadas
+- **Cambios pequeños**: cada cambio debe ser atómico y limitado en alcance. No mezclar tareas.
+- **Rama + PR**: todo cambio se hace en rama nueva desde `main`, con PR y revisión antes de merge. No tocar `main` directamente.
+- **No localStorage**: los datos cargados van a `sessionStorage` y se pierden al cerrar la pestaña. No guardar datos clínicos identificables en `localStorage`.
+- **No refactor amplio sin aprobación**: el refactor modular está explícitamente pospuesto. No iniciarlo sin aprobación de la responsable del proyecto.
