@@ -1697,6 +1697,125 @@
             margin: 3px 0;
         }
         @media (max-width: 640px) { .qv-grid { grid-template-columns: 1fr; } }
+
+        /* === PANEL LONGITUDINAL — FASE 7A2 === */
+        .longitudinal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 1100;
+        }
+        .longitudinal-overlay.is-open { display: block; }
+        .longitudinal-panel {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: min(520px, 100vw);
+            background: #fff;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.13);
+            z-index: 1101;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.22s ease;
+            overflow: hidden;
+        }
+        .longitudinal-overlay.is-open .longitudinal-panel { transform: translateX(0); }
+        .longitudinal-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .longitudinal-panel-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .longitudinal-panel-close {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        .longitudinal-panel-close:hover { background: #f1f5f9; }
+        .longitudinal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+        .longitudinal-section { margin-bottom: 16px; }
+        .longitudinal-section-title {
+            font-size: 0.71rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .longitudinal-row {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+        .longitudinal-lbl {
+            color: #64748b;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.79rem;
+            min-width: 140px;
+        }
+        .longitudinal-lbl::after { content: ':'; }
+        .longitudinal-val {
+            color: var(--text-color);
+            font-weight: 500;
+            min-width: 0;
+            word-break: break-word;
+        }
+        .longitudinal-alert {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.79rem;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            margin-bottom: 4px;
+        }
+        .longitudinal-alert-warn   { background: #fef3c7; color: #92400e; }
+        .longitudinal-alert-danger { background: #fee2e2; color: #991b1b; }
+        .longitudinal-identity {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            padding: 7px 10px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+        }
+        #btn_longitudinal_view {
+            display: none;
+            width: 100%;
+            margin-top: 8px;
+            font-size: 0.79rem;
+        }
+        @media (max-width: 640px) {
+            .longitudinal-panel { width: 100vw; }
+            .longitudinal-lbl { min-width: 100px; }
+        }
     </style>
 </head>
 
@@ -1748,6 +1867,7 @@
                             </div>
                             <div id="global_hs_code_feedback" class="hs-code-feedback" style="display:none;"></div>
                             <button type="button" class="btn btn-outline" id="sidebar_new_patient_btn"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar</button>
+                            <button type="button" class="btn btn-outline" id="btn_longitudinal_view" onclick="openLongitudinalQuickView()" aria-label="Ver resumen longitudinal del paciente">Ver resumen longitudinal</button>
                         </div>
                         <div id="master_excel_warnings" style="display:none;"></div>
                         <div id="master_excel_error" style="display:none;"></div>
@@ -1755,6 +1875,17 @@
                 </div>
             </div>
         </aside>
+
+        <!-- PANEL LONGITUDINAL — FASE 7A2 -->
+        <div class="longitudinal-overlay" id="longitudinal_overlay" role="dialog" aria-modal="true" aria-label="Resumen longitudinal HS">
+            <div class="longitudinal-panel" id="longitudinal_panel">
+                <div class="longitudinal-panel-head">
+                    <span class="longitudinal-panel-title">Resumen longitudinal HS</span>
+                    <button type="button" class="longitudinal-panel-close" onclick="closeLongitudinalQuickView()" aria-label="Cerrar panel">Cerrar</button>
+                </div>
+                <div class="longitudinal-body" id="longitudinal_panel_body"></div>
+            </div>
+        </div>
 
         <main class="app-main">
             <!-- BARRA DE PESTAÑAS -->
@@ -4481,6 +4612,8 @@
             updateSgPreloadStatusChip('');
             setHsCodeFeedback('Recuerde copiar la fila Excel para que el código HS quede registrado en la base.');
             updateHsCodeGlobalUI();
+            updateLongitudinalQuickViewTrigger();
+            closeLongitudinalQuickView();
         }
 
         function preparePatientContextChange(nextNuhsa) {
@@ -4523,6 +4656,7 @@
             updateSelectedPatientSummary(selectedPatientLastRecord, selectedPatientLastClinicalRecord);
             updateGlobalPatientSummary(selectedPatientLastRecord, selectedPatientLastClinicalRecord, false);
             updateHsCodeGlobalUI();
+            updateLongitudinalQuickViewTrigger();
             return true;
         }
 
@@ -6376,6 +6510,247 @@
 
             // Render inicial (IHS4 ya lo hizo calcTotal; esto cubre CX y otros campos)
             updateCxQuickView();
+        })();
+
+        /* === PANEL LONGITUDINAL — FASE 7A2 === */
+
+        function getCurrentPatientRowsForLongitudinalView() {
+            if (selectedPatientRecords && selectedPatientRecords.length > 0) return selectedPatientRecords;
+            if (selectedPatientIdentifier && masterDbIsLoaded) return getPatientRecords(selectedPatientIdentifier);
+            return [];
+        }
+
+        function buildLongitudinalQuickViewModel(rows) {
+            if (!rows || !rows.length) return null;
+
+            function lastWith(field) {
+                for (var i = rows.length - 1; i >= 0; i--) {
+                    var v = String(rows[i][field] || '').trim();
+                    if (v && v !== '0') return rows[i];
+                }
+                return null;
+            }
+
+            var first = rows[0];
+            var last  = rows[rows.length - 1];
+
+            var tiposSet = {};
+            rows.forEach(function(r) {
+                var t = String(r.tipo_visita || '').trim().toUpperCase();
+                if (t) tiposSet[t] = true;
+            });
+            var tipos = Object.keys(tiposSet).join(', ') || 'NR';
+
+            // IHS4 último y previo
+            var lastIhs4 = '', prevIhs4 = '', foundLast = false;
+            for (var i = rows.length - 1; i >= 0; i--) {
+                var v = String(rows[i].ihs4_actual || '').trim();
+                if (!v || v === '0') continue;
+                if (!foundLast) { lastIhs4 = v; foundLast = true; }
+                else { prevIhs4 = v; break; }
+            }
+            var lastIhs4Sev = lastIhs4 ? severityFromIhs4(lastIhs4) : '';
+
+            // Tendencia
+            var tendencia = 'No valorable';
+            if (lastIhs4 && prevIhs4) {
+                var ni = parseInt(lastIhs4, 10), pi = parseInt(prevIhs4, 10);
+                if (!isNaN(ni) && !isNaN(pi)) {
+                    tendencia = ni < pi ? 'Mejoría' : ni > pi ? 'Empeoramiento' : 'Estable';
+                }
+            }
+
+            // Zonas activas (última visita clínica PV/SG)
+            var lastClinical = null;
+            for (var j = rows.length - 1; j >= 0; j--) {
+                var vt = String(rows[j].tipo_visita || '').trim().toUpperCase();
+                if (vt === 'PV' || vt === 'SG') { lastClinical = rows[j]; break; }
+            }
+            var zonasActivas = safeDisplay(lastClinical && lastClinical.zonas_activas_listado);
+
+            // Hurley basal: PV primero, fallback primer disponible
+            var hurleyBasal = 'NR';
+            for (var k = 0; k < rows.length; k++) {
+                if (String(rows[k].tipo_visita || '').trim().toUpperCase() === 'PV') {
+                    var hv = String(rows[k].hurley_enfermeria || '').trim();
+                    if (hv) { hurleyBasal = hv; break; }
+                }
+            }
+            if (hurleyBasal === 'NR') {
+                var hr = lastWith('hurley_enfermeria');
+                if (hr) hurleyBasal = String(hr.hurley_enfermeria).trim();
+            }
+
+            // Tratamiento y seguridad
+            var ttoActivo    = safeDisplay(last.tratamiento_activo);
+            var suspPrematura = yesNoFromText(last.suspension_prematura);
+            var efectosAdv   = yesNoFromText(last.efectos_adversos);
+            var detalleEfectos = String(last.detalle_efectos_adversos || '').trim();
+            var adherencia   = safeDisplay(last.adherencia_morisky_interpretacion);
+            if (adherencia === 'NR') adherencia = safeDisplay(last.adherencia_morisky_score);
+
+            // Pendientes
+            var necsDerma = safeDisplay(last.necesidades_valorar_dermatologia);
+            var proxCita  = safeDisplay(last.proxima_cita_enfermeria);
+            var curaActiva = safeDisplay(last.cura_hoy);
+
+            // Alertas
+            var alertas = [];
+            var ihs4Num = parseInt(lastIhs4, 10);
+            if (!isNaN(ihs4Num) && ihs4Num > 10)
+                alertas.push({ text: 'IHS4 grave (score ' + lastIhs4 + ')', danger: true });
+            if (tendencia === 'Empeoramiento')
+                alertas.push({ text: 'Empeoramiento respecto a visita previa', danger: true });
+            if (suspPrematura === 'Sí')
+                alertas.push({ text: 'Suspensión prematura registrada', danger: false });
+            if (efectosAdv === 'Sí')
+                alertas.push({ text: 'Efectos adversos presentes', danger: false });
+            if (yesNoFromText(last.necesidades_valorar_dermatologia) === 'Sí')
+                alertas.push({ text: 'Necesidades para Dermatología pendientes', danger: false });
+            if (yesNoFromText(last.complicaciones) === 'Sí')
+                alertas.push({ text: 'Complicaciones post-Qx registradas', danger: true });
+
+            var nuhsa = safeDisplay(selectedPatientIdentifier || last.nuhsa || first.nuhsa);
+            var rawCode = (typeof getPatientHsCode === 'function' ? getPatientHsCode(nuhsa) : '') || last.codigo_hs || first.codigo_hs || '';
+            var codigoHs = (typeof normalizeHsCode === 'function' && rawCode) ? normalizeHsCode(rawCode) : safeDisplay(rawCode);
+
+            return {
+                nuhsa: nuhsa,
+                codigoHs: codigoHs || 'NR',
+                nVisitas: rows.length,
+                primeraVisita: safeDisplay(first.fecha_visita) + (first.tipo_visita ? ' (' + first.tipo_visita + ')' : ''),
+                ultimaVisita:  safeDisplay(last.fecha_visita)  + (last.tipo_visita  ? ' (' + last.tipo_visita  + ')' : ''),
+                tipos: tipos,
+                hurleyBasal: hurleyBasal,
+                lastIhs4: lastIhs4 || 'NR',
+                lastIhs4Sev: lastIhs4Sev,
+                prevIhs4: prevIhs4 || 'NR',
+                tendencia: tendencia,
+                zonasActivas: zonasActivas,
+                ttoActivo: ttoActivo,
+                suspPrematura: suspPrematura,
+                efectosAdv: efectosAdv + (detalleEfectos ? ' — ' + detalleEfectos : ''),
+                adherencia: adherencia,
+                necsDerma: necsDerma,
+                proxCita: proxCita,
+                curaActiva: curaActiva,
+                alertas: alertas
+            };
+        }
+
+        function renderLongitudinalQuickView(model) {
+            var bodyEl = document.getElementById('longitudinal_panel_body');
+            if (!bodyEl) return;
+            if (!model) {
+                bodyEl.innerHTML = '<p style="color:#64748b;font-size:0.85rem;padding:8px 0;">Sin datos longitudinales disponibles.</p>';
+                return;
+            }
+
+            function row(lbl, val) {
+                return '<div class="longitudinal-row"><span class="longitudinal-lbl">' + lbl + '</span><span class="longitudinal-val">' + val + '</span></div>';
+            }
+            function section(title, content) {
+                return '<div class="longitudinal-section"><div class="longitudinal-section-title">' + title + '</div>' + content + '</div>';
+            }
+            function badge(sev) {
+                var cls = { Leve: 'leve', Moderado: 'moderado', Grave: 'grave' }[sev] || '';
+                return cls ? '<span class="qv-badge qv-badge-' + cls + '">' + sev + '</span>' : '';
+            }
+            function tendBadge(t) {
+                var styles = {
+                    'Mejoría':      'background:#d1fae5;color:#065f46',
+                    'Empeoramiento':'background:#fee2e2;color:#991b1b',
+                    'Estable':      'background:#e0f2fe;color:#0369a1',
+                    'No valorable': 'background:#f1f5f9;color:#64748b'
+                };
+                return '<span class="qv-badge" style="' + (styles[t] || styles['No valorable']) + '">' + t + '</span>';
+            }
+
+            var identityHtml = '<div class="longitudinal-identity">' +
+                '<span><strong>NUHSA:</strong> ' + model.nuhsa + '</span>' +
+                '<span><strong>Código HS:</strong> ' + model.codigoHs + '</span>' +
+                '</div>';
+
+            var alertsHtml = '';
+            if (model.alertas.length) {
+                alertsHtml = '<div class="longitudinal-section">';
+                model.alertas.forEach(function(a) {
+                    alertsHtml += '<div class="longitudinal-alert ' + (a.danger ? 'longitudinal-alert-danger' : 'longitudinal-alert-warn') + '">' + a.text + '</div>';
+                });
+                alertsHtml += '</div>';
+            }
+
+            var html =
+                identityHtml +
+                alertsHtml +
+                section('Trayectoria',
+                    row('Visitas registradas', String(model.nVisitas)) +
+                    row('Primera visita', model.primeraVisita) +
+                    row('Última visita', model.ultimaVisita) +
+                    row('Tipos registrados', model.tipos)
+                ) +
+                section('Actividad',
+                    row('Hurley basal', model.hurleyBasal) +
+                    row('IHS4 último', model.lastIhs4 + (model.lastIhs4Sev ? ' ' + badge(model.lastIhs4Sev) : '')) +
+                    row('IHS4 previo', model.prevIhs4) +
+                    row('Tendencia', tendBadge(model.tendencia)) +
+                    row('Zonas activas', model.zonasActivas)
+                ) +
+                section('Tratamiento y seguridad',
+                    row('Tratamiento activo', model.ttoActivo) +
+                    row('Suspensión prematura', model.suspPrematura) +
+                    row('Efectos adversos', model.efectosAdv) +
+                    row('Adherencia', model.adherencia)
+                ) +
+                section('Pendientes',
+                    row('Nec. Dermatología', model.necsDerma) +
+                    row('Próxima cita Enf.', model.proxCita) +
+                    row('Cura activa', model.curaActiva)
+                );
+
+            bodyEl.innerHTML = html;
+        }
+
+        function openLongitudinalQuickView() {
+            var rows = getCurrentPatientRowsForLongitudinalView();
+            var model = buildLongitudinalQuickViewModel(rows);
+            renderLongitudinalQuickView(model);
+            var overlay = document.getElementById('longitudinal_overlay');
+            if (overlay) overlay.classList.add('is-open');
+        }
+
+        function closeLongitudinalQuickView() {
+            var overlay = document.getElementById('longitudinal_overlay');
+            if (overlay) overlay.classList.remove('is-open');
+        }
+
+        function updateLongitudinalQuickViewTrigger() {
+            var btn = document.getElementById('btn_longitudinal_view');
+            if (!btn) return;
+            var identifier = selectedPatientIdentifier;
+            var rows = (selectedPatientRecords && selectedPatientRecords.length > 0)
+                ? selectedPatientRecords
+                : (identifier && masterDbIsLoaded ? getPatientRecords(identifier) : []);
+            var safeFound = masterDbIsLoaded &&
+                            identifier &&
+                            rows.length > 0 &&
+                            !(selectedPatientLastRecord && isDuplicateHsCodeInMasterDb(selectedPatientLastRecord.codigo_hs));
+            btn.style.display = safeFound ? 'block' : 'none';
+        }
+
+        // Cerrar panel con Escape
+        document.addEventListener('keydown', function(evt) {
+            if (evt.key === 'Escape') closeLongitudinalQuickView();
+        });
+
+        // Cerrar panel al clicar overlay fuera del panel
+        (function() {
+            var overlay = document.getElementById('longitudinal_overlay');
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeLongitudinalQuickView();
+                });
+            }
         })();
 
     </script>
