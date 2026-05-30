@@ -489,29 +489,63 @@ Proporcionar vistas rápidas de indicadores clave durante la consulta, sin neces
 
 ---
 
-## Fase 8 — Dashboard operativo inicial
+## Fase 8A — Diseño funcional Dashboard v0
+
+### Estado: DISEÑO COMPLETADO / Sin cambios en código
 
 ### Objetivo
-Visualizar indicadores agregados del proyecto para uso clínico-operativo y de publicación.
+Documentar el diseño funcional del Dashboard v0 operativo antes de implementar código.
+Esta fase no toca `index.html` ni ningún archivo de la herramienta.
 
-### Tareas
-- Vista paciente:
-  - última visita;
-  - IHS4 previo/actual;
-  - EVAs;
-  - brotes;
-  - tratamiento;
-  - PROMs;
-  - curas.
-- Vista proyecto:
-  - número de visitas totales;
-  - primeras visitas / seguimientos / curas;
-  - educación sanitaria impartida;
-  - evolución IHS4 media;
-  - evolución DLQI media;
-  - necesidades detectadas más frecuentes.
-- Dashboard en pestaña dedicada dentro de la herramienta.
-- Alimentado desde la base cargada en memoria (sin backend).
+### Tareas completadas
+- Documento de diseño creado en `docs/DASHBOARD_V0.md`.
+- Estructura del dashboard definida: tarjetas globales, actividad clínica, seguimiento y seguridad,
+  curas postquirúrgicas, tabla operativa de pacientes.
+- Reglas de cálculo definidas para todos los indicadores.
+- Reutilización de helpers existentes (`safeDisplay`, `yesNoFromText`, `severityFromIhs4`,
+  `getPatientRecords`, `normalizePatientId`, `openLongitudinalQuickView`) documentada.
+- Estados vacíos y mensajes definidos.
+- Riesgos y límites documentados.
+- MVP de Fase 8B delimitado.
+- Checklist de QA previsto documentado.
+
+### Restricciones de la fase
+- No modifica `index.html`.
+- No modifica `MASTER_COLUMNS`.
+- No modifica exportaciones ni informes.
+- No introduce localStorage.
+- No hace merge hasta revisión del diseño.
+
+---
+
+## Fase 8B — Implementación Dashboard v0 MVP
+
+### Estado: PENDIENTE / Requiere aprobación del diseño (Fase 8A)
+
+### Objetivo
+Implementar el MVP del dashboard operativo definido en `docs/DASHBOARD_V0.md`.
+
+### Alcance del MVP (ver §8 de DASHBOARD_V0.md)
+- Tarjetas globales: pacientes únicos, visitas totales, PV/SG/CX, pacientes con IHS4 moderado/grave,
+  pacientes con necesidades Dermatología, pacientes con tratamiento activo.
+- Distribución IHS4 último: Leve / Moderado / Grave / NR.
+- Tabla operativa de pacientes: una fila por paciente, con Código HS, última visita, tipo, IHS4,
+  tendencia, Hurley, tratamiento, alertas y acción "Ver resumen longitudinal".
+- Botón de acceso al dashboard en la interfaz principal.
+- NUHSA no visible en tabla por defecto.
+
+### Restricciones
+- No modificar `MASTER_COLUMNS`.
+- No modificar `exportData_*` ni `copyReport_*`.
+- No modificar carga de BD ni validaciones NUHSA/código HS.
+- No introducir localStorage.
+- Solo `index.html`.
+- Reutilizar helpers existentes al máximo.
+
+### Fuera del MVP
+Gráficos de barras/líneas, filtros avanzados, exportación del dashboard, PROMs remotos agregados,
+análisis estadístico, Power BI. Ver `docs/DASHBOARD_V0.md §8` para detalle completo.
 
 ### Prioridad
-Media-alta: ejecutar tras estabilizar informe TXT (Fase 6.5) y QuickViews (Fase 7A).
+Media-alta: iniciar tras aprobación del diseño (Fase 8A) y QA manual del panel longitudinal
+(Fase 7A2).
