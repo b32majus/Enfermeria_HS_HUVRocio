@@ -271,3 +271,56 @@ La primera implementación del dashboard debe incluir solo:
 - [ ] Exportaciones Excel (exportData_*) siguen funcionando sin cambios.
 - [ ] Sin errores JS en consola durante toda la sesión.
 - [ ] Dashboard no modifica MASTER_COLUMNS, carga de BD, validaciones NUHSA/código HS.
+
+---
+
+## 10. Evolución prevista — Fase 8C: filtros y gráficos simples
+
+### Objetivo
+Pasar de dashboard resumen MVP a dashboard analítico básico para consulta operativa.
+
+### Inspiración y enfoque
+- Inspiración: dashboard de estadísticas de Hub Clínico Badajoz, con filtros de cohorte y visualización agregada.
+- Adaptación HS HUVRocío: mantener una implementación más ligera, sin Chart.js inicialmente, usando gráficos simples con HTML/CSS.
+
+### Filtros previstos en Fase 8C
+
+1. Periodo
+- desde / hasta
+- último mes
+- último trimestre
+- todo
+
+2. Tipo de visita
+- PV
+- SG
+- CX
+
+3. Actividad
+- IHS4: leve / moderado / grave / NR
+- Tendencia: mejoría / estable / empeoramiento / no valorable
+- Hurley: I / II / III / NR
+
+4. Tratamiento y seguridad
+- tratamiento activo
+- suspensión prematura
+- efectos adversos
+
+5. Pendientes
+- necesidades Dermatología
+- cura activa
+
+### Gráficos simples previstos en Fase 8C
+- Distribución último IHS4.
+- Tendencia IHS4.
+- Tipos de visita.
+- Top tratamientos activos.
+- Alertas clínicas.
+
+### Reglas de implementación
+- Los filtros recalculan tarjetas, gráficos y tabla.
+- No modificar `masterDb`.
+- No interpretar NR como No.
+- IHS4=0 es válido y clasifica como leve.
+- No usar librerías externas en la primera versión.
+- No exportar dashboard en Fase 8C.
