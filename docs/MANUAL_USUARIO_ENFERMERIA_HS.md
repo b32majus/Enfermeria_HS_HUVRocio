@@ -15,13 +15,15 @@ Uso previsto: apoyo al registro estructurado de consulta, generación de informe
 1. Abrir la herramienta en el navegador.
 2. En la barra lateral **Base de datos**, pulsar **Cargar / recargar BD** y seleccionar el Excel correspondiente.
 3. Buscar al paciente por **NUHSA** o **código HS**.
-4. Si el paciente no existe, la herramienta inicia paciente nuevo y genera `codigo_hs` automáticamente.
-5. Elegir la pestaña de trabajo: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
-6. Completar los campos de la visita actual.
-7. En Seguimiento, revisar la precarga automática y usar **Reaplicar precarga** si procede.
-8. Pulsar **Copiar informe** y pegarlo donde corresponda según el circuito asistencial.
-9. Pulsar **Copiar fila Excel** y pegarla en la hoja `BD_VISITAS_HS` del Excel maestro.
-10. Antes de pasar a otro paciente, pulsar **Nuevo paciente / limpiar formulario**.
+4. Si el paciente aparece en la base, pulsar **Ver resumen longitudinal** en la barra lateral para consultar su trayectoria.
+5. Si el paciente no existe, la herramienta inicia paciente nuevo y genera `codigo_hs` automáticamente.
+6. Elegir la pestaña de trabajo: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
+7. Completar los campos de la visita actual.
+8. En Seguimiento, revisar la precarga automática y usar **Reaplicar precarga** si procede.
+9. Revisar la **QuickView de visita actual** para confirmar los datos antes de copiar.
+10. Pulsar **Copiar informe** y pegarlo donde corresponda según el circuito asistencial.
+11. Pulsar **Copiar fila Excel** y pegarla en la hoja `BD_VISITAS_HS` del Excel maestro.
+12. Antes de pasar a otro paciente, pulsar **Nuevo paciente / limpiar formulario**.
 
 > **Regla de oro:** nunca pasar a otro paciente sin buscarlo en la barra lateral o pulsar **Nuevo paciente / limpiar formulario**. Así se evita mezclar NUHSA, código HS o datos clínicos de pacientes distintos.
 
@@ -75,9 +77,36 @@ Pasos:
 | Paciente no existe en la base | Inicia paciente nuevo y genera código HS automático al confirmar búsqueda. | Revisar identificación y completar visita. |
 | No hay BD cargada | Permite trabajar manualmente, avisando de que no puede comprobar unicidad histórica. | Usar solo si procede y extremar revisión. |
 
+Cuando se encuentra un paciente, la barra lateral muestra una **tarjeta de paciente activo** con NUHSA, código HS y última visita disponible. Desde esa tarjeta puede pulsarse **Ver resumen longitudinal** para abrir un panel flotante con la trayectoria completa del paciente (ver sección siguiente).
+
+El botón **Ver resumen longitudinal** solo aparece cuando hay un paciente activo encontrado en la base. Se oculta al pulsar **Nuevo paciente / limpiar formulario** o al cerrar la sesión.
+
 ---
 
-## 4. Código HS
+## 4. Resumen longitudinal HS
+
+El **resumen longitudinal** es un panel flotante de solo lectura que muestra la trayectoria del paciente a partir de los datos cargados en la base Excel. Se abre desde la barra lateral pulsando **Ver resumen longitudinal** cuando hay un paciente activo.
+
+### Qué muestra
+
+- **NUHSA y Código HS** — para verificar que el paciente es el correcto.
+- **Trayectoria** — número de visitas registradas, primera visita, última visita y tipos de visita disponibles.
+- **Actividad clínica** — Hurley basal, IHS4 último, IHS4 previo, tendencia y zonas activas registradas.
+- **Tratamiento y seguridad** — tratamiento activo, suspensión prematura, efectos adversos y adherencia si constan en la base.
+- **Pendientes** — necesidades a valorar por Dermatología, próxima cita de Enfermería y cura activa si constan.
+- **Alertas suaves** — avisos no bloqueantes ante gravedad, empeoramiento, efectos adversos, suspensión, necesidades pendientes o complicaciones si esos datos están registrados.
+
+### Reglas de uso
+
+- Depende de la base Excel cargada: sin BD no hay resumen.
+- Se actualiza al cambiar de paciente o al recargar la base.
+- No guarda datos ni modifica la herramienta.
+- **No sustituye la historia clínica oficial** ni la valoración profesional.
+- Sirve como orientación rápida antes y durante la visita.
+
+---
+
+## 5. Código HS
 
 El `codigo_hs` es un identificador pseudonimizado operativo.
 
@@ -102,7 +131,7 @@ Si la base contiene `HS0001` a `HS0006` y se inicia un paciente nuevo, la herram
 
 ---
 
-## 5. Primera Visita (PV)
+## 6. Primera Visita (PV)
 
 1. Buscar paciente en la barra lateral o introducir NUHSA en la pestaña PV.
 2. Confirmar que aparece NUHSA y código HS en Filiación e historia de la HS.
@@ -134,7 +163,7 @@ Campos especialmente importantes:
 
 ---
 
-## 6. Seguimiento (SG)
+## 7. Seguimiento (SG)
 
 1. Buscar paciente en la barra lateral.
 2. Entrar en **Seguimiento**.
@@ -172,7 +201,7 @@ La precarga no sustituye la valoración actual. Deben rellenarse siempre, según
 
 ---
 
-## 7. Cura Post-Qx (CX)
+## 8. Cura Post-Qx (CX)
 
 1. Buscar paciente en la barra lateral o introducir NUHSA en CX.
 2. Confirmar NUHSA y código HS.
@@ -183,9 +212,41 @@ La precarga no sustituye la valoración actual. Deben rellenarse siempre, según
 
 ---
 
-## 8. Copiar informe y copiar fila Excel
+## 9. QuickView de visita actual
 
-**Copiar informe** genera texto narrativo/estructurado para pegar donde indique el circuito asistencial.
+La **QuickView de visita actual** es un resumen visual de lo que se está registrando en la pestaña activa (PV, SG o CX). Aparece integrada en cada tipo de visita y se actualiza en tiempo real al completar los campos del formulario.
+
+### Qué muestra
+
+- **IHS4 actual** — puntuación y clasificación (LEVE / MODERADO / GRAVE).
+- **Síntomas** — EVA dolor, WI-NRS prurito y EVA supuración registrados.
+- **Tratamiento y adherencia** — tratamiento activo, cambios, adherencia Morisky y efectos adversos.
+- **Curas** — en CX, muestra tipo de herida, apósitos y plan de cura.
+- **Alertas** — recordatorios sobre educación, PROMs pendientes o necesidades a valorar por Dermatología.
+
+### Cuándo usarla
+
+- Antes de copiar el informe o la fila Excel, para **confirmar que los datos registrados son correctos**.
+- Durante la visita, como **guía rápida** de lo que queda por completar.
+
+### Reglas
+
+- No sustituye completar el formulario ni copiar la fila Excel.
+- Depende de los datos introducidos en la pestaña activa.
+- Si se cambia de pestaña, la QuickView se actualiza al contenido de la nueva visita.
+
+---
+
+## 10. Copiar informe y copiar fila Excel
+
+**Copiar informe** genera un texto estructurado por bloques numerados, listo para pegar en la historia clínica o donde indique el circuito asistencial.
+
+Características del informe:
+
+- **Texto plano** — sin HTML, markdown ni formato especial, se pega limpio en cualquier sistema de historia clínica.
+- **Estructura por bloques** — organizado en secciones numeradas (identificación, historia, clínica, síntomas, educación, plan, etc.).
+- **Sin cabecera redundante** — no incluye hospital, fecha, paciente ni NUHSA porque se pega dentro de la historia clínica, donde esos datos ya están.
+- **Desglose de zonas activas IHS4** — detalla nódulos, abscesos y fístulas por región anatómica.
 
 **Copiar fila Excel** genera una fila tabulada para pegar en la hoja `BD_VISITAS_HS`.
 
@@ -197,10 +258,11 @@ Reglas:
 - Si la herramienta bloquea exportación por identificación, revisar NUHSA y código HS antes de continuar.
 
 > El código HS, la visita y la información recogida solo quedan oficialmente incorporados a la base cuando se pega la fila Excel en `BD_VISITAS_HS` y se guarda el archivo.
+> El informe TXT es un documento de apoyo, no sustituye la fila Excel como fuente estructurada para la base de datos longitudinal.
 
 ---
 
-## 9. Nuevo paciente / limpiar formulario
+## 11. Nuevo paciente / limpiar formulario
 
 Usar antes de pasar a otro paciente.
 
@@ -214,7 +276,7 @@ La acción:
 
 ---
 
-## 10. Mensajes frecuentes
+## 12. Mensajes frecuentes
 
 | Mensaje | Qué significa |
 |---|---|
@@ -227,7 +289,7 @@ La acción:
 
 ---
 
-## 11. Checklist para beta en consulta
+## 13. Checklist para beta en consulta
 
 - [ ] La herramienta abre correctamente.
 - [ ] La base adecuada está cargada.
@@ -238,10 +300,14 @@ La acción:
 - [ ] La fila Excel se pega correctamente en `BD_VISITAS_HS`.
 - [ ] Se pulsa **Nuevo paciente / limpiar formulario** antes de pasar al siguiente paciente.
 - [ ] Se anotan incidencias, dudas o campos que sobran/faltan.
+- [ ] Comprobar **QuickView de visita actual** en PV/SG/CX.
+- [ ] Comprobar **resumen longitudinal** desde la barra lateral.
+- [ ] Verificar NUHSA y código HS antes de usar el resumen longitudinal.
+- [ ] Comprobar que **limpiar paciente** oculta el resumen longitudinal.
 
 ---
 
-## 12. Puntos para revisar con el equipo
+## 14. Puntos para revisar con el equipo
 
 ### Flujo asistencial y agenda
 
@@ -309,7 +375,7 @@ Pendiente clave para Enfermería y Dermatología/Farmacia:
 
 ---
 
-## 13. Pendientes derivados del acta del 17 de marzo
+## 15. Pendientes derivados del acta del 17 de marzo
 
 | Tema | Pendiente original | Qué decidir ahora |
 |---|---|---|
@@ -325,7 +391,7 @@ Pendiente clave para Enfermería y Dermatología/Farmacia:
 
 ---
 
-## 14. Rutina recomendada para primera beta en consulta
+## 16. Rutina recomendada para primera beta en consulta
 
 1. Empezar con 1-3 pacientes máximo como prueba controlada.
 2. Usar la base real solo si ya está definida la ubicación autorizada; si no, practicar con la sintética.

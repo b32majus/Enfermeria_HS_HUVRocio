@@ -5,7 +5,7 @@
 **Estado:** beta operativa  
 **Uso:** piloto asistencial controlado  
 **Arquitectura:** HTML estático + Excel longitudinal + almacenamiento temporal de sesión  
-**Última fase:** autogeneración segura de `codigo_hs`
+**Última fase:** informes TXT ordenados y QuickViews clínicas (visita actual + resumen longitudinal)
 
 ---
 
@@ -23,7 +23,9 @@ Genera:
 
 - informe clínico estructurado para copiar;
 - fila Excel longitudinal para pegar en `BD_VISITAS_HS`;
-- código HS pseudonimizado operativo para seguimiento y futura vinculación de PROMs remotos.
+- código HS pseudonimizado operativo para seguimiento y futura vinculación de PROMs remotos;
+- QuickView de la visita actual (PV/SG/CX) para revisar antes de copiar el informe;
+- resumen longitudinal del paciente desde la BD cargada, accesible desde la barra lateral.
 
 ---
 
@@ -33,11 +35,13 @@ Genera:
 2. Cargar la base Excel desde **Base y paciente**.
 3. Buscar paciente por `NUHSA` o `codigo_hs`.
 4. La herramienta reutiliza o genera automáticamente el `codigo_hs`.
-5. Elegir pestaña: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
-6. Completar la visita.
-7. Copiar informe.
-8. Copiar fila Excel y pegarla en `BD_VISITAS_HS`.
-9. Pulsar **Nuevo paciente / limpiar formulario** antes de pasar al siguiente paciente.
+5. Si el paciente aparece en la base, revisar **Ver resumen longitudinal** desde la barra lateral para consultar su trayectoria.
+6. Elegir pestaña: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
+7. Completar la visita.
+8. Revisar la **QuickView de visita actual** antes de copiar el informe.
+9. Copiar informe.
+10. Copiar fila Excel y pegarla en `BD_VISITAS_HS`.
+11. Pulsar **Nuevo paciente / limpiar formulario** antes de pasar al siguiente paciente.
 
 > [!IMPORTANT]
 > El `codigo_hs` se reserva durante la sesión, pero solo queda oficialmente registrado cuando se copia la fila Excel y se pega en `BD_VISITAS_HS`.
@@ -142,6 +146,12 @@ http://localhost:8000
 - [ ] Copiar informe.
 - [ ] Copiar fila Excel.
 - [ ] Confirmar que no se exporta código HS sin NUHSA.
+- [ ] Cargar plantilla vacía válida (sin errores en consola).
+- [ ] Cargar base sintética completa.
+- [ ] Comprobar **QuickView de visita actual** en PV/SG/CX.
+- [ ] Comprobar botón **Ver resumen longitudinal** en la barra lateral.
+- [ ] Comprobar que el panel muestra NUHSA y Código HS correctos.
+- [ ] Comprobar que el informe TXT está ordenado por bloques.
 
 ---
 
@@ -165,6 +175,9 @@ http://localhost:8000
 | Fase 4.1 | Corrección de estado paciente/código HS. |
 | Fase 4.2 | Búsqueda robusta por HS abreviado y exportación segura. |
 | Fase 4.3 | Autogeneración segura de código HS. |
+| Fase 6.5 | Informes TXT ordenados por bloques. |
+| Fase 7A1 | QuickViews de visita actual (PV/SG/CX). |
+| Fase 7A2 | QuickView longitudinal de paciente desde BD cargada. |
 
 </details>
 
