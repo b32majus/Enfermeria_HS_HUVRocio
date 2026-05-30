@@ -5006,6 +5006,19 @@
                 list: active.length ? active.join(', ') : 'Ninguna'
             };
         }
+        function formatActiveZonesDetail(ihsData, regions) {
+            if (!ihsData || !regions || !Array.isArray(ihsData) || !Array.isArray(regions)) return 'Sin zonas activas registradas.';
+            var lines = [];
+            ihsData.forEach(function (zone, idx) {
+                var n = parseInt(zone.n, 10) || 0;
+                var a = parseInt(zone.a, 10) || 0;
+                var f = parseInt(zone.f, 10) || 0;
+                if (n + a + f > 0) {
+                    lines.push('- ' + regions[idx] + ': N ' + n + ' | A ' + a + ' | F ' + f);
+                }
+            });
+            return lines.length ? lines.join('\n') : 'Sin zonas activas registradas.';
+        }
         function valueOf(id) {
             var el = document.getElementById(id);
             return el ? el.value : '';
@@ -5411,51 +5424,68 @@
         }
 
         function copyReport_pv() {
-            var coms = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return '• ' + e.innerText; }).join('\n');
-            var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return '• ' + e.innerText.replace(/^.*?\s/, ''); }).join('\n');
-            var retraso = document.getElementById('pv_retraso_dx').value;
-            var ihs4 = document.getElementById('pv_final_ihs4').innerText;
-            var ihs4_sev = parseInt(ihs4) < 4 ? 'LEVE' : parseInt(ihs4) <= 10 ? 'MODERADO' : 'GRAVE';
-            var activeData = getActiveZoneData(pv_ihsData, pv_regions);
-            var txt = 'PRIMERA VISITA — ENFERMERÍA EPA HS\n===================================\nHospital Universitario Virgen del Rocío\nFecha: ' + document.getElementById('pv_fechaVisita').value +
-                '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
-                '\nPaciente: ' + document.getElementById('pv_nuhsa').value +
-                '\nEdad/Sexo al nacimiento: ' + document.getElementById('pv_edad').value + ' / ' + document.getElementById('pv_sexo').value +
-                '\nSituación laboral: ' + (document.getElementById('pv_laboral').value || 'NR') +
-                '\nProfesional/servicio que deriva: ' + (document.getElementById('pv_prof_dx').value || 'NR') +
-                '\nInicio síntomas: ' + document.getElementById('pv_anio_ini').value + ' | Dx: ' + document.getElementById('pv_anio_dx').value + ' | Retraso: ' + (retraso || 'NR') +
-                '\nBrotes último año: ' + (document.getElementById('pv_brotes_ultimo_anio').value || 'NR') + ' | Médicos previos: ' + (document.getElementById('pv_n_medicos').value || 'NR') + ' | Urgencias HS último año: ' + (document.getElementById('pv_n_urgencias').value || 'NR') +
-                '\nFiebre brotes: ' + document.getElementById('pv_fiebre').value + ' | Antecedentes familiares HS: ' + document.getElementById('pv_antecedentes_familiares').value +
-                '\nG/O: ' + (document.getElementById('pv_gine_obst').value || 'NR') + ' | Deseos genésicos: ' + document.getElementById('pv_deseos_genesicos').value +
-                '\nTratamientos previos relevantes: ' + (document.getElementById('pv_tx_previos').value || 'No referidos') +
-                '\nCirugías previas HS: ' + (document.getElementById('pv_n_cirugias').value || '0') + ' | Biológico previo: ' + document.getElementById('pv_bio_previo').value +
-                '\nTabaco: ' + document.getElementById('pv_tabaco').value + ' | Cig/día: ' + (document.getElementById('pv_cig_dia').value || 'NR') + ' | Años fumando: ' + (document.getElementById('pv_anios_fumando').value || 'NR') + ' | Intentos cesación: ' + document.getElementById('pv_cesacion_previa').value +
-                '\nAlcohol UBE/semana: ' + (document.getElementById('pv_alcohol_ube_semana').value || 'NR') +
-                '\nPeso/Talla/IMC: ' + (document.getElementById('pv_peso').value || 'NR') + 'kg / ' + (document.getElementById('pv_talla').value || 'NR') + 'm / ' + (document.getElementById('pv_imc').value || 'NR') +
-                '\nTA: ' + (document.getElementById('pv_ta').value || 'NR') +
-                '\nComorbilidades señaladas:\n' + (coms || 'Ninguna registrada') +
-                '\nHurley basal: ' + (document.getElementById('pv_hurley_val').value || 'No clasificado') +
-                '\nIHS4: ' + ihs4 + ' (' + ihs4_sev + ')' +
-                '\nNódulos: ' + document.getElementById('pv_tot_n').innerText + ' | Abscesos: ' + document.getElementById('pv_tot_a').innerText + ' | Fístulas: ' + document.getElementById('pv_tot_f').innerText +
-                '\nZonas activas: ' + activeData.count + ' | ' + activeData.list +
-                '\nEVA dolor/prurito/supuración: ' + (document.getElementById('pv_eva_dolor').value || 'NR') + '/' + (document.getElementById('pv_eva_prurito').value || 'NR') + '/' + (document.getElementById('pv_eva_supuracion').value || 'NR') +
-                '\n\n=== REGISTRO AÑADIDO DE ENFERMERÍA ===' +
-                '\nDLQI: ' + document.getElementById('pv_dlqi_display').value + '/30' +
-                '\nHSQoL-24: ' + document.getElementById('pv_hsqol_display').value + ' (' + (document.getElementById('pv_hsqol_interp').value || 'No evaluado') + ')' +
-                '\nHADS: Ansiedad ' + document.getElementById('pv_hads_a_display').value + '/21 | Depresión ' + document.getElementById('pv_hads_d_display').value + '/21' +
-                '\nImpacto sexual: ' + document.getElementById('pv_sexual').value + ' | Aislamiento social: ' + document.getElementById('pv_aislamiento').value +
-                '\nEjercicio/Sueño: ' + document.getElementById('pv_ejercicio').value + ' / ' + document.getElementById('pv_sueno').value +
-                '\nEducación sanitaria:\n' + (edus || 'Ninguna registrada') +
-                '\nMaterial educativo entregado: ' + document.getElementById('pv_material_entregado').value +
-                '\nRecomendaciones/necesidades a comentar con Dermatología: ' + (document.getElementById('pv_derivaciones').value || 'Ninguna') +
-                '\nNotas de evolución: ' + (document.getElementById('pv_notas').value || 'Sin notas') +
-                '\nPróxima cita enfermería: ' + (document.getElementById('pv_prox_cita').value || 'Pendiente') +
-                '\n===================================';
-            copyTextToClipboard(
-                txt,
-                'Informe copiado al portapapeles.',
-                'No se pudo copiar el informe. Revise permisos del portapapeles.'
-            );
+            var v = valueOf;
+            var t = textOf;
+            function _f(val, def) { return (val && val.trim()) ? val.trim() : def; }
+            var coms = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return '- ' + e.innerText; }).join('\n');
+            var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return '- ' + e.innerText.replace(/^.*?\s/, ''); }).join('\n');
+            var ihs4 = t('pv_final_ihs4');
+            var ihs4Score = parseInt(ihs4, 10);
+            var ihs4Sev = severityFromIhs4(ihs4).toUpperCase();
+            var activeZonesTxt = formatActiveZonesDetail(pv_ihsData, pv_regions);
+            var txt = 'PRIMERA VISITA — ENFERMERÍA HS\n' +
+                '\n=== 1. IDENTIFICACIÓN Y CONTEXTO ===' +
+                '\nEdad: ' + _f(v('pv_edad'), 'NR') + ' | Sexo al nacimiento: ' + _f(v('pv_sexo'), 'NR') +
+                '\nSituación laboral: ' + _f(v('pv_laboral'), 'NR') +
+                '\nProfesional/servicio que deriva: ' + _f(v('pv_prof_dx'), 'NR') +
+                '\n\n=== 2. HISTORIA DE HS ===' +
+                '\nAño inicio síntomas: ' + _f(v('pv_anio_ini'), 'NR') + ' | Año diagnóstico: ' + _f(v('pv_anio_dx'), 'NR') +
+                '\nRetraso diagnóstico: ' + _f(v('pv_retraso_dx'), 'NR') +
+                '\nNº médicos previos: ' + _f(v('pv_n_medicos'), 'NR') +
+                '\nBrotes último año: ' + _f(v('pv_brotes_ultimo_anio'), 'NR') +
+                '\nUrgencias por HS último año: ' + _f(v('pv_n_urgencias'), 'NR') +
+                '\nFiebre asociada a brotes: ' + _f(v('pv_fiebre'), 'NR') +
+                '\nAntecedentes familiares HS: ' + _f(v('pv_antecedentes_familiares'), 'NR') +
+                '\nCirugías previas HS: ' + _f(v('pv_n_cirugias'), '0') +
+                '\nBiológico previo: ' + _f(v('pv_bio_previo'), 'NR') +
+                '\nTratamientos previos relevantes:\n' + _f(v('pv_tx_previos'), 'No referidos') +
+                '\nG/O o antecedentes gineco-obstétricos: ' + _f(v('pv_gine_obst'), 'NR') +
+                '\nDeseos genésicos: ' + _f(v('pv_deseos_genesicos'), 'NR') +
+                '\n\n=== 3. HÁBITOS Y FACTORES MODIFICABLES ===' +
+                '\nTabaco: ' + _f(v('pv_tabaco'), 'NR') +
+                '\n- Cigarrillos/día: ' + _f(v('pv_cig_dia'), 'NR') +
+                '\n- Años fumando: ' + _f(v('pv_anios_fumando'), 'NR') +
+                '\n- Intentos cesación: ' + _f(v('pv_cesacion_previa'), 'NR') +
+                '\nAlcohol UBE/semana: ' + _f(v('pv_alcohol_ube_semana'), 'NR') +
+                '\nEjercicio: ' + _f(v('pv_ejercicio'), 'NR') +
+                '\nSueño: ' + _f(v('pv_sueno'), 'NR') +
+                '\n\n=== 4. CLINIMETRÍA Y COMORBILIDADES ===' +
+                '\nPeso / talla / IMC: ' + _f(v('pv_peso'), 'NR') + ' kg / ' + _f(v('pv_talla'), 'NR') + ' m / ' + _f(v('pv_imc'), 'NR') +
+                '\nTA: ' + _f(v('pv_ta'), 'NR') +
+                '\n\nComorbilidades señaladas:\n' + (coms || 'Ninguna registrada') +
+                '\n\n=== 5. CLASIFICACIÓN Y ACTIVIDAD HS ===' +
+                '\nHurley basal: ' + _f(v('pv_hurley_val'), 'No clasificado') +
+                '\nIHS4 actual: ' + ihs4 + (ihs4Sev ? ' — ' + ihs4Sev : '') +
+                '\n\nZonas activas:\n' + activeZonesTxt +
+                '\n\n=== 6. SÍNTOMAS E IMPACTO ===' +
+                '\nEVA dolor: ' + _f(v('pv_eva_dolor'), 'NR') +
+                '\nWI-NRS prurito: ' + _f(v('pv_eva_prurito'), 'NR') +
+                '\nEVA supuración: ' + _f(v('pv_eva_supuracion'), 'NR') +
+                '\nDLQI: ' + _f(v('pv_dlqi_display'), '0') + '/30' +
+                '\nHSQoL-24: ' + _f(v('pv_hsqol_display'), 'NR') + ' — ' + _f(v('pv_hsqol_interp'), 'No evaluado') +
+                '\nHADS ansiedad: ' + _f(v('pv_hads_a_display'), '0') + '/21' +
+                '\nHADS depresión: ' + _f(v('pv_hads_d_display'), '0') + '/21' +
+                '\nImpacto sexual: ' + _f(v('pv_sexual'), 'NR') +
+                '\nAislamiento social: ' + _f(v('pv_aislamiento'), 'NR') +
+                '\n\n=== 7. EDUCACIÓN SANITARIA REALIZADA ===' +
+                '\n' + (edus || 'Ninguna registrada') +
+                '\nMaterial educativo entregado: ' + _f(v('pv_material_entregado'), 'NR') +
+                '\n\n=== 8. NECESIDADES A VALORAR POR DERMATOLOGÍA ===' +
+                '\n' + _f(v('pv_derivaciones'), 'Ninguna registrada') +
+                '\n\n=== 9. PLAN DE ENFERMERÍA ===' +
+                '\nPróxima cita enfermería: ' + _f(v('pv_prox_cita'), 'Pendiente') +
+                '\nNotas de evolución / plan de cuidados:\n' + _f(v('pv_notas'), 'NR');
+            copyTextToClipboard(txt, 'Informe copiado al portapapeles.', 'No se pudo copiar el informe. Revise permisos del portapapeles.');
         }
 
         initializeCollapsedSections();
@@ -5756,48 +5786,88 @@
         }
 
         function copyReport_sg() {
-            var eas = Array.from(document.querySelectorAll('#tab-sg .ea-item.active')).map(function (e) { return '• ' + e.innerText; }).join('\n');
+            var v = valueOf;
+            var t = textOf;
+            function _f(val, def) { return (val && val.trim()) ? val.trim() : def; }
+            var ihs4 = t('sg_final_ihs4');
+            var ihs4Score = parseInt(ihs4, 10);
+            var ihs4Sev = severityFromIhs4(ihs4).toUpperCase();
+            var activeZonesTxt = formatActiveZonesDetail(sg_ihsData, sg_regions);
             var drugs = getSelectedDrugs_sg();
-            var ihs4 = document.getElementById('sg_final_ihs4').innerText;
-            var sev = parseInt(ihs4) < 4 ? 'LEVE' : parseInt(ihs4) <= 10 ? 'MODERADO' : 'GRAVE';
-            var activeData = getActiveZoneData(sg_ihsData, sg_regions);
-            var txt = 'SEGUIMIENTO — ENFERMERÍA EPA HS\n================================\nHospital Universitario Virgen del Rocío' +
-                '\nFecha: ' + (document.getElementById('sg_fechaVisita') ? document.getElementById('sg_fechaVisita').value : '') +
-                '\nPaciente: ' + document.getElementById('sg_nuhsa').value +
-                '\n\n=== RESUMEN PARA DERMATOLOGÍA (*) ===' +
-                '\nFecha última consulta: ' + (document.getElementById('sg_fecha_ultima_consulta').value || 'NR') + ' | Tiempo desde última: ' + (document.getElementById('sg_tiempo_desde_ultima').value || 'NR') +
-                '\nEstado global referido: ' + document.getElementById('sg_estado_global').value +
-                '\nHurley basal: ' + (document.getElementById('sg_hurley').value || 'NR') + ' | IHS4 actual: ' + ihs4 + ' (' + sev + ') | IHS4 previo: ' + (document.getElementById('sg_ihs4_previo').value || 'NR') +
-                '\nNódulos: ' + document.getElementById('sg_tot_n').innerText + ' | Abscesos: ' + document.getElementById('sg_tot_a').innerText + ' | Fístulas: ' + document.getElementById('sg_tot_f').innerText +
-                '\nZonas activas: ' + activeData.count + ' | ' + activeData.list +
-                '\nEVA dolor/prurito/supuración: ' + (document.getElementById('sg_eva_dolor').value || 'NR') + '/' + (document.getElementById('sg_eva_prurito').value || 'NR') + '/' + (document.getElementById('sg_eva_supuracion').value || 'NR') +
-                '\nBrotes desde última visita: ' + (document.getElementById('sg_n_brotes').value || 'NR') +
-                '\nPeso/Talla/IMC: ' + (document.getElementById('sg_peso').value || 'NR') + 'kg / ' + (document.getElementById('sg_talla').value || 'NR') + 'm / ' + (document.getElementById('sg_imc').value || 'NR') +
-                '\nTabaco actual: ' + document.getElementById('sg_tabaco').value +
-                '\nTratamiento activo: ' + (drugs.length ? drugs.join('; ') : 'NR') +
-                '\nSuspensión prematura: ' + document.getElementById('sg_suspension_prematura').value + ' | Motivo: ' + (document.getElementById('sg_motivo_suspension').value || 'NR') +
-                '\nSíntomas digestivos: ' + document.getElementById('sg_sint_digestivos').value + (document.getElementById('sg_sint_digestivos_coment').value ? ' (' + document.getElementById('sg_sint_digestivos_coment').value + ')' : '') +
-                '\nSíntomas osteoarticulares: ' + document.getElementById('sg_sint_osteoarticulares').value + (document.getElementById('sg_sint_osteoarticulares_coment').value ? ' (' + document.getElementById('sg_sint_osteoarticulares_coment').value + ')' : '') +
-                '\nSíntomas psiquiátricos/salud mental: ' + document.getElementById('sg_sint_psiquiatricos').value + (document.getElementById('sg_sint_psiquiatricos_coment').value ? ' (' + document.getElementById('sg_sint_psiquiatricos_coment').value + ')' : '') +
-                '\n\n=== REGISTRO AÑADIDO DE ENFERMERÍA ===' +
-                '\nAdherencia Morisky Green: ' + (document.getElementById('sg_adherencia_val').value || 'NR') + ' (' + document.getElementById('sg_morisky_score').value + '/4) | Patrón: ' + (document.getElementById('sg_morisky_pattern').value || 'NR') +
-                '\nAutoinyección: ' + (document.getElementById('sg_autoinyec') ? document.getElementById('sg_autoinyec').value : 'N/A') + ' | Rotación punto de inyección: ' + document.getElementById('sg_rotacion').value + ' | Almacenamiento: ' + document.getElementById('sg_almacen').value +
-                '\nEfectos adversos:\n' + (eas || 'Ninguno') +
-                (document.getElementById('sg_ea_detalle').value ? '\nDetalle: ' + document.getElementById('sg_ea_detalle').value : '') +
-                '\nEjercicio/Sueño: ' + document.getElementById('sg_ejercicio').value + ' / ' + document.getElementById('sg_sueno').value +
-                '\nPROMs: DLQI ' + document.getElementById('sg_dlqi_display').value + '/30 | HSQoL-24 ' + document.getElementById('sg_hsqol_display').value + ' (' + (document.getElementById('sg_hsqol_interp').value || 'No evaluado') + ')' +
-                '\nHADS: ' + document.getElementById('sg_hads_total_display').value +
-                '\nMaterial educativo/refuerzo: ' + document.getElementById('sg_material_refuerzo').value +
-                '\nCura local: ' + (document.getElementById('sg_cura_hoy') && document.getElementById('sg_cura_hoy').value === 'Si' ? 'Tipo ' + (document.getElementById('sg_tipo_herida') ? document.getElementById('sg_tipo_herida').value : '') + ' | Apósito ' + (document.getElementById('sg_aposito') ? document.getElementById('sg_aposito').value : '') + ' | Notas ' + (document.getElementById('sg_notas_cura').value || 'NR') : 'No precisa') +
-                '\nRecomendaciones/necesidades a comentar con Dermatología: ' + (document.getElementById('sg_derivaciones').value || 'Ninguna') +
-                '\nNotas: ' + (document.getElementById('sg_notas').value || 'Sin notas') +
-                '\nPróxima cita: ' + (document.getElementById('sg_prox_cita').value || 'Pendiente') +
-                '\n================================';
-            copyTextToClipboard(
-                txt,
-                'Informe copiado al portapapeles.',
-                'No se pudo copiar el informe. Revise permisos del portapapeles.'
-            );
+            var eas = Array.from(document.querySelectorAll('#tab-sg .ea-item.active')).map(function (e) { return '- ' + e.innerText; }).join('\n');
+            var digC = v('sg_sint_digestivos_coment');
+            var osteoC = v('sg_sint_osteoarticulares_coment');
+            var psiqC = v('sg_sint_psiquiatricos_coment');
+            var curaHoy = v('sg_cura_hoy');
+            var ihs4Prev = parseFloat(v('sg_ihs4_previo'));
+            var ihs4ChangeLine = '';
+            if (!isNaN(ihs4Prev) && ihs4Prev > 0 && !isNaN(ihs4Score)) {
+                var diff = ihs4Score - ihs4Prev;
+                var pct = Math.abs(Math.round((diff / ihs4Prev) * 100));
+                if (diff < 0) ihs4ChangeLine = '\nCambio respecto a previo: Mejoría — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (' + pct + '%)';
+                else if (diff > 0) ihs4ChangeLine = '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + pct + '%)';
+                else ihs4ChangeLine = '\nCambio respecto a previo: Estable — IHS4 sin cambios (' + ihs4Score + ')';
+            }
+            var curaSection = '';
+            if (!curaHoy || curaHoy === 'No') {
+                curaSection = '\nCura hoy: ' + _f(curaHoy, 'No registrada');
+            } else {
+                curaSection = '\nCura hoy: ' + curaHoy +
+                    '\nTipo de herida: ' + _f(v('sg_tipo_herida'), 'NR') +
+                    '\nApósito utilizado: ' + _f(v('sg_aposito'), 'NR') +
+                    '\nNotas de cura: ' + _f(v('sg_notas_cura'), 'NR');
+            }
+            var txt = 'SEGUIMIENTO — ENFERMERÍA HS\n' +
+                '\n=== 1. CONTEXTO DE SEGUIMIENTO ===' +
+                '\nÚltima consulta: ' + _f(v('sg_fecha_ultima_consulta'), 'NR') +
+                '\nTiempo desde última consulta: ' + _f(v('sg_tiempo_desde_ultima'), 'NR') +
+                '\nEstado global referido por paciente: ' + _f(v('sg_estado_global'), 'NR') +
+                '\nBrotes desde última visita: ' + _f(v('sg_n_brotes'), 'NR') +
+                '\n\n=== 2. ACTIVIDAD HS / IHS4 ===' +
+                '\nHurley basal: ' + _f(v('sg_hurley'), 'NR') +
+                '\nIHS4 previo: ' + _f(v('sg_ihs4_previo'), 'NR') +
+                '\nIHS4 actual: ' + _f(ihs4, 'NR') + (ihs4Sev ? ' — ' + ihs4Sev : '') +
+                ihs4ChangeLine +
+                '\n\nZonas activas:\n' + activeZonesTxt +
+                '\n\n=== 3. SÍNTOMAS, CLINIMETRÍA Y HÁBITOS ===' +
+                '\nEVA dolor: ' + _f(v('sg_eva_dolor'), 'NR') +
+                '\nWI-NRS prurito: ' + _f(v('sg_eva_prurito'), 'NR') +
+                '\nEVA supuración: ' + _f(v('sg_eva_supuracion'), 'NR') +
+                '\nPeso / talla / IMC: ' + _f(v('sg_peso'), 'NR') + ' kg / ' + _f(v('sg_talla'), 'NR') + ' m / ' + _f(v('sg_imc'), 'NR') +
+                '\nTabaco actual: ' + _f(v('sg_tabaco'), 'NR') +
+                '\nEjercicio: ' + _f(v('sg_ejercicio'), 'NR') +
+                '\nSueño: ' + _f(v('sg_sueno'), 'NR') +
+                '\nSíntomas digestivos: ' + _f(v('sg_sint_digestivos'), 'NR') + (digC ? ' (' + digC + ')' : '') +
+                '\nSíntomas osteoarticulares: ' + _f(v('sg_sint_osteoarticulares'), 'NR') + (osteoC ? ' (' + osteoC + ')' : '') +
+                '\nSíntomas salud mental: ' + _f(v('sg_sint_psiquiatricos'), 'NR') + (psiqC ? ' (' + psiqC + ')' : '') +
+                '\n\n=== 4. TRATAMIENTO, ADHERENCIA Y SEGURIDAD ===' +
+                '\nTratamiento activo: ' + (drugs.length ? drugs.join(', ') : 'NR') +
+                '\nSuspensión prematura: ' + _f(v('sg_suspension_prematura'), 'NR') +
+                '\nMotivo suspensión: ' + _f(v('sg_motivo_suspension'), 'NR') +
+                '\n\nAdherencia Morisky-Green:' +
+                '\n- Puntuación: ' + _f(v('sg_morisky_score'), 'NR') + '/4' +
+                '\n- Interpretación: ' + _f(v('sg_adherencia_val'), 'NR') +
+                '\n- Patrón: ' + _f(v('sg_morisky_pattern'), 'NR') +
+                '\n\nEfectos adversos:\n' + (eas || 'Ninguno registrado') +
+                '\nDetalle EA / motivo no adherencia: ' + _f(v('sg_ea_detalle'), 'NR') +
+                '\n\nBiológico si aplica:' +
+                '\n- Autoinyección: ' + _f(v('sg_autoinyec'), 'No aplica') +
+                '\n- Rotación punto inyección: ' + _f(v('sg_rotacion'), 'No aplica') +
+                '\n- Almacenamiento: ' + _f(v('sg_almacen'), 'No aplica') +
+                '\n\n=== 5. PROMs E IMPACTO ===' +
+                '\nDLQI: ' + _f(v('sg_dlqi_display'), '0') + '/30' +
+                '\nHSQoL-24: ' + _f(v('sg_hsqol_display'), 'NR') + ' — ' + _f(v('sg_hsqol_interp'), 'No evaluado') +
+                '\nHADS ansiedad: ' + _f(v('sg_hads_a_display'), '0') + '/21' +
+                '\nHADS depresión: ' + _f(v('sg_hads_d_display'), '0') + '/21' +
+                '\n\n=== 6. CURA LOCAL SI PROCEDE ===' + curaSection +
+                '\n\n=== 7. EDUCACIÓN / REFUERZO ===' +
+                '\nMaterial educativo/refuerzo realizado: ' + _f(v('sg_material_refuerzo'), 'NR') +
+                '\n\n=== 8. NECESIDADES A VALORAR POR DERMATOLOGÍA ===' +
+                '\n' + _f(v('sg_derivaciones'), 'Ninguna registrada') +
+                '\n\n=== 9. PLAN DE ENFERMERÍA ===' +
+                '\nPróxima cita enfermería: ' + _f(v('sg_prox_cita'), 'Pendiente') +
+                '\nNotas de evolución / plan:\n' + _f(v('sg_notas'), 'NR');
+            copyTextToClipboard(txt, 'Informe copiado al portapapeles.', 'No se pudo copiar el informe. Revise permisos del portapapeles.');
         }
 
         // =============================================
@@ -5864,39 +5934,50 @@
         }
 
         function copyReport_cx() {
-            var comps = Array.from(document.querySelectorAll('#tab-cx .comp-item.active')).map(function (e) { return '• ' + e.innerText; }).join('\n');
-            var txt = 'CURA POSTQUIRÚRGICA — ENFERMERÍA EPA HS\n=======================================' +
-                '\nHospital Universitario Virgen del Rocío' +
-                '\nFecha: ' + document.getElementById('cx_fechaVisita').value +
-                '\nPaciente: ' + document.getElementById('cx_nuhsa').value + ' | Cura nº: ' + document.getElementById('cx_n_cura').value +
-                '\n\n1. CIRUGÍA\nIntervención: ' + document.getElementById('cx_tipo_qx').value + ' | Cierre: ' + document.getElementById('cx_tipo_cierre').value +
-                '\nLocalización: ' + document.getElementById('cx_localizacion').value +
-                '\nFecha Qx: ' + document.getElementById('cx_fecha_qx').value + ' | Cirujano: ' + document.getElementById('cx_cirujano').value +
-                '\n\n2. DOLOR\nEVA Pre-cura: ' + document.getElementById('cx_eva_pre').value + '/10 | EVA Post-cura: ' + document.getElementById('cx_eva_post').value + '/10' +
-                '\nAnalgesia: ' + (document.getElementById('cx_analgesia').value || 'Ninguna') + ' | Anestesia local: ' + document.getElementById('cx_anestesia_local').value +
-                '\n\n3. HS-TIME\n' + getTimeSelections_cx() +
-                '\n\n4. HERIDA\nDimensiones: ' + (document.getElementById('cx_h_largo').value || '?') + '×' + (document.getElementById('cx_h_ancho').value || '?') + '×' + (document.getElementById('cx_h_prof').value || '?') + ' cm' +
-                '\nLecho: ' + document.getElementById('cx_h_color').value + ' | Olor: ' + document.getElementById('cx_h_olor').value +
-                '\nPiel perilesional: ' + document.getElementById('cx_h_peri').value + ' | Sangrado: ' + document.getElementById('cx_h_sangrado').value +
-                '\n\n5. TRATAMIENTO LOCAL\nLimpieza: ' + document.getElementById('cx_limpieza').value +
-                '\nDesbridamiento: ' + document.getElementById('cx_desbrid').value +
-                '\nLavado H₂O₂: ' + document.getElementById('cx_lavado_h2o2').value +
-                '\nApósito primario: ' + (document.getElementById('cx_apos_prim').value || 'NR') +
-                '\nApósito secundario: ' + (document.getElementById('cx_apos_sec').value || 'NR') +
-                '\nFijación: ' + document.getElementById('cx_fijacion').value +
-                '\nTPN: ' + document.getElementById('cx_tpn').value +
-                '\n\n6. COMPLICACIONES\n' + (comps || 'Ninguna') +
-                (document.getElementById('cx_complic_detalle').value ? '\nDetalle: ' + document.getElementById('cx_complic_detalle').value : '') +
-                '\n\n7. PLAN\nFoto clínica: ' + document.getElementById('cx_foto').value +
-                '\nPróxima cura: ' + (document.getElementById('cx_prox_cura').value || 'Pendiente') +
-                '\nFrecuencia: ' + document.getElementById('cx_freq_cura').value +
-                '\n\nNOTAS:\n' + (document.getElementById('cx_notas').value || 'Sin notas') +
-                '\n=======================================';
-            copyTextToClipboard(
-                txt,
-                'Informe copiado al portapapeles.',
-                'No se pudo copiar el informe. Revise permisos del portapapeles.'
-            );
+            var v = valueOf;
+            function _f(val, def) { return (val && val.trim()) ? val.trim() : def; }
+            var comps = Array.from(document.querySelectorAll('#tab-cx .comp-item.active')).map(function (e) { return '- ' + e.innerText; }).join('\n');
+            var dimL = _f(v('cx_h_largo'), '?'), dimA = _f(v('cx_h_ancho'), '?'), dimP = _f(v('cx_h_prof'), '?');
+            var dimensiones = dimL + ' × ' + dimA + ' × ' + dimP + ' cm';
+            var tiempoTxt = getTimeSelections_cx();
+            var txt = 'CURA POSTQUIRÚRGICA — ENFERMERÍA HS\n' +
+                '\n=== 1. CIRUGÍA / CONTEXTO ===' +
+                '\nFecha intervención: ' + _f(v('cx_fecha_qx'), 'NR') +
+                '\nCirujano: ' + _f(v('cx_cirujano'), 'NR') +
+                '\nTipo intervención: ' + _f(v('cx_tipo_qx'), 'NR') +
+                '\nTipo cierre: ' + _f(v('cx_tipo_cierre'), 'NR') +
+                '\nLocalización quirúrgica: ' + _f(v('cx_localizacion'), 'NR') +
+                '\nNº cura: ' + _f(v('cx_n_cura'), 'NR') +
+                '\n\n=== 2. DOLOR Y ANALGESIA ===' +
+                '\nEVA pre-cura: ' + _f(v('cx_eva_pre'), 'NR') + '/10' +
+                '\nEVA post-cura: ' + _f(v('cx_eva_post'), 'NR') + '/10' +
+                '\nAnalgesia pre-cura: ' + _f(v('cx_analgesia'), 'Ninguna') +
+                '\nAnestesia local durante cura: ' + _f(v('cx_anestesia_local'), 'NR') +
+                '\n\n=== 3. VALORACIÓN HS-TIME ===' +
+                (tiempoTxt ? '\n' + tiempoTxt : '\nNo evaluado') +
+                '\n\n=== 4. VALORACIÓN DE HERIDA ===' +
+                '\nDimensiones: ' + dimensiones +
+                '\nColor del lecho: ' + _f(v('cx_h_color'), 'NR') +
+                '\nOlor: ' + _f(v('cx_h_olor'), 'NR') +
+                '\nPiel perilesional: ' + _f(v('cx_h_peri'), 'NR') +
+                '\nSangrado: ' + _f(v('cx_h_sangrado'), 'NR') +
+                '\n\n=== 5. TRATAMIENTO LOCAL / APÓSITOS ===' +
+                '\nLimpieza: ' + _f(v('cx_limpieza'), 'NR') +
+                '\nDesbridamiento: ' + _f(v('cx_desbrid'), 'NR') +
+                '\nLavado H₂O₂ 1%: ' + _f(v('cx_lavado_h2o2'), 'NR') +
+                '\nApósito primario: ' + _f(v('cx_apos_prim'), 'NR') +
+                '\nApósito secundario: ' + _f(v('cx_apos_sec'), 'NR') +
+                '\nFijación: ' + _f(v('cx_fijacion'), 'NR') +
+                '\nTPN: ' + _f(v('cx_tpn'), 'NR') +
+                '\n\n=== 6. COMPLICACIONES ===' +
+                '\n' + (comps || 'Ninguna registrada') +
+                '\nDetalle complicaciones: ' + _f(v('cx_complic_detalle'), 'NR') +
+                '\n\n=== 7. REGISTRO Y PLAN ===' +
+                '\nFoto clínica realizada: ' + _f(v('cx_foto'), 'NR') +
+                '\nPróxima cura: ' + _f(v('cx_prox_cura'), 'Pendiente') +
+                '\nFrecuencia propuesta: ' + _f(v('cx_freq_cura'), 'NR') +
+                '\nEvolución y notas:\n' + _f(v('cx_notas'), 'NR');
+            copyTextToClipboard(txt, 'Informe copiado al portapapeles.', 'No se pudo copiar el informe. Revise permisos del portapapeles.');
         }
 
     </script>
