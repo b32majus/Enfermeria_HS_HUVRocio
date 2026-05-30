@@ -520,7 +520,7 @@ Esta fase no toca `index.html` ni ningún archivo de la herramienta.
 
 ## Fase 8B — Implementación Dashboard v0 MVP
 
-### Estado: PENDIENTE / Requiere aprobación del diseño (Fase 8A)
+### Estado: IMPLEMENTADA (MVP) / Pendiente validación visual final en Pages
 
 ### Objetivo
 Implementar el MVP del dashboard operativo definido en `docs/DASHBOARD_V0.md`.
@@ -547,5 +547,28 @@ Gráficos de barras/líneas, filtros avanzados, exportación del dashboard, PROM
 análisis estadístico, Power BI. Ver `docs/DASHBOARD_V0.md §8` para detalle completo.
 
 ### Prioridad
-Media-alta: iniciar tras aprobación del diseño (Fase 8A) y QA manual del panel longitudinal
-(Fase 7A2).
+Completada como MVP. Mantener vigilancia de QA funcional y visual en entorno Pages.
+
+---
+
+## Fase 8C — Dashboard v0: filtros y gráficos simples
+
+### Estado: PENDIENTE / No iniciar hasta validar visualmente Fase 8B en Pages
+
+### Objetivo
+Evolucionar el dashboard desde resumen MVP a analítica básica con filtros de cohorte y visualización agregada simple.
+
+### Alcance previsto
+- Filtros por periodo (desde/hasta, último mes, último trimestre, todo).
+- Filtros por tipo de visita (PV/SG/CX).
+- Filtros de actividad (IHS4, tendencia, Hurley).
+- Filtros de tratamiento y seguridad (tratamiento activo, suspensión prematura, efectos adversos).
+- Filtros de pendientes (necesidades Dermatología, cura activa).
+- Gráficos simples HTML/CSS: distribución IHS4, tendencia IHS4, tipos de visita, top tratamientos activos, alertas clínicas.
+
+### Restricciones
+- No modificar `masterDb`.
+- No interpretar NR como No.
+- IHS4=0 se considera válido y leve.
+- Sin librerías externas en primera iteración (sin Chart.js).
+- Sin exportación de dashboard en Fase 8C.
