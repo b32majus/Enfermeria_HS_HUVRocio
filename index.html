@@ -1816,6 +1816,197 @@
             .longitudinal-panel { width: 100vw; }
             .longitudinal-lbl { min-width: 100px; }
         }
+
+        /* === DASHBOARD V0 — FASE 8B === */
+        #btn_dashboard_view {
+            display: none;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.79rem;
+        }
+        .dashboard-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.38);
+            z-index: 1150;
+        }
+        .dashboard-overlay.is-open { display: block; }
+        .dashboard-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(960px, 94vw);
+            max-height: 90vh;
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            z-index: 1151;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px 10px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .dashboard-header-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .dashboard-close {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        .dashboard-close:hover { background: #f1f5f9; }
+        .dashboard-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 18px 18px;
+        }
+        .dashboard-message {
+            font-size: 0.85rem;
+            color: #64748b;
+            padding: 12px 0;
+        }
+        .dashboard-notice {
+            font-size: 0.76rem;
+            color: #92400e;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: var(--border-radius);
+            padding: 6px 10px;
+            margin-bottom: 12px;
+        }
+        .dashboard-notice--muted {
+            color: #64748b;
+            background: #f8fafc;
+            border-color: var(--border-color);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .dashboard-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 8px 10px;
+        }
+        .dashboard-card-lbl {
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            line-height: 1.3;
+        }
+        .dashboard-card-val {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 2px;
+        }
+        .dashboard-section { margin-bottom: 16px; }
+        .dashboard-section-title {
+            font-size: 0.71rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .dashboard-ihs4-dist {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .dashboard-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+        }
+        .dashboard-badge--leve { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+        .dashboard-badge--moderado { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .dashboard-badge--grave { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        .dashboard-badge--nr { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
+        .dashboard-table-wrap { overflow-x: auto; }
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: top;
+        }
+        .dashboard-table th {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            background: #f8fafc;
+            white-space: nowrap;
+        }
+        .dashboard-table tbody tr:hover { background: #f8fafc; }
+        .dashboard-alert {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 6px;
+            margin: 1px 2px 1px 0;
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .dashboard-alert--danger { background: #fee2e2; color: #991b1b; }
+        .dashboard-link-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .dashboard-link-btn:hover { color: #0369a1; }
+        @media (max-width: 640px) {
+            .dashboard-panel {
+                top: 0; left: 0; right: 0; bottom: 0;
+                transform: none;
+                width: 100vw;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 
@@ -1868,6 +2059,7 @@
                             <div id="global_hs_code_feedback" class="hs-code-feedback" style="display:none;"></div>
                             <button type="button" class="btn btn-outline" id="sidebar_new_patient_btn"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar</button>
                             <button type="button" class="btn btn-outline" id="btn_longitudinal_view" onclick="openLongitudinalQuickView()" aria-label="Ver resumen longitudinal del paciente">Ver resumen longitudinal</button>
+                            <button type="button" class="btn btn-outline" id="btn_dashboard_view" onclick="openDashboard()" aria-label="Ver dashboard piloto del proyecto">Ver dashboard piloto</button>
                         </div>
                         <div id="master_excel_warnings" style="display:none;"></div>
                         <div id="master_excel_error" style="display:none;"></div>
@@ -1876,6 +2068,16 @@
             </div>
         </aside>
 
+        <!-- DASHBOARD V0 — FASE 8B -->
+        <div class="dashboard-overlay" id="dashboard_overlay" role="dialog" aria-modal="true" aria-label="Dashboard piloto HS">
+            <div class="dashboard-panel" id="dashboard_panel">
+                <div class="dashboard-header">
+                    <span class="dashboard-header-title">Dashboard piloto HS</span>
+                    <button type="button" class="dashboard-close" onclick="closeDashboard()" aria-label="Cerrar dashboard">Cerrar</button>
+                </div>
+                <div class="dashboard-body" id="dashboard_panel_body"></div>
+            </div>
+        </div>
         <!-- PANEL LONGITUDINAL — FASE 7A2 -->
         <div class="longitudinal-overlay" id="longitudinal_overlay" role="dialog" aria-modal="true" aria-label="Resumen longitudinal HS">
             <div class="longitudinal-panel" id="longitudinal_panel">
@@ -3631,6 +3833,7 @@
             if (masterDbIsLoaded && masterDb.length && masterDbDuplicateCodes.length) {
                 console.warn('Códigos HS duplicados detectados en BD cargada:', masterDbDuplicateCodes);
             }
+            updateDashboardTrigger();
         }
 
         function persistMasterDbToSession() {
@@ -4614,6 +4817,8 @@
             updateHsCodeGlobalUI();
             updateLongitudinalQuickViewTrigger();
             closeLongitudinalQuickView();
+            updateDashboardTrigger();
+            closeDashboard();
         }
 
         function preparePatientContextChange(nextNuhsa) {
@@ -4993,6 +5198,7 @@
             updateMasterDbStatus([]);
             restoreHsSessionCodeMap();
             restoreMasterDbFromSession();
+            updateDashboardTrigger();
             var fileInput = document.getElementById('master_excel_file');
             var loadBtn = document.getElementById('master_excel_load_btn');
             var globalFindBtn = document.getElementById('global_patient_search_btn');
@@ -6512,6 +6718,403 @@
             updateCxQuickView();
         })();
 
+
+        /* === DASHBOARD V0 — FASE 8B === */
+
+        function parseDashboardIhs4(value) {
+            if (value === null || value === undefined) return null;
+            var s = String(value).trim();
+            if (!s) return null;
+            var lower = s.toLowerCase();
+            if (lower === 'nr' || lower === 'n/r' || lower === 'no registrado' || lower === 'no consta') return null;
+            var score = parseInt(s, 10);
+            if (isNaN(score) || score < 0) return null;
+            return score;
+        }
+
+        function dashboardIhs4SeverityBucket(score) {
+            if (score === null || score === undefined) return 'NR';
+            var sev = severityFromIhs4(score);
+            if (sev === 'Leve') return 'LEVE';
+            if (sev === 'Moderado') return 'MODERADO';
+            if (sev === 'Grave') return 'GRAVE';
+            return 'NR';
+        }
+
+        function isDashboardTreatmentRegistered(val) {
+            var s = String(val || '').trim();
+            if (!s) return false;
+            var lower = s.toLowerCase();
+            return lower !== 'nr' && lower !== 'n/r' && lower !== 'no registrado' && lower !== 'no consta';
+        }
+
+        function getDashboardPatientGroups() {
+            var groups = {};
+            var rowsWithoutIdentifier = 0;
+            masterDb.forEach(function (row) {
+                var nuhsa = normalizePatientId(row.nuhsa);
+                if (!nuhsa) {
+                    rowsWithoutIdentifier++;
+                    return;
+                }
+                if (!groups[nuhsa]) groups[nuhsa] = [];
+                groups[nuhsa].push(row);
+            });
+            return { groups: groups, rowsWithoutIdentifier: rowsWithoutIdentifier };
+        }
+
+        function getDashboardLatestVisit(rows) {
+            if (!rows || !rows.length) return null;
+            var best = null;
+            var bestTime = -1;
+            var fallback = rows[rows.length - 1];
+            rows.forEach(function (row) {
+                var d = parseVisitDate(row.fecha_visita);
+                var t = d ? d.getTime() : -1;
+                if (t > bestTime) {
+                    bestTime = t;
+                    best = row;
+                }
+            });
+            return bestTime >= 0 ? best : fallback;
+        }
+
+        function getDashboardIhs4Records(rows) {
+            if (!rows || !rows.length) return [];
+            var out = [];
+            rows.forEach(function (row) {
+                var score = parseDashboardIhs4(row.ihs4_actual);
+                if (score === null) return;
+                var d = parseVisitDate(row.fecha_visita);
+                out.push({
+                    row: row,
+                    score: score,
+                    time: d ? d.getTime() : -1,
+                    order: out.length
+                });
+            });
+            out.sort(function (a, b) {
+                if (a.time !== b.time) return a.time - b.time;
+                return a.order - b.order;
+            });
+            return out;
+        }
+
+        function getDashboardLatestIhs4(rows) {
+            var records = getDashboardIhs4Records(rows);
+            if (!records.length) return { score: null, display: 'NR', severity: 'NR' };
+            var last = records[records.length - 1];
+            return {
+                score: last.score,
+                display: String(last.score),
+                severity: dashboardIhs4SeverityBucket(last.score)
+            };
+        }
+
+        function getDashboardPreviousIhs4(rows) {
+            var records = getDashboardIhs4Records(rows);
+            if (records.length < 2) return { score: null, display: 'NR' };
+            var prev = records[records.length - 2];
+            return { score: prev.score, display: String(prev.score) };
+        }
+
+        function getDashboardIhs4Trend(rows) {
+            var latest = getDashboardLatestIhs4(rows);
+            var previous = getDashboardPreviousIhs4(rows);
+            if (latest.score === null || previous.score === null) return 'No valorable';
+            if (latest.score < previous.score) return 'Mejoría';
+            if (latest.score > previous.score) return 'Empeoramiento';
+            return 'Estable';
+        }
+
+        function getDashboardHurleyBasal(rows) {
+            if (!rows || !rows.length) return 'NR';
+            for (var i = 0; i < rows.length; i++) {
+                if (String(rows[i].tipo_visita || '').trim().toUpperCase() === 'PV') {
+                    var pvH = String(rows[i].hurley_enfermeria || '').trim();
+                    if (pvH) return pvH;
+                }
+            }
+            for (var j = 0; j < rows.length; j++) {
+                var h = String(rows[j].hurley_enfermeria || '').trim();
+                if (h) return h;
+            }
+            return 'NR';
+        }
+
+        function getDashboardPatientAlerts(patientModel) {
+            var alerts = [];
+            if (patientModel.latestIhs4Severity === 'GRAVE') {
+                alerts.push({ text: 'IHS4 grave', danger: true });
+            }
+            if (patientModel.trend === 'Empeoramiento') {
+                alerts.push({ text: 'Empeoramiento', danger: true });
+            }
+            if (patientModel.suspPrematura === 'Sí') {
+                alerts.push({ text: 'Suspensión prematura', danger: false });
+            }
+            if (patientModel.efectosAdv === 'Sí') {
+                alerts.push({ text: 'Efectos adversos', danger: false });
+            }
+            if (patientModel.necsDermaPositive) {
+                alerts.push({ text: 'Nec. Dermatología', danger: false });
+            }
+            if (patientModel.complicacionesQx) {
+                alerts.push({ text: 'Complicaciones Qx', danger: true });
+            }
+            return alerts;
+        }
+
+        function buildDashboardPatientModel(patientId, rows) {
+            var sortedRows = getPatientRecords(patientId);
+            if (!sortedRows.length) sortedRows = rows.slice();
+            var latestVisit = getDashboardLatestVisit(sortedRows);
+            var latestIhs4 = getDashboardLatestIhs4(sortedRows);
+            var trend = getDashboardIhs4Trend(sortedRows);
+            var hurleyBasal = getDashboardHurleyBasal(sortedRows);
+            var last = latestVisit || sortedRows[sortedRows.length - 1] || {};
+            var tto = safeDisplay(last.tratamiento_activo);
+            var suspPrematura = yesNoFromText(last.suspension_prematura);
+            var efectosAdv = yesNoFromText(last.efectos_adversos);
+            var necsDermaPositive = yesNoFromText(last.necesidades_valorar_dermatologia) === 'Sí';
+            var complicacionesQx = false;
+            sortedRows.forEach(function (r) {
+                if (String(r.tipo_visita || '').trim().toUpperCase() !== 'CX') return;
+                if (yesNoFromText(r.complicaciones) === 'Sí') complicacionesQx = true;
+            });
+            var visitDate = parseVisitDate(last.fecha_visita);
+            var codigoHs = normalizeHsCode(getPatientHsCode(patientId) || last.codigo_hs || '');
+            if (!isValidHsCode(codigoHs)) codigoHs = safeDisplay(last.codigo_hs);
+            var tipo = String(last.tipo_visita || '').trim().toUpperCase();
+            if (!tipo) tipo = 'NR';
+            var model = {
+                patientId: patientId,
+                codigoHs: codigoHs,
+                lastVisitDisplay: visitDate ? formatDateToYmd(visitDate) : 'NR',
+                lastVisitSort: visitDate ? visitDate.getTime() : -1,
+                lastVisitType: tipo,
+                latestIhs4Display: latestIhs4.display,
+                latestIhs4Severity: latestIhs4.severity,
+                trend: trend,
+                hurleyBasal: hurleyBasal,
+                tratamientoActivo: tto,
+                suspPrematura: suspPrematura,
+                efectosAdv: efectosAdv,
+                necsDermaPositive: necsDermaPositive,
+                complicacionesQx: complicacionesQx,
+                tratamientoRegistrado: isDashboardTreatmentRegistered(last.tratamiento_activo)
+            };
+            model.alerts = getDashboardPatientAlerts(model);
+            return model;
+        }
+
+        function buildDashboardModel() {
+            if (!masterDbIsLoaded) {
+                return { state: 'no_db', rowsWithoutIdentifier: 0, pilotWarning: false, globalCards: null, ihs4Distribution: null, patients: [] };
+            }
+            if (!masterDb.length) {
+                return {
+                    state: 'empty',
+                    rowsWithoutIdentifier: 0,
+                    pilotWarning: false,
+                    globalCards: {
+                        uniquePatients: 0,
+                        totalVisits: 0,
+                        pv: 0,
+                        sg: 0,
+                        cx: 0,
+                        ihs4ModGrave: 0,
+                        dermNeeds: 0,
+                        activeTreatment: 0
+                    },
+                    ihs4Distribution: { LEVE: 0, MODERADO: 0, GRAVE: 0, NR: 0 },
+                    patients: []
+                };
+            }
+            var grouped = getDashboardPatientGroups();
+            var groups = grouped.groups;
+            var patientIds = Object.keys(groups);
+            var globalCards = {
+                uniquePatients: patientIds.length,
+                totalVisits: masterDb.length,
+                pv: 0,
+                sg: 0,
+                cx: 0,
+                ihs4ModGrave: 0,
+                dermNeeds: 0,
+                activeTreatment: 0
+            };
+            var ihs4Distribution = { LEVE: 0, MODERADO: 0, GRAVE: 0, NR: 0 };
+            var patients = [];
+            masterDb.forEach(function (row) {
+                var t = String(row.tipo_visita || '').trim().toUpperCase();
+                if (t === 'PV') globalCards.pv++;
+                else if (t === 'SG') globalCards.sg++;
+                else if (t === 'CX') globalCards.cx++;
+            });
+            patientIds.forEach(function (patientId) {
+                var rows = groups[patientId];
+                var pm = buildDashboardPatientModel(patientId, rows);
+                patients.push(pm);
+                var bucket = pm.latestIhs4Severity || 'NR';
+                if (!Object.prototype.hasOwnProperty.call(ihs4Distribution, bucket)) bucket = 'NR';
+                ihs4Distribution[bucket]++;
+                if (pm.latestIhs4Severity === 'MODERADO' || pm.latestIhs4Severity === 'GRAVE') {
+                    globalCards.ihs4ModGrave++;
+                }
+                if (pm.necsDermaPositive) globalCards.dermNeeds++;
+                if (pm.tratamientoRegistrado) globalCards.activeTreatment++;
+            });
+            patients.sort(function (a, b) {
+                if (a.lastVisitSort !== b.lastVisitSort) return b.lastVisitSort - a.lastVisitSort;
+                return String(a.codigoHs).localeCompare(String(b.codigoHs));
+            });
+            return {
+                state: 'loaded',
+                rowsWithoutIdentifier: grouped.rowsWithoutIdentifier,
+                pilotWarning: patientIds.length > 0 && patientIds.length < 3,
+                globalCards: globalCards,
+                ihs4Distribution: ihs4Distribution,
+                patients: patients
+            };
+        }
+
+        function renderDashboard(model) {
+            var bodyEl = document.getElementById('dashboard_panel_body');
+            if (!bodyEl) return;
+            if (!model || model.state === 'no_db') {
+                bodyEl.innerHTML = '<p class="dashboard-message">Cargue la base de datos para ver el dashboard.</p>';
+                return;
+            }
+            if (model.state === 'empty') {
+                bodyEl.innerHTML =
+                    '<p class="dashboard-message">La base cargada no contiene visitas registradas.</p>' +
+                    '<div class="dashboard-grid">' +
+                    '<div class="dashboard-card"><div class="dashboard-card-lbl">Pacientes únicos</div><div class="dashboard-card-val">0</div></div>' +
+                    '<div class="dashboard-card"><div class="dashboard-card-lbl">Visitas registradas</div><div class="dashboard-card-val">0</div></div>' +
+                    '</div>';
+                return;
+            }
+            var html = '';
+            if (model.pilotWarning) {
+                html += '<div class="dashboard-notice">Piloto en fase inicial — los agregados pueden no ser representativos.</div>';
+            }
+            if (model.rowsWithoutIdentifier > 0) {
+                html += '<div class="dashboard-notice dashboard-notice--muted">' +
+                    model.rowsWithoutIdentifier + ' fila' + (model.rowsWithoutIdentifier === 1 ? '' : 's') +
+                    ' sin identificador no incluida' + (model.rowsWithoutIdentifier === 1 ? '' : 's') + '.</div>';
+            }
+            var gc = model.globalCards;
+            html += '<div class="dashboard-grid">' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Pacientes únicos</div><div class="dashboard-card-val">' + gc.uniquePatients + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Visitas registradas</div><div class="dashboard-card-val">' + gc.totalVisits + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Primeras visitas</div><div class="dashboard-card-val">' + gc.pv + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Seguimientos</div><div class="dashboard-card-val">' + gc.sg + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Curas post-Qx</div><div class="dashboard-card-val">' + gc.cx + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">IHS4 mod./grave</div><div class="dashboard-card-val">' + gc.ihs4ModGrave + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Nec. Dermatología</div><div class="dashboard-card-val">' + gc.dermNeeds + '</div></div>' +
+                '<div class="dashboard-card"><div class="dashboard-card-lbl">Tratamiento activo</div><div class="dashboard-card-val">' + gc.activeTreatment + '</div></div>' +
+                '</div>';
+            var dist = model.ihs4Distribution;
+            function distBadge(key, label, cls) {
+                return '<span class="dashboard-badge dashboard-badge--' + cls + '"><span>' + label + '</span><strong>' + (dist[key] || 0) + '</strong></span>';
+            }
+            html += '<div class="dashboard-section"><div class="dashboard-section-title">Distribución último IHS4</div>' +
+                '<div class="dashboard-ihs4-dist">' +
+                distBadge('LEVE', 'Leve', 'leve') +
+                distBadge('MODERADO', 'Moderado', 'moderado') +
+                distBadge('GRAVE', 'Grave', 'grave') +
+                distBadge('NR', 'NR', 'nr') +
+                '</div></div>';
+            html += '<div class="dashboard-section"><div class="dashboard-section-title">Pacientes</div>';
+            html += '<div class="dashboard-table-wrap"><table class="dashboard-table"><thead><tr>' +
+                '<th>Código HS</th><th>Última visita</th><th>Tipo</th><th>IHS4</th><th>Tendencia</th>' +
+                '<th>Hurley</th><th>Tratamiento</th><th>Alertas</th><th>Acción</th>' +
+                '</tr></thead><tbody>';
+            if (!model.patients.length) {
+                html += '<tr><td colspan="9">Sin pacientes con NUHSA identificado.</td></tr>';
+            } else {
+                model.patients.forEach(function (p) {
+                    var ihs4Cell = p.latestIhs4Display;
+                    if (p.latestIhs4Severity && p.latestIhs4Severity !== 'NR' && p.latestIhs4Display !== 'NR') {
+                        ihs4Cell += ' <span class="dashboard-badge dashboard-badge--' + p.latestIhs4Severity.toLowerCase() + '" style="font-size:0.65rem;padding:1px 6px;">' + p.latestIhs4Severity + '</span>';
+                    }
+                    var alertsHtml = '—';
+                    if (p.alerts && p.alerts.length) {
+                        alertsHtml = p.alerts.map(function (a) {
+                            return '<span class="dashboard-alert' + (a.danger ? ' dashboard-alert--danger' : '') + '">' + a.text + '</span>';
+                        }).join('');
+                    }
+                    var pidAttr = String(p.patientId).replace(/"/g, '&quot;');
+                    html += '<tr>' +
+                        '<td>' + safeDisplay(p.codigoHs) + '</td>' +
+                        '<td>' + safeDisplay(p.lastVisitDisplay) + '</td>' +
+                        '<td>' + safeDisplay(p.lastVisitType) + '</td>' +
+                        '<td>' + ihs4Cell + '</td>' +
+                        '<td>' + safeDisplay(p.trend) + '</td>' +
+                        '<td>' + safeDisplay(p.hurleyBasal) + '</td>' +
+                        '<td>' + safeDisplay(p.tratamientoActivo) + '</td>' +
+                        '<td>' + alertsHtml + '</td>' +
+                        '<td><button type="button" class="dashboard-link-btn" data-dashboard-patient="' + pidAttr + '" onclick="openDashboardPatientLongitudinal(this.getAttribute(\'data-dashboard-patient\'))">Ver resumen</button></td>' +
+                        '</tr>';
+                });
+            }
+            html += '</tbody></table></div></div>';
+            bodyEl.innerHTML = html;
+        }
+
+        function openDashboard() {
+            if (!masterDbIsLoaded) return;
+            renderDashboard(buildDashboardModel());
+            var overlay = document.getElementById('dashboard_overlay');
+            if (overlay) overlay.classList.add('is-open');
+        }
+
+        function closeDashboard() {
+            var overlay = document.getElementById('dashboard_overlay');
+            if (overlay) overlay.classList.remove('is-open');
+        }
+
+        function updateDashboardTrigger() {
+            var btn = document.getElementById('btn_dashboard_view');
+            if (!btn) return;
+            btn.style.display = masterDbIsLoaded ? 'block' : 'none';
+            btn.disabled = !masterDbIsLoaded;
+        }
+
+        function openDashboardPatientLongitudinal(patientId) {
+            var identifier = normalizePatientId(patientId);
+            if (!identifier || !masterDbIsLoaded) return;
+            var rows = getPatientRecords(identifier);
+            if (!rows.length) return;
+            var last = rows[rows.length - 1];
+            var lastClinical = null;
+            for (var i = rows.length - 1; i >= 0; i--) {
+                var vt = String(rows[i].tipo_visita || '').trim().toUpperCase();
+                if (vt === 'PV' || vt === 'SG') {
+                    lastClinical = rows[i];
+                    break;
+                }
+            }
+            if (!setSelectedPatientFromRecord({
+                identifier: identifier,
+                records: rows,
+                lastRecord: last,
+                lastClinical: lastClinical || last
+            })) return;
+            closeDashboard();
+            openLongitudinalQuickView();
+        }
+
+        (function () {
+            var overlay = document.getElementById('dashboard_overlay');
+            if (overlay) {
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === overlay) closeDashboard();
+                });
+            }
+        })();
+
         /* === PANEL LONGITUDINAL — FASE 7A2 === */
 
         function getCurrentPatientRowsForLongitudinalView() {
@@ -6738,9 +7341,11 @@
             btn.style.display = safeFound ? 'block' : 'none';
         }
 
-        // Cerrar panel con Escape
+        // Cerrar paneles con Escape
         document.addEventListener('keydown', function(evt) {
-            if (evt.key === 'Escape') closeLongitudinalQuickView();
+            if (evt.key !== 'Escape') return;
+            closeDashboard();
+            closeLongitudinalQuickView();
         });
 
         // Cerrar panel al clicar overlay fuera del panel
