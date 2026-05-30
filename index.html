@@ -1621,6 +1621,82 @@
                 transform: translateY(8px);
             }
         }
+        /* === QUICKVIEW TARJETAS — FASE 7A1 === */
+        .qv-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 14px 18px;
+            margin: 20px 0 0;
+        }
+        .qv-card-pv { border-left-color: #1a81ae; }
+        .qv-card-sg { border-left-color: #14a79a; }
+        .qv-card-cx { border-left-color: #8a55ef; }
+        .qv-title {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .qv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 3px 14px;
+        }
+        .qv-row {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+        .qv-lbl {
+            color: #64748b;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.79rem;
+        }
+        .qv-lbl::after { content: ':'; }
+        .qv-val {
+            color: var(--text-color);
+            font-weight: 500;
+            min-width: 0;
+            word-break: break-word;
+        }
+        .qv-badge {
+            display: inline-block;
+            font-size: 0.67rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 8px;
+            margin-left: 3px;
+            vertical-align: middle;
+        }
+        .qv-badge-leve     { background: #d1fae5; color: #065f46; }
+        .qv-badge-moderado { background: #fef3c7; color: #92400e; }
+        .qv-badge-grave    { background: #fee2e2; color: #991b1b; }
+        .qv-tag {
+            display: inline-block;
+            font-size: 0.71rem;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 6px;
+            margin-left: 4px;
+            background: #fef9c3;
+            color: #854d0e;
+            vertical-align: middle;
+        }
+        .qv-tag.danger { background: #fee2e2; color: #991b1b; }
+        .qv-sep {
+            grid-column: 1 / -1;
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 3px 0;
+        }
+        @media (max-width: 640px) { .qv-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 
@@ -2248,7 +2324,8 @@
             </div>
         </div>
 
-        <!-- BARRA FLOTANTE -->
+        <!-- QUICKVIEW PV -->
+        <div id="qv-pv" class="qv-card qv-card-pv" aria-label="Resumen rápido primera visita"></div>
 
     </div>
 
@@ -2740,6 +2817,8 @@
             </div>
         </div>
 
+        <!-- QUICKVIEW SG -->
+        <div id="qv-sg" class="qv-card qv-card-sg" aria-label="Resumen rápido seguimiento"></div>
 
     </div>
 
@@ -3130,6 +3209,8 @@
             </div>
         </div>
 
+        <!-- QUICKVIEW CX -->
+        <div id="qv-cx" class="qv-card qv-card-cx" aria-label="Resumen rápido cura post-qx"></div>
 
     </div>
 
@@ -5206,6 +5287,7 @@
             var activeData = getActiveZoneData(pv_ihsData, pv_regions);
             document.getElementById('pv_active_zone_count').innerText = activeData.count;
             document.getElementById('pv_active_zone_list').innerText = activeData.list;
+            updatePvQuickView();
         }
         calcTotalIHS_pv();
 
@@ -5651,6 +5733,7 @@
             } else {
                 alertEl.style.display = 'none';
             }
+            updateSgQuickView();
         }
         calcTotalIHS_sg();
 
@@ -5979,6 +6062,321 @@
                 '\nEvolución y notas:\n' + _f(v('cx_notas'), 'NR');
             copyTextToClipboard(txt, 'Informe copiado al portapapeles.', 'No se pudo copiar el informe. Revise permisos del portapapeles.');
         }
+
+        // =====================================================
+        // QUICKVIEW TARJETAS — FASE 7A1
+        // =====================================================
+
+        function safeDisplay(val, fallback) {
+            var fb = (fallback !== undefined && fallback !== null) ? fallback : 'NR';
+            if (val === null || val === undefined) return fb;
+            var s = String(val).trim();
+            return s.length > 0 ? s : fb;
+        }
+
+        function yesNoFromText(val) {
+            if (val === null || val === undefined) return 'No';
+            var s = String(val).trim().toLowerCase();
+            var neg = ['', 'nr', 'no', 'ninguno', 'ninguna', 'no consta', 'no registrado',
+                'ninguno registrado', 'ninguna registrada', 'sin notas', 'pendiente',
+                'no referidos', 'no precisa', 'no registrada', 'ninguna'];
+            return neg.indexOf(s) >= 0 ? 'No' : 'Sí';
+        }
+
+        function compactList(items, fallback) {
+            var fb = (fallback !== undefined) ? fallback : 'NR';
+            if (!items || !items.length) return fb;
+            var valid = [];
+            for (var i = 0; i < items.length; i++) {
+                if (items[i] && String(items[i]).trim()) valid.push(String(items[i]).trim());
+            }
+            return valid.length > 0 ? valid.join(', ') : fb;
+        }
+
+        function _qvBadge(sev) {
+            if (!sev) return '';
+            var map = { 'Leve': 'leve', 'Moderado': 'moderado', 'Grave': 'grave' };
+            var cls = map[sev];
+            return cls ? '<span class="qv-badge qv-badge-' + cls + '">' + sev.toUpperCase() + '</span>' : '';
+        }
+
+        function _qvTag(text, danger) {
+            return '<span class="qv-tag' + (danger ? ' danger' : '') + '">' + text + '</span>';
+        }
+
+        function _qvRow(lbl, val) {
+            return '<div class="qv-row"><span class="qv-lbl">' + lbl + '</span><span class="qv-val">' + val + '</span></div>';
+        }
+
+        function _qvSep() { return '<hr class="qv-sep">'; }
+
+        // --- PV ---
+        function buildPvQuickViewModel() {
+            var ihs4Raw = textOf('pv_final_ihs4');
+            var ihs4Sev = severityFromIhs4(ihs4Raw);
+            var activeZones = formatActiveZonesDetail(pv_ihsData, pv_regions);
+            var edus = document.querySelectorAll('#tab-pv .edu-item.active');
+            var coms = document.querySelectorAll('#tab-pv .c-item.active');
+            var derivaciones = valueOf('pv_derivaciones');
+            var needsDerm = yesNoFromText(derivaciones);
+            return {
+                hurley: safeDisplay(valueOf('pv_hurley_val')),
+                ihs4: ihs4Raw || '0',
+                ihs4Sev: ihs4Sev,
+                ihs4IsGrave: ihs4Sev === 'Grave',
+                activeZones: activeZones,
+                evaDolor: safeDisplay(valueOf('pv_eva_dolor')),
+                winrsPrurito: safeDisplay(valueOf('pv_eva_prurito')),
+                evaSupuracion: safeDisplay(valueOf('pv_eva_supuracion')),
+                dlqi: safeDisplay(valueOf('pv_dlqi_display'), '0'),
+                hsqol: safeDisplay(valueOf('pv_hsqol_display')),
+                hsqolInterp: safeDisplay(valueOf('pv_hsqol_interp')),
+                hadsA: safeDisplay(valueOf('pv_hads_a_display'), '0'),
+                hadsD: safeDisplay(valueOf('pv_hads_d_display'), '0'),
+                educYN: edus.length > 0 ? 'Sí (' + edus.length + ')' : 'No',
+                comorbYN: coms.length > 0 ? 'Sí (' + coms.length + ')' : 'No',
+                needsDermYN: needsDerm,
+                needsDermAlert: needsDerm === 'Sí'
+            };
+        }
+
+        function renderPvQuickView(m) {
+            var el = document.getElementById('qv-pv');
+            if (!el) return;
+            var ihs4Val = m.ihs4 + _qvBadge(m.ihs4Sev);
+            if (m.ihs4IsGrave) ihs4Val += _qvTag('IHS4 GRAVE', true);
+            var needsVal = m.needsDermYN;
+            if (m.needsDermAlert) needsVal += _qvTag('Requiere revisión');
+            var html = '<div class="qv-title">Resumen rápido — Primera visita</div>';
+            html += '<div class="qv-grid">';
+            html += _qvRow('Hurley basal', m.hurley);
+            html += _qvRow('IHS4 actual', ihs4Val);
+            html += '<div class="qv-row" style="grid-column:1/-1;align-items:flex-start;">'
+                + '<span class="qv-lbl">Zonas activas</span>'
+                + '<span class="qv-val" style="white-space:pre-line;">' + m.activeZones + '</span></div>';
+            html += _qvSep();
+            html += _qvRow('EVA dolor', m.evaDolor);
+            html += _qvRow('WI-NRS prurito', m.winrsPrurito);
+            html += _qvRow('EVA supuración', m.evaSupuracion);
+            html += _qvSep();
+            html += _qvRow('DLQI', m.dlqi + '/30');
+            html += _qvRow('HSQoL-24', m.hsqol + (m.hsqolInterp !== 'NR' ? ' — ' + m.hsqolInterp : ''));
+            html += _qvRow('HADS ansiedad', m.hadsA + '/21');
+            html += _qvRow('HADS depresión', m.hadsD + '/21');
+            html += _qvSep();
+            html += _qvRow('Comorbilidades', m.comorbYN);
+            html += _qvRow('Educación sanitaria', m.educYN);
+            html += _qvRow('Necesidades Dermatología', needsVal);
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function updatePvQuickView() { renderPvQuickView(buildPvQuickViewModel()); }
+
+        // --- SG ---
+        function buildSgQuickViewModel() {
+            var ihs4Raw = textOf('sg_final_ihs4');
+            var ihs4Score = parseInt(ihs4Raw, 10);
+            var ihs4Sev = severityFromIhs4(ihs4Raw);
+            var ihs4PrevRaw = valueOf('sg_ihs4_previo');
+            var ihs4Prev = parseFloat(ihs4PrevRaw);
+            var cambio = 'No valorable';
+            var cambioClass = '';
+            if (!isNaN(ihs4Prev) && ihs4Prev > 0 && !isNaN(ihs4Score)) {
+                var diff = ihs4Score - ihs4Prev;
+                var pct = Math.abs(Math.round((diff / ihs4Prev) * 100));
+                if (diff < 0) { cambio = 'Mejoría (' + pct + '%)'; cambioClass = 'mejoria'; }
+                else if (diff > 0) { cambio = 'Empeoramiento (+' + pct + '%)'; cambioClass = 'empeoramiento'; }
+                else { cambio = 'Estable'; }
+            }
+            var activeZones = formatActiveZonesDetail(sg_ihsData, sg_regions);
+            var drugs = typeof getSelectedDrugs_sg === 'function' ? getSelectedDrugs_sg() : [];
+            var suspension = valueOf('sg_suspension_prematura');
+            var suspensionYN = (suspension === 'Sí' || suspension === 'Si') ? 'Sí' : 'No';
+            var eas = document.querySelectorAll('#tab-sg .ea-item.active');
+            var eaYN = eas.length > 0 ? 'Sí (' + eas.length + ')' : 'No';
+            var morisky = valueOf('sg_morisky_score');
+            var moriskInterp = valueOf('sg_adherencia_val');
+            var adherencia = morisky ? morisky + '/4 — ' + (moriskInterp || '?') : 'NR';
+            var derivaciones = valueOf('sg_derivaciones');
+            var needsDerm = yesNoFromText(derivaciones);
+            var curaHoy = valueOf('sg_cura_hoy');
+            return {
+                ihs4Prev: (!ihs4PrevRaw || isNaN(ihs4Prev)) ? 'NR' : String(ihs4Prev),
+                ihs4: ihs4Raw || '0',
+                ihs4Sev: ihs4Sev,
+                ihs4IsGrave: ihs4Sev === 'Grave',
+                cambio: cambio,
+                cambioClass: cambioClass,
+                activeZones: activeZones,
+                evaDolor: safeDisplay(valueOf('sg_eva_dolor')),
+                winrsPrurito: safeDisplay(valueOf('sg_eva_prurito')),
+                evaSupuracion: safeDisplay(valueOf('sg_eva_supuracion')),
+                tratamiento: drugs.length > 0 ? drugs.join(', ') : 'NR',
+                suspensionYN: suspensionYN,
+                suspensionAlert: suspensionYN === 'Sí',
+                eaYN: eaYN,
+                eaAlert: eas.length > 0,
+                adherencia: adherencia,
+                needsDermYN: needsDerm,
+                needsDermAlert: needsDerm === 'Sí',
+                curaHoy: safeDisplay(curaHoy)
+            };
+        }
+
+        function renderSgQuickView(m) {
+            var el = document.getElementById('qv-sg');
+            if (!el) return;
+            var ihs4Val = m.ihs4 + _qvBadge(m.ihs4Sev);
+            if (m.ihs4IsGrave) ihs4Val += _qvTag('IHS4 GRAVE', true);
+            var cambioVal = m.cambio;
+            if (m.cambioClass === 'empeoramiento') cambioVal = _qvTag('Empeoramiento', true) + ' ' + m.cambio;
+            else if (m.cambioClass === 'mejoria') cambioVal = _qvTag('Mejoría') + ' ' + m.cambio;
+            var suspVal = m.suspensionYN;
+            if (m.suspensionAlert) suspVal += _qvTag('Alerta', true);
+            var eaVal = m.eaYN;
+            if (m.eaAlert) eaVal += _qvTag('Revisar', true);
+            var needsVal = m.needsDermYN;
+            if (m.needsDermAlert) needsVal += _qvTag('Pendiente');
+            var html = '<div class="qv-title">Resumen rápido — Seguimiento</div>';
+            html += '<div class="qv-grid">';
+            html += _qvRow('IHS4 previo', m.ihs4Prev);
+            html += _qvRow('IHS4 actual', ihs4Val);
+            html += _qvRow('Cambio vs previo', cambioVal);
+            html += '<div class="qv-row" style="grid-column:1/-1;align-items:flex-start;">'
+                + '<span class="qv-lbl">Zonas activas</span>'
+                + '<span class="qv-val" style="white-space:pre-line;">' + m.activeZones + '</span></div>';
+            html += _qvSep();
+            html += _qvRow('EVA dolor', m.evaDolor);
+            html += _qvRow('WI-NRS prurito', m.winrsPrurito);
+            html += _qvRow('EVA supuración', m.evaSupuracion);
+            html += _qvSep();
+            html += _qvRow('Tratamiento activo', m.tratamiento);
+            html += _qvRow('Suspensión prematura', suspVal);
+            html += _qvRow('Efectos adversos', eaVal);
+            html += _qvRow('Adherencia Morisky', m.adherencia);
+            html += _qvSep();
+            html += _qvRow('Cura hoy', m.curaHoy);
+            html += _qvRow('Necesidades Dermatología', needsVal);
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function updateSgQuickView() { renderSgQuickView(buildSgQuickViewModel()); }
+
+        // --- CX ---
+        function buildCxQuickViewModel() {
+            var dimL = safeDisplay(valueOf('cx_h_largo'), '?');
+            var dimA = safeDisplay(valueOf('cx_h_ancho'), '?');
+            var dimP = safeDisplay(valueOf('cx_h_prof'), '?');
+            var dimensiones = (dimL !== 'NR' || dimA !== 'NR' || dimP !== 'NR')
+                ? dimL + ' × ' + dimA + ' × ' + dimP + ' cm' : 'NR';
+            var comps = document.querySelectorAll('#tab-cx .comp-item.active');
+            var compYN = comps.length > 0 ? 'Sí (' + comps.length + ')' : 'No';
+            var hsTime = typeof getTimeSelections_cx === 'function' ? getTimeSelections_cx() : '';
+            return {
+                nCura: safeDisplay(valueOf('cx_n_cura')),
+                localizacion: safeDisplay(valueOf('cx_localizacion')),
+                tipoQx: safeDisplay(valueOf('cx_tipo_qx')),
+                tipoCierre: safeDisplay(valueOf('cx_tipo_cierre')),
+                evaPre: safeDisplay(valueOf('cx_eva_pre')),
+                evaPost: safeDisplay(valueOf('cx_eva_post')),
+                dimensiones: dimensiones,
+                hsTime: hsTime || 'No evaluado',
+                aposPrim: safeDisplay(valueOf('cx_apos_prim')),
+                aposSec: safeDisplay(valueOf('cx_apos_sec')),
+                compYN: compYN,
+                compAlert: comps.length > 0,
+                proxCura: safeDisplay(valueOf('cx_prox_cura')),
+                freqCura: safeDisplay(valueOf('cx_freq_cura'))
+            };
+        }
+
+        function renderCxQuickView(m) {
+            var el = document.getElementById('qv-cx');
+            if (!el) return;
+            var compVal = m.compYN;
+            if (m.compAlert) compVal += _qvTag('Presente', true);
+            var evaPreVal = m.evaPre !== 'NR' ? m.evaPre + '/10' : 'NR';
+            var evaPostVal = m.evaPost !== 'NR' ? m.evaPost + '/10' : 'NR';
+            var html = '<div class="qv-title">Resumen rápido — Cura Post-Qx</div>';
+            html += '<div class="qv-grid">';
+            html += _qvRow('Nº cura', m.nCura);
+            html += _qvRow('Localización', m.localizacion);
+            html += _qvRow('Intervención', m.tipoQx);
+            html += _qvRow('Tipo cierre', m.tipoCierre);
+            html += _qvSep();
+            html += _qvRow('EVA pre-cura', evaPreVal);
+            html += _qvRow('EVA post-cura', evaPostVal);
+            html += _qvRow('Dimensiones herida', m.dimensiones);
+            html += _qvRow('HS-TIME', m.hsTime);
+            html += _qvSep();
+            html += _qvRow('Apósito primario', m.aposPrim);
+            html += _qvRow('Apósito secundario', m.aposSec);
+            html += _qvRow('Complicaciones', compVal);
+            html += _qvSep();
+            html += _qvRow('Próxima cura', m.proxCura);
+            html += _qvRow('Frecuencia', m.freqCura);
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function updateCxQuickView() { renderCxQuickView(buildCxQuickViewModel()); }
+
+        // --- Listeners y render inicial ---
+        (function initQvListeners() {
+            function _on(id, fn) {
+                var el = document.getElementById(id);
+                if (el) { el.addEventListener('input', fn); el.addEventListener('change', fn); }
+            }
+
+            // PV
+            ['pv_eva_dolor', 'pv_eva_prurito', 'pv_eva_supuracion',
+             'pv_dlqi_display', 'pv_hsqol_display', 'pv_hsqol_interp',
+             'pv_hads_a_display', 'pv_hads_d_display', 'pv_derivaciones'].forEach(function(id) { _on(id, updatePvQuickView); });
+            var tabPv = document.getElementById('tab-pv');
+            if (tabPv) {
+                tabPv.addEventListener('click', function(e) {
+                    var t = e.target;
+                    if (t.closest('.c-item') || t.closest('.edu-item') || t.closest('.hurley-card')) {
+                        setTimeout(updatePvQuickView, 0);
+                    }
+                });
+            }
+
+            // SG
+            ['sg_ihs4_previo', 'sg_eva_dolor', 'sg_eva_prurito', 'sg_eva_supuracion',
+             'sg_suspension_prematura', 'sg_morisky_score', 'sg_adherencia_val',
+             'sg_derivaciones', 'sg_cura_hoy'].forEach(function(id) { _on(id, updateSgQuickView); });
+            var tabSg = document.getElementById('tab-sg');
+            if (tabSg) {
+                tabSg.addEventListener('click', function(e) {
+                    if (e.target.closest('.ea-item') || e.target.closest('.adherence-card')) {
+                        setTimeout(updateSgQuickView, 0);
+                    }
+                });
+                tabSg.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('sg-drug-select')) setTimeout(updateSgQuickView, 0);
+                });
+            }
+
+            // CX
+            ['cx_n_cura', 'cx_localizacion', 'cx_tipo_qx', 'cx_tipo_cierre',
+             'cx_eva_pre', 'cx_eva_post',
+             'cx_h_largo', 'cx_h_ancho', 'cx_h_prof',
+             'cx_apos_prim', 'cx_apos_sec', 'cx_prox_cura', 'cx_freq_cura'].forEach(function(id) { _on(id, updateCxQuickView); });
+            var tabCx = document.getElementById('tab-cx');
+            if (tabCx) {
+                tabCx.addEventListener('click', function(e) {
+                    if (e.target.closest('.comp-item') || e.target.closest('.time-option')) {
+                        setTimeout(updateCxQuickView, 0);
+                    }
+                });
+            }
+
+            // Render inicial (IHS4 ya lo hizo calcTotal; esto cubre CX y otros campos)
+            updateCxQuickView();
+        })();
 
     </script>
 </body>
