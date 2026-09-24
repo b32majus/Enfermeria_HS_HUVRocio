@@ -8247,14 +8247,14 @@
             pvTotals.forEach(function (item) {
                 var target = document.getElementById(item.el);
                 var value = String(item.value || '').trim();
-                if (target && value) target.innerText = value;
+                // Total ausente en la fila guardada: se muestra vacío; la reexportación
+                // no debe convertir una medición histórica ausente en un cero registrado.
+                if (target) target.innerText = value;
             });
             var storedScore = String(row.ihs4_actual || '').trim();
-            if (storedScore) {
-                var scoreEl = document.getElementById('pv_final_ihs4');
-                if (scoreEl) scoreEl.innerText = storedScore;
-                applyIhs4ScoreStyle('pv_final_ihs4', getIhs4Level(storedScore));
-            }
+            var scoreEl = document.getElementById('pv_final_ihs4');
+            if (scoreEl) scoreEl.innerText = storedScore; // Ausente: '' (nunca 0 inventado)
+            applyIhs4ScoreStyle('pv_final_ihs4', getIhs4Level(storedScore));
             var zonasNEl = document.getElementById('pv_active_zone_count');
             var storedZonasN = String(row.zonas_activas_n || '').trim();
             if (zonasNEl && storedZonasN) zonasNEl.innerText = storedZonasN;
