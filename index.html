@@ -6004,9 +6004,28 @@
             var coms = comorbTexts.join('; ');
             var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return e.innerText.replace(/^.*?\s/, ''); }).join('; ');
             var zoneSummary = getPvActiveZoneSummary();
+            // Modo histórico PV: preservar la diferencia entre "no registrado" (vacío)
+            // y un "No" explícito. NOT RECORDED no equivale a NO:
+            //   vacío original + tarjeta inactiva  -> vacío;
+            //   No original + tarjeta inactiva     -> No;
+            //   Si/Sí original + tarjeta activa    -> Si;
+            //   vacío/No original + user activa    -> Si;
+            //   Si/Sí original + user desactiva    -> No.
+            var storedComorbByFragment = null;
+            if (isPvHistoricalMode()) {
+                storedComorbByFragment = {};
+                Object.keys(PV_COMORB_COLUMNS).forEach(function (column) {
+                    var raw = normalizeText((pvLoadedFromDbRow || {})[column] || '');
+                    storedComorbByFragment[normalizeText(PV_COMORB_COLUMNS[column])] =
+                        raw === 'si' ? 'Si' : (raw === 'no' ? 'No' : '');
+                });
+            }
             function hasComorb(fragment) {
                 var normalizedFragment = normalizeText(fragment);
-                return comorbTexts.some(function (label) { return normalizeText(label).indexOf(normalizedFragment) >= 0; }) ? 'Si' : 'No';
+                if (comorbTexts.some(function (label) { return normalizeText(label).indexOf(normalizedFragment) >= 0; })) return 'Si';
+                if (!storedComorbByFragment) return 'No';
+                var stored = storedComorbByFragment[normalizedFragment];
+                return stored === 'Si' ? 'No' : (stored || '');
             }
             var ihs4Actual = textOf('pv_final_ihs4');
             var row = buildMasterRow({
@@ -8105,23 +8124,26 @@
             input.value = raw;
         }
 
+        // Mapa compartido columna Excel -> fragmento de tarjeta de comorbilidad.
+        var PV_COMORB_COLUMNS = {
+            hta: 'hipertension',
+            dislipemia: 'dislipemia',
+            diabetes: 'diabetes',
+            obesidad: 'obesidad',
+            acne_grave_conglobata: 'acne grave',
+            sinus_pilonidal: 'sinus pilonidal',
+            eii_digestivo: 'eii/sintomas digestivos',
+            espa_osteoarticular: 'espa',
+            ansiedad_dx: 'ansiedad dx',
+            depresion_dx: 'depresion dx',
+            malestar_emocional_alto: 'malestar emocional alto',
+            sop: 'sop',
+            brotes_perimenstruales: 'brotes perimenstr',
+            aco_actual: 'aco actual'
+        };
+
         function restorePvComorbFromRow(row) {
-            var pvComorbColumns = {
-                hta: 'hipertension',
-                dislipemia: 'dislipemia',
-                diabetes: 'diabetes',
-                obesidad: 'obesidad',
-                acne_grave_conglobata: 'acne grave',
-                sinus_pilonidal: 'sinus pilonidal',
-                eii_digestivo: 'eii/sintomas digestivos',
-                espa_osteoarticular: 'espa',
-                ansiedad_dx: 'ansiedad dx',
-                depresion_dx: 'depresion dx',
-                malestar_emocional_alto: 'malestar emocional alto',
-                sop: 'sop',
-                brotes_perimenstruales: 'brotes perimenstr',
-                aco_actual: 'aco actual'
-            };
+            var pvComorbColumns = PV_COMORB_COLUMNS;
             var comorbCards = Array.from(document.querySelectorAll('#tab-pv .c-item'));
             Object.keys(pvComorbColumns).forEach(function (column) {
                 if (normalizeText(row[column]) !== 'si') return; // Solo se activa desde 'Si'/'Sí'; nunca desde 'No'.
