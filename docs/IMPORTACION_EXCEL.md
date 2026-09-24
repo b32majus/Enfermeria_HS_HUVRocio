@@ -60,6 +60,10 @@ No se precargan campos de actividad actual, por seguridad clínica:
 - brotes actuales;
 - PROMs actuales.
 
+## Reapertura de Primera Visita desde la base cargada
+
+Además de la precarga de Seguimiento, la base cargada permite reabrir la Primera Visita más reciente del paciente seleccionado desde la barra lateral (botón **Abrir Primera Visita guardada**), restaurando los valores almacenados en su fila PV y manteniendo su fecha de visita original. Ver el detalle en el [manual de usuario](MANUAL_USUARIO_ENFERMERIA_HS.md).
+
 ## Seguridad y persistencia
 
 - Sin backend.

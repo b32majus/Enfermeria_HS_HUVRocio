@@ -1812,6 +1812,18 @@
             margin-top: 8px;
             font-size: 0.79rem;
         }
+        #btn_pv_reopen {
+            display: none;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.79rem;
+        }
+        /* Modo histórico PV: controles de detalle no almacenado desactivados. */
+        #tab-pv .c-btn.historical-locked,
+        #tab-pv input[type="radio"].historical-locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
         @media (max-width: 640px) {
             .longitudinal-panel { width: 100vw; }
             .longitudinal-lbl { min-width: 100px; }
@@ -2230,6 +2242,7 @@
                             <div id="global_hs_code_feedback" class="hs-code-feedback" style="display:none;"></div>
                             <button type="button" class="btn btn-outline" id="sidebar_new_patient_btn"><i class="fas fa-trash-alt"></i> Nuevo paciente / limpiar</button>
                             <button type="button" class="btn btn-outline" id="btn_longitudinal_view" onclick="openLongitudinalQuickView()" aria-label="Ver resumen longitudinal del paciente">Ver resumen longitudinal</button>
+                            <button type="button" class="btn btn-outline" id="btn_pv_reopen" onclick="openExistingPv()" aria-label="Abrir la Primera Visita guardada del paciente">Abrir Primera Visita guardada</button>
                             <button type="button" class="btn btn-outline" id="btn_dashboard_view" onclick="openDashboard()" aria-label="Ver dashboard piloto del proyecto">Ver dashboard piloto</button>
                         </div>
                         <div id="master_excel_warnings" style="display:none;"></div>
@@ -2276,6 +2289,7 @@
 
     <!-- TAB 1: PRIMERA VISITA -->
     <div class="tab-content active" id="tab-pv">
+        <div id="pv_db_load_note" role="note" style="display:none;margin:0 0 10px 0;padding:8px 12px;border:1px solid var(--border-color);background:#f8fafc;border-radius:var(--border-radius);font-size:0.8rem;color:#334155;"></div>
         <!-- 1. FILIACIÓN E HISTORIA HS -->
         <div class="section">
             <div class="section-header" onclick="toggleSection('pv_sec-filiacion')">
@@ -3770,6 +3784,7 @@
         let masterDbDuplicateCodes = [];
         let pendingNewPatientIdentifier = '';
         let sgAutoPreloadMarker = '';
+        let pvLoadedFromDbRow = null;
         let activeCriticalModalConfig = null;
         const MASTER_COLUMNS = [
             'fecha_exportacion', 'version_herramienta', 'tipo_visita',
@@ -4933,6 +4948,8 @@
             document.querySelectorAll('.tab-content .toggle-card.active, .tab-content .time-option.selected, .tab-content .hurley-card.active').forEach(function (item) {
                 item.classList.remove('active', 'selected', 'good', 'partial', 'bad');
             });
+            // Salir del modo histórico PV (si lo estaba): controles de detalle interactivos de nuevo.
+            setPvHistoricalDetailControlsLocked(false);
             if (typeof pv_ihsData !== 'undefined' && Array.isArray(pv_ihsData)) {
                 pv_ihsData.forEach(function (zone) { zone.n = 0; zone.a = 0; zone.f = 0; });
                 calcTotalIHS_pv();
@@ -4972,6 +4989,8 @@
             selectedPatientLastRecord = null;
             selectedPatientLastClinicalRecord = null;
             sgAutoPreloadMarker = '';
+            pvLoadedFromDbRow = null;
+            hidePvDbLoadNote();
             pendingNewPatientIdentifier = '';
             try {
                 sessionStorage.removeItem(HS_SELECTED_PATIENT_SESSION_KEY);
@@ -4987,6 +5006,7 @@
             setHsCodeFeedback('Recuerde copiar la fila Excel para que el código HS quede registrado en la base.');
             updateHsCodeGlobalUI();
             updateLongitudinalQuickViewTrigger();
+            updatePvReopenTrigger();
             closeLongitudinalQuickView();
             updateDashboardTrigger();
             closeDashboard();
@@ -5033,6 +5053,7 @@
             updateGlobalPatientSummary(selectedPatientLastRecord, selectedPatientLastClinicalRecord, false);
             updateHsCodeGlobalUI();
             updateLongitudinalQuickViewTrigger();
+            updatePvReopenTrigger();
             return true;
         }
 
@@ -5611,6 +5632,53 @@
             });
             return lines.length ? lines.join('\n') : 'Sin zonas activas registradas.';
         }
+        // Resumen de zonas activas consciente del modo histórico PV. En modo histórico la
+        // fila guardada es autoridad: se conservan zonas_activas_n y zonas_activas_listado
+        // almacenados y NUNCA se infiere "Sin zonas activas" por el detalle regional ausente.
+        function getPvActiveZoneSummary() {
+            if (!isPvHistoricalMode()) {
+                var live = getActiveZoneData(pv_ihsData, pv_regions);
+                return {
+                    historical: false,
+                    count: live.count,
+                    list: live.list,
+                    reportDetail: formatActiveZonesDetail(pv_ihsData, pv_regions)
+                };
+            }
+            var row = pvLoadedFromDbRow || {};
+            var storedList = String(row.zonas_activas_listado || '').trim();
+            var storedCount = String(row.zonas_activas_n || '').trim();
+            var noneStored = !storedList || normalizeText(storedList) === 'ninguna' || normalizeText(storedList) === 'nr';
+            if (noneStored && storedCount !== '0') {
+                // El Excel no almacena el desglose: no se declara ausencia de zonas sin valor guardado.
+                return {
+                    historical: true,
+                    count: storedCount,
+                    list: storedList,
+                    reportDetail: 'No disponible en la fila guardada (zonas activas registradas: ' + (storedCount || 'NR') + ').'
+                };
+            }
+            var list = (normalizeText(storedList) === 'ninguna' || normalizeText(storedList) === 'nr') ? 'Ninguna' : storedList;
+            return {
+                historical: true,
+                count: storedCount || (noneStored ? '0' : 'NR'),
+                list: list,
+                reportDetail: (list === 'Ninguna') ? 'Sin zonas activas (valor guardado).' : '- ' + list
+            };
+        }
+        // Representación en pantalla de las zonas activas de una fila guardada.
+        // NOT RECORDED no equivale a NO: si la fila no almacena ni count ni listado,
+        // se muestra una representación neutra (NR / No registrado), nunca 0/Ninguna
+        // como si hubiera sido valorado. Un 0 explícito sí es un cero válido.
+        function getPvStoredZonesDisplay(row) {
+            var storedCount = String((row && row.zonas_activas_n) || '').trim();
+            var storedList = String((row && row.zonas_activas_listado) || '').trim();
+            var displayList = storedList;
+            if (!displayList) {
+                displayList = (storedCount === '0') ? 'Ninguna' : 'No registrado';
+            }
+            return { count: storedCount || 'NR', list: displayList };
+        }
         function valueOf(id) {
             var el = document.getElementById(id);
             return el ? el.value : '';
@@ -5784,8 +5852,17 @@
                 '<div class="counter-row"><span class="c-label c-abs">A</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'a\',-1)">-</div><div class="c-val" id="pv_r' + i + 'a">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'a\',1)">+</div></div></div>' +
                 '<div class="counter-row"><span class="c-label c-fis">F</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'f\',-1)">-</div><div class="c-val" id="pv_r' + i + 'f">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'f\',1)">+</div></div></div></div>';
         });
-        function updIHS_pv(i, t, d) { var v = pv_ihsData[i][t] + d; if (v < 0) v = 0; pv_ihsData[i][t] = v; document.getElementById('pv_r' + i + t).innerText = v; calcTotalIHS_pv(); }
+        function updIHS_pv(i, t, d) {
+            // Modo histórico PV: los contadores regionales no están almacenados y no pueden
+            // recalcular silenciosamente los totales/score guardados (autoridad de la fila).
+            if (isPvHistoricalMode()) return;
+            var v = pv_ihsData[i][t] + d; if (v < 0) v = 0; pv_ihsData[i][t] = v; document.getElementById('pv_r' + i + t).innerText = v; calcTotalIHS_pv();
+        }
+        function isPvHistoricalMode() { return !!pvLoadedFromDbRow; }
         function calcTotalIHS_pv() {
+            // Modo histórico PV: no recalcular desde pv_ihsData (mapa vacío); los valores
+            // mostrados son los almacenados y se restauran en openExistingPv.
+            if (isPvHistoricalMode()) return;
             var n = 0, a = 0, f = 0;
             pv_ihsData.forEach(function (o) { n += o.n; a += o.a; f += o.f; });
             document.getElementById('pv_tot_n').innerText = n;
@@ -5820,6 +5897,9 @@
             dlqiBody.innerHTML += '<tr><td>' + q + '</td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="3" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="2" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="1" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="0" onchange="calcDLQI_pv()"></td></tr>';
         });
         function calcDLQI_pv() {
+            // Modo histórico PV: los totales almacenados son autoridad; las respuestas
+            // por ítem no se almacenaron y no pueden recalcular/sobrescribir el total.
+            if (isPvHistoricalMode()) return;
             var t = 0;
             for (var i = 0; i < 10; i++) {
                 document.getElementsByName('pv_d' + i).forEach(function (e) { if (e.checked) t += parseInt(e.value); });
@@ -5850,6 +5930,8 @@
             document.getElementById(x.t === 'A' ? 'pv_hads-a-table' : 'pv_hads-d-table').innerHTML += row;
         });
         function calcHADS_pv() {
+            // Modo histórico PV: totales almacenados como autoridad (ver calcDLQI_pv).
+            if (isPvHistoricalMode()) return;
             var a = 0, d = 0;
             hadsItems.forEach(function (x, i) {
                 document.getElementsByName('pv_h' + i).forEach(function (e) {
@@ -5906,6 +5988,8 @@
             hsqolPvBody.innerHTML += '<tr><td>' + item.q + (item.reverse ? ' <span style="color:#64748b;">(puntuación inversa)</span>' : '') + '</td>' + cells + '</tr>';
         });
         function updateHSQoL_pv() {
+            // Modo histórico PV: total almacenado como autoridad (ver calcDLQI_pv).
+            if (isPvHistoricalMode()) return;
             var sc = 0;
             for (var i = 0; i < hsqolPvItems.length; i++) {
                 document.getElementsByName('pv_qol' + i).forEach(function (e) {
@@ -5932,10 +6016,29 @@
             var comorbTexts = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return e.innerText; });
             var coms = comorbTexts.join('; ');
             var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return e.innerText.replace(/^.*?\s/, ''); }).join('; ');
-            var activeData = getActiveZoneData(pv_ihsData, pv_regions);
+            var zoneSummary = getPvActiveZoneSummary();
+            // Modo histórico PV: preservar la diferencia entre "no registrado" (vacío)
+            // y un "No" explícito. NOT RECORDED no equivale a NO:
+            //   vacío original + tarjeta inactiva  -> vacío;
+            //   No original + tarjeta inactiva     -> No;
+            //   Si/Sí original + tarjeta activa    -> Si;
+            //   vacío/No original + user activa    -> Si;
+            //   Si/Sí original + user desactiva    -> No.
+            var storedComorbByFragment = null;
+            if (isPvHistoricalMode()) {
+                storedComorbByFragment = {};
+                Object.keys(PV_COMORB_COLUMNS).forEach(function (column) {
+                    var raw = normalizeText((pvLoadedFromDbRow || {})[column] || '');
+                    storedComorbByFragment[normalizeText(PV_COMORB_COLUMNS[column])] =
+                        raw === 'si' ? 'Si' : (raw === 'no' ? 'No' : '');
+                });
+            }
             function hasComorb(fragment) {
                 var normalizedFragment = normalizeText(fragment);
-                return comorbTexts.some(function (label) { return normalizeText(label).indexOf(normalizedFragment) >= 0; }) ? 'Si' : 'No';
+                if (comorbTexts.some(function (label) { return normalizeText(label).indexOf(normalizedFragment) >= 0; })) return 'Si';
+                if (!storedComorbByFragment) return 'No';
+                var stored = storedComorbByFragment[normalizedFragment];
+                return stored === 'Si' ? 'No' : (stored || '');
             }
             var ihs4Actual = textOf('pv_final_ihs4');
             var row = buildMasterRow({
@@ -5994,8 +6097,10 @@
                 nodulos_total: textOf('pv_tot_n'),
                 abscesos_total: textOf('pv_tot_a'),
                 fistulas_total: textOf('pv_tot_f'),
-                zonas_activas_n: activeData.count,
-                zonas_activas_listado: activeData.list,
+                // Modo histórico PV: se conservan exactamente los valores almacenados en
+                // la fila guardada; en PV nueva se calculan desde los contadores regionales.
+                zonas_activas_n: zoneSummary.count,
+                zonas_activas_listado: zoneSummary.list,
                 eva_dolor: valueOf('pv_eva_dolor'),
                 eva_prurito: valueOf('pv_eva_prurito'),
                 eva_supuracion: valueOf('pv_eva_supuracion'),
@@ -6014,6 +6119,12 @@
                 notas_enfermeria: valueOf('pv_notas')
             });
             exportRowToClipboard(row);
+            if (pvLoadedFromDbRow) {
+                var loadedCode = normalizeHsCode(pvLoadedFromDbRow.codigo_hs);
+                showToast('Atención: la fila copiada ACTUALIZA/REEMPLAZA la Primera Visita ya registrada en la BD (tipo_visita PV, fecha ' +
+                    (pvLoadedFromDbRow.fecha_visita || 'NR') + ', código HS ' + (isValidHsCode(loadedCode) ? loadedCode : 'NR') +
+                    '). No la añada como una segunda PV histórica.', 'warn', 8000);
+            }
         }
 
         function copyReport_pv() {
@@ -6025,7 +6136,14 @@
             var ihs4 = t('pv_final_ihs4');
             var ihs4Score = parseInt(ihs4, 10);
             var ihs4Sev = severityFromIhs4(ihs4).toUpperCase();
-            var activeZonesTxt = formatActiveZonesDetail(pv_ihsData, pv_regions);
+            // Modo histórico PV: zonas activas desde la fila guardada + nota discreta de
+            // que el desglose regional N/A/F no está almacenado en la base.
+            var zoneSummary = getPvActiveZoneSummary();
+            var activeZonesTxt = zoneSummary.reportDetail;
+            if (zoneSummary.historical) {
+                activeZonesTxt += (zoneSummary.count ? '\nZonas activas registradas: ' + zoneSummary.count : '') +
+                    '\n(Detalle regional N/A/F no almacenado en la base para esta visita; se conservan los valores guardados.)';
+            }
             var txt = 'PRIMERA VISITA — ENFERMERÍA HS\n' +
                 '\n=== 1. IDENTIFICACIÓN Y CONTEXTO ===' +
                 '\nEdad: ' + _f(v('pv_edad'), 'NR') + ' | Sexo al nacimiento: ' + _f(v('pv_sexo'), 'NR') +
@@ -6208,10 +6326,15 @@
             document.getElementById('sg_active_zone_count').innerText = activeData.count;
             document.getElementById('sg_active_zone_list').innerText = activeData.list;
             // Compare with previous
-            var prev = Number(document.getElementById('sg_ihs4_previo').value);
+            var prevRaw = String(document.getElementById('sg_ihs4_previo').value || '').trim();
+            var prev = Number(prevRaw);
             var alertEl = document.getElementById('sg_ihs4-change');
-            if (Number.isFinite(prev) && prev > 0 && Number.isFinite(score)) {
-                var pct = ((score - prev) / prev * 100).toFixed(0);
+            // IHS4 previo 0 es un valor clínico válido: valorar cambio también desde 0.
+            // Un campo vacío no es 0: no hay comparador y la alerta no se muestra.
+            if (prevRaw && Number.isFinite(prev) && prev >= 0 && Number.isFinite(score)) {
+                // El porcentaje solo se calcula con previo > 0 (evitar división por cero);
+                // valor absoluto para coherencia con el informe TXT
+                var pct = prev > 0 ? Math.abs(((score - prev) / prev * 100).toFixed(0)) : 0;
                 var iconClass = '';
                 var comparisonLabel = '';
                 var comparisonText = '';
@@ -6224,7 +6347,9 @@
                     alertEl.className = 'alert-box alert-warning';
                     iconClass = 'fas fa-arrow-up';
                     comparisonLabel = 'Empeoramiento:';
-                    comparisonText = ' IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)';
+                    comparisonText = prev > 0
+                        ? ' IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)'
+                        : ' IHS4 ' + prev + ' → ' + score + ' (+' + (score - prev) + ' puntos)';
                 } else {
                     alertEl.className = 'alert-box alert-success';
                     iconClass = 'fas fa-equals';
@@ -6395,11 +6520,15 @@
             var curaHoy = v('sg_cura_hoy');
             var ihs4Prev = parseFloat(v('sg_ihs4_previo'));
             var ihs4ChangeLine = '';
-            if (!isNaN(ihs4Prev) && ihs4Prev > 0 && !isNaN(ihs4Score)) {
+            // IHS4 previo 0 es un valor clínico válido: valorar cambio también desde 0
+            if (!isNaN(ihs4Prev) && ihs4Prev >= 0 && !isNaN(ihs4Score)) {
                 var diff = ihs4Score - ihs4Prev;
-                var pct = Math.abs(Math.round((diff / ihs4Prev) * 100));
+                // El porcentaje solo se calcula con previo > 0 (evitar división por cero)
+                var pct = ihs4Prev > 0 ? Math.abs(Math.round((diff / ihs4Prev) * 100)) : null;
                 if (diff < 0) ihs4ChangeLine = '\nCambio respecto a previo: Mejoría — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (' + pct + '%)';
-                else if (diff > 0) ihs4ChangeLine = '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + pct + '%)';
+                else if (diff > 0) ihs4ChangeLine = ihs4Prev > 0
+                    ? '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + pct + '%)'
+                    : '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + diff + ' puntos)';
                 else ihs4ChangeLine = '\nCambio respecto a previo: Estable — IHS4 sin cambios (' + ihs4Score + ')';
             }
             var curaSection = '';
@@ -6625,7 +6754,15 @@
         function buildPvQuickViewModel() {
             var ihs4Raw = textOf('pv_final_ihs4');
             var ihs4Sev = severityFromIhs4(ihs4Raw);
-            var activeZones = formatActiveZonesDetail(pv_ihsData, pv_regions);
+            // Modo histórico PV: resumen de zonas desde la fila guardada (nunca del mapa vacío).
+            var zoneSummary = getPvActiveZoneSummary();
+            var activeZones = zoneSummary.historical
+                ? (zoneSummary.list === 'Ninguna'
+                    ? 'Sin zonas activas (valor guardado)'
+                    : (zoneSummary.list
+                        ? dashboardEscapeHtml(zoneSummary.list) + (zoneSummary.count ? ' — Total: ' + dashboardEscapeHtml(zoneSummary.count) : '')
+                        : 'Zonas activas registradas: ' + dashboardEscapeHtml(zoneSummary.count || 'NR') + ' (detalle no almacenado)'))
+                : zoneSummary.reportDetail; // Escape: el QuickView no escapa sus helpers (auditoría F-14)
             var edus = document.querySelectorAll('#tab-pv .edu-item.active');
             var coms = document.querySelectorAll('#tab-pv .c-item.active');
             var derivaciones = valueOf('pv_derivaciones');
@@ -6693,11 +6830,16 @@
             var ihs4Prev = parseFloat(ihs4PrevRaw);
             var cambio = 'No valorable';
             var cambioClass = '';
-            if (!isNaN(ihs4Prev) && ihs4Prev > 0 && !isNaN(ihs4Score)) {
+            // IHS4 previo 0 es un valor clínico válido: valorar cambio también desde 0
+            if (!isNaN(ihs4Prev) && ihs4Prev >= 0 && !isNaN(ihs4Score)) {
                 var diff = ihs4Score - ihs4Prev;
-                var pct = Math.abs(Math.round((diff / ihs4Prev) * 100));
+                // El porcentaje solo se calcula con previo > 0 (evitar división por cero)
+                var pct = ihs4Prev > 0 ? Math.abs(Math.round((diff / ihs4Prev) * 100)) : null;
                 if (diff < 0) { cambio = 'Mejoría (' + pct + '%)'; cambioClass = 'mejoria'; }
-                else if (diff > 0) { cambio = 'Empeoramiento (+' + pct + '%)'; cambioClass = 'empeoramiento'; }
+                else if (diff > 0) {
+                    cambio = ihs4Prev > 0 ? 'Empeoramiento (+' + pct + '%)' : 'Empeoramiento (+' + diff + ' puntos)';
+                    cambioClass = 'empeoramiento';
+                }
                 else { cambio = 'Estable'; }
             }
             var activeZones = formatActiveZonesDetail(sg_ihsData, sg_regions);
@@ -7660,11 +7802,12 @@
             });
             var tipos = Object.keys(tiposSet).join(', ') || 'NR';
 
-            // IHS4 último y previo
+            // IHS4 último y previo (IHS4 = 0 es un valor clínico válido, no dato ausente)
             var lastIhs4 = '', prevIhs4 = '', foundLast = false;
             for (var i = rows.length - 1; i >= 0; i--) {
                 var v = String(rows[i].ihs4_actual || '').trim();
-                if (!v || v === '0') continue;
+                // Rechazar solo vacío/NR/inválidos; aceptar 0 como medición válida
+                if (parseDashboardIhs4(v) === null) continue;
                 if (!foundLast) { lastIhs4 = v; foundLast = true; }
                 else { prevIhs4 = v; break; }
             }
@@ -7855,6 +7998,351 @@
                             rows.length > 0 &&
                             !(selectedPatientLastRecord && isDuplicateHsCodeInMasterDb(selectedPatientLastRecord.codigo_hs));
             btn.style.display = safeFound ? 'block' : 'none';
+        }
+
+        // =============================================
+        // === REAPERTURA DE PRIMERA VISITA (BD cargada) ===
+        // =============================================
+        function updatePvReopenTrigger() {
+            var btn = document.getElementById('btn_pv_reopen');
+            if (!btn) return;
+            var identifier = selectedPatientIdentifier;
+            var pvRows = (masterDbIsLoaded && identifier ? getPatientRecords(identifier) : [])
+                .filter(function (r) { return normalizeVisitType(r.tipo_visita) === 'PV'; });
+            var safeFound = masterDbIsLoaded &&
+                            identifier &&
+                            pvRows.length > 0 &&
+                            !(selectedPatientLastRecord && isDuplicateHsCodeInMasterDb(selectedPatientLastRecord.codigo_hs));
+            btn.style.display = safeFound ? 'block' : 'none';
+        }
+
+        function pvTabHasEnteredData() {
+            var ignoredIds = { pv_nuhsa: true, pv_codigo_hs: true, pv_fechaVisita: true };
+            var controls = document.querySelectorAll('#tab-pv input, #tab-pv select, #tab-pv textarea');
+            for (var i = 0; i < controls.length; i++) {
+                var control = controls[i];
+                if (ignoredIds[control.id] || control.readOnly || control.type === 'hidden') continue;
+                if ((control.type === 'checkbox' || control.type === 'radio') && control.checked) return true;
+                if (control.tagName === 'SELECT' && control.selectedIndex > 0) return true;
+                if (control.tagName !== 'SELECT' && String(control.value || '').trim()) return true;
+            }
+            return !!document.querySelector('#tab-pv .toggle-card.active, #tab-pv .time-option.selected, #tab-pv .hurley-card.active, #tab-pv .eva-btn.active');
+        }
+
+        function resetPvFormForDbLoad() {
+            document.querySelectorAll('#tab-pv input, #tab-pv select, #tab-pv textarea').forEach(function (control) {
+                if (control.type === 'button') return;
+                if (control.type === 'checkbox' || control.type === 'radio') {
+                    control.checked = false;
+                } else if (control.tagName === 'SELECT') {
+                    control.selectedIndex = 0;
+                } else {
+                    control.value = '';
+                }
+                if (control.dataset && control.dataset.acceptedValue !== undefined) control.dataset.acceptedValue = '';
+            });
+            document.querySelectorAll('#tab-pv .toggle-card.active, #tab-pv .time-option.selected, #tab-pv .hurley-card.active, #tab-pv .eva-btn.active').forEach(function (item) {
+                item.classList.remove('active', 'selected', 'good', 'partial', 'bad');
+            });
+            // Salir del modo histórico PV: los controles de detalle vuelven a ser interactivos.
+            setPvHistoricalDetailControlsLocked(false);
+            if (typeof pv_ihsData !== 'undefined' && Array.isArray(pv_ihsData)) {
+                pv_ihsData.forEach(function (zone) { zone.n = 0; zone.a = 0; zone.f = 0; });
+                pv_regions.forEach(function (regionLabel, idx) {
+                    ['n', 'a', 'f'].forEach(function (t) {
+                        var cell = document.getElementById('pv_r' + idx + t);
+                        if (cell) cell.innerText = '0';
+                    });
+                });
+            }
+            ['pv_tot_n', 'pv_tot_a', 'pv_tot_f', 'pv_final_ihs4', 'pv_active_zone_count'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.innerText = '0';
+            });
+            applyIhs4ScoreStyle('pv_final_ihs4', '');
+            var zoneListEl = document.getElementById('pv_active_zone_list');
+            if (zoneListEl) zoneListEl.innerText = 'Ninguna';
+            ['pv_dlqi_display', 'pv_hads_a_display', 'pv_hads_d_display', 'pv_hsqol_display'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.value = '';
+                    applySemaphoreToInputById(id, '');
+                }
+            });
+            var hsqolInterpEl = document.getElementById('pv_hsqol_interp');
+            if (hsqolInterpEl) hsqolInterpEl.value = '';
+            setupEvaButtons('pv_eva_dolor', 'pv_eva_dolor_buttons');
+            setupEvaButtons('pv_eva_prurito', 'pv_eva_prurito_buttons');
+            setupEvaButtons('pv_eva_supuracion', 'pv_eva_supuracion_buttons');
+            var imcInterpEl = document.getElementById('pv_imc-interpretation');
+            if (imcInterpEl) {
+                imcInterpEl.style.display = 'none';
+                imcInterpEl.textContent = '';
+            }
+            var imcAlertEl = document.getElementById('pv_imc-alert');
+            if (imcAlertEl) imcAlertEl.style.display = 'none';
+            toggleTabacoDetail_pv();
+            toggleHabitosAdvice_pv();
+        }
+
+        function setPvFieldFromRow(fieldId, storedValue) {
+            var el = document.getElementById(fieldId);
+            if (!el) return;
+            var value = String(storedValue === undefined || storedValue === null ? '' : storedValue).trim();
+            if (!value) return; // Sin valor almacenado: el campo queda limpio.
+            if (el.tagName === 'SELECT') {
+                var hasOption = Array.from(el.options).some(function (opt) { return opt.value === value; });
+                if (hasOption) el.value = value;
+                return;
+            }
+            el.value = value;
+        }
+
+        // Modo histórico PV: los selects con primera opción no vacía (p. ej. "No",
+        // "No afectado") no deben seleccionarla en silencio cuando el valor almacenado
+        // está ausente. NOT RECORDED no equivale a NO: sin selección, la exportación
+        // permanece vacía hasta que el usuario elige un valor explícitamente.
+        function setPvHistoricalSelectFromRow(fieldId, storedValue) {
+            var el = document.getElementById(fieldId);
+            if (!el || el.tagName !== 'SELECT') {
+                setPvFieldFromRow(fieldId, storedValue);
+                return;
+            }
+            var value = String(storedValue === undefined || storedValue === null ? '' : storedValue).trim();
+            if (value) {
+                var hasOption = Array.from(el.options).some(function (opt) { return opt.value === value; });
+                if (hasOption) {
+                    el.value = value;
+                    return;
+                }
+            }
+            // Ausente (o almacenado sin opción correspondiente): sin selección inventada.
+            el.selectedIndex = -1;
+        }
+
+        function setPvFechaVisitaFromRow(storedValue) {
+            var input = document.getElementById('pv_fechaVisita');
+            if (!input) return;
+            var raw = String(storedValue || '').trim();
+            if (!raw) return; // Se mantiene la fecha almacenada; nunca se sustituye por la fecha actual.
+            var parsed = parseVisitDate(raw);
+            if (parsed && !isNaN(parsed.getTime())) {
+                var mm = String(parsed.getMonth() + 1).padStart(2, '0');
+                var dd = String(parsed.getDate()).padStart(2, '0');
+                input.value = parsed.getFullYear() + '-' + mm + '-' + dd;
+                return;
+            }
+            input.value = raw;
+        }
+
+        // Mapa compartido columna Excel -> fragmento de tarjeta de comorbilidad.
+        var PV_COMORB_COLUMNS = {
+            hta: 'hipertension',
+            dislipemia: 'dislipemia',
+            diabetes: 'diabetes',
+            obesidad: 'obesidad',
+            acne_grave_conglobata: 'acne grave',
+            sinus_pilonidal: 'sinus pilonidal',
+            eii_digestivo: 'eii/sintomas digestivos',
+            espa_osteoarticular: 'espa',
+            ansiedad_dx: 'ansiedad dx',
+            depresion_dx: 'depresion dx',
+            malestar_emocional_alto: 'malestar emocional alto',
+            sop: 'sop',
+            brotes_perimenstruales: 'brotes perimenstr',
+            aco_actual: 'aco actual'
+        };
+
+        function restorePvComorbFromRow(row) {
+            var pvComorbColumns = PV_COMORB_COLUMNS;
+            var comorbCards = Array.from(document.querySelectorAll('#tab-pv .c-item'));
+            Object.keys(pvComorbColumns).forEach(function (column) {
+                if (normalizeText(row[column]) !== 'si') return; // Solo se activa desde 'Si'/'Sí'; nunca desde 'No'.
+                var fragment = normalizeText(pvComorbColumns[column]);
+                var matches = comorbCards.filter(function (card) {
+                    return normalizeText(card.innerText).indexOf(fragment) >= 0;
+                });
+                if (matches.length === 1) matches[0].classList.add('active');
+            });
+        }
+
+        function restorePvHurleyFromRow(storedValue) {
+            var value = String(storedValue || '').trim();
+            if (!value) return;
+            var hidden = document.getElementById('pv_hurley_val');
+            if (hidden) hidden.value = value;
+            var idx = ['I', 'II', 'III'].indexOf(value.toUpperCase());
+            if (idx < 0) return; // Valor no clasificable: sin tarjeta activa (cubierto por la nota de apertura).
+            var cards = document.querySelectorAll('#tab-pv .hurley-card');
+            if (cards[idx]) cards[idx].classList.add('active');
+        }
+
+        function restorePvEducacionFromRow(storedValue) {
+            var tokens = String(storedValue || '').split(';')
+                .map(function (token) { return token.trim(); })
+                .filter(function (token) { return token; });
+            if (!tokens.length) return;
+            var eduCards = Array.from(document.querySelectorAll('#tab-pv .edu-item'));
+            tokens.forEach(function (token) {
+                var normalizedToken = normalizeText(token);
+                var matches = eduCards.filter(function (card) {
+                    return normalizeText(card.innerText.replace(/^.*?\s/, '')) === normalizedToken;
+                });
+                // Sin coincidencia inequívoca: se omite (queda cubierto por la nota de apertura).
+                if (matches.length === 1) matches[0].classList.add('active');
+            });
+        }
+
+        function hidePvDbLoadNote() {
+            var note = document.getElementById('pv_db_load_note');
+            if (note) {
+                note.style.display = 'none';
+                note.textContent = '';
+            }
+        }
+
+        function showPvDbLoadNote(fechaVisita) {
+            var note = document.getElementById('pv_db_load_note');
+            if (!note) return;
+            note.textContent = 'Primera Visita cargada desde la BD (fecha ' + (fechaVisita || 'NR') + '). El detalle no almacenado en el Excel (respuestas de DLQI/HADS/HSQoL-24, distribución regional N/A/F) no se reconstruye y sus controles quedan desactivados; los totales mostrados provienen de la fila guardada y son los valores de referencia.';
+            note.style.display = 'block';
+        }
+
+        // Modo histórico PV: desactiva los controles de detalle no almacenado
+        // (contadores regionales IHS4 e ítems de cuestionarios PROM) para que no
+        // puedan recalcular/sobrescribir los totales históricos guardados.
+        function setPvHistoricalDetailControlsLocked(locked) {
+            var selectors = '#pv_regions-container .c-btn' +
+                ', #pv_dlqi-body input[type="radio"]' +
+                ', #pv_hads-a-table input[type="radio"]' +
+                ', #pv_hads-d-table input[type="radio"]' +
+                ', #pv_hsqol-body input[type="radio"]';
+            document.querySelectorAll(selectors).forEach(function (el) {
+                el.disabled = !!locked;
+                el.classList.toggle('historical-locked', !!locked);
+            });
+        }
+
+        function openExistingPv() {
+            if (!masterDbIsLoaded || !selectedPatientIdentifier) {
+                showToast('Seleccione primero un paciente con la base cargada.', 'warn');
+                return;
+            }
+            if (selectedPatientLastRecord && isDuplicateHsCodeInMasterDb(selectedPatientLastRecord.codigo_hs)) {
+                showDuplicateHsCodeModal(selectedPatientLastRecord.codigo_hs, 'export');
+                return;
+            }
+            var pvRows = getPatientRecords(selectedPatientIdentifier)
+                .filter(function (r) { return normalizeVisitType(r.tipo_visita) === 'PV'; });
+            if (!pvRows.length) {
+                showToast('El paciente activo no tiene Primera Visita guardada en la base cargada.', 'warn');
+                return;
+            }
+            // Política determinista: getPatientRecords ordena ascendente por fecha_visita;
+            // se toma la ÚLTIMA fila PV del paciente (la más reciente).
+            var row = pvRows[pvRows.length - 1];
+            if (pvTabHasEnteredData() && !window.confirm('La pestaña Primera Visita tiene datos sin guardar. Se sobrescribirán con la PV guardada en la BD (fecha ' + (row.fecha_visita || 'NR') + '). ¿Continuar?')) {
+                return;
+            }
+            resetPvFormForDbLoad();
+            // Identidad: se mantiene la fecha almacenada de la PV.
+            setPvFieldFromRow('pv_nuhsa', row.nuhsa);
+            setPvFieldFromRow('pv_codigo_hs', row.codigo_hs);
+            setPvFechaVisitaFromRow(row.fecha_visita);
+            // Datos clínicos e historial (solo valores realmente almacenados en la fila).
+            setPvFieldFromRow('pv_edad', row.edad);
+            setPvFieldFromRow('pv_sexo', row.sexo);
+            setPvFieldFromRow('pv_laboral', row.situacion_laboral);
+            setPvFieldFromRow('pv_anio_ini', row.anio_inicio_sintomas);
+            setPvFieldFromRow('pv_anio_dx', row.anio_diagnostico);
+            setPvFieldFromRow('pv_retraso_dx', row.retraso_diagnostico);
+            setPvFieldFromRow('pv_prof_dx', row.profesional_diagnostico);
+            setPvHistoricalSelectFromRow('pv_antecedentes_familiares', row.antecedentes_familiares_hs);
+            setPvFieldFromRow('pv_brotes_ultimo_anio', row.brotes_ultimo_anio);
+            setPvFieldFromRow('pv_n_medicos', row.n_medicos_previos);
+            setPvHistoricalSelectFromRow('pv_fiebre', row.fiebre_brotes);
+            setPvFieldFromRow('pv_n_urgencias', row.urgencias_hs_ultimo_anio);
+            setPvFieldFromRow('pv_n_cirugias', row.cirugias_previas_hs);
+            setPvHistoricalSelectFromRow('pv_bio_previo', row.biologico_previo);
+            setPvFieldFromRow('pv_tx_previos', row.tratamientos_previos_relevantes);
+            setPvFieldFromRow('pv_gine_obst', row.gine_obst);
+            setPvHistoricalSelectFromRow('pv_deseos_genesicos', row.deseos_genesicos);
+            setPvHistoricalSelectFromRow('pv_tabaco', row.tabaco_estado);
+            toggleTabacoDetail_pv();
+            setPvFieldFromRow('pv_cig_dia', row.cigarrillos_dia);
+            setPvFieldFromRow('pv_anios_fumando', row.anios_fumando);
+            setPvHistoricalSelectFromRow('pv_cesacion_previa', row.intentos_cesacion);
+            setPvFieldFromRow('pv_alcohol_ube_semana', row.alcohol_ube_semana);
+            setPvFieldFromRow('pv_ejercicio', row.ejercicio);
+            setPvFieldFromRow('pv_sueno', row.sueno);
+            setPvHistoricalSelectFromRow('pv_material_entregado', row.material_educativo_entregado);
+            setPvFieldFromRow('pv_peso', row.peso_kg);
+            setPvFieldFromRow('pv_talla', row.talla_m);
+            calcIMC_pv();
+            var storedImc = String(row.imc || '').trim();
+            var storedPeso = String(row.peso_kg || '').trim();
+            var storedTalla = String(row.talla_m || '').trim();
+            if (storedImc && (!storedPeso || !storedTalla)) {
+                var imcEl = document.getElementById('pv_imc');
+                if (imcEl) imcEl.value = storedImc;
+            }
+            setPvFieldFromRow('pv_ta', row.ta);
+            setPvHistoricalSelectFromRow('pv_sexual', row.impacto_sexual);
+            setPvHistoricalSelectFromRow('pv_aislamiento', row.aislamiento_social);
+            restorePvComorbFromRow(row);
+            restorePvHurleyFromRow(row.hurley_enfermeria);
+            // IHS4: solo se restauran los totales y el score almacenados.
+            // La distribución regional N/A/F no se reconstruye (los contadores quedan a 0)
+            // y NO se llama a calcTotalIHS_pv (recalcularía los totales restaurados).
+            var pvTotals = [
+                { el: 'pv_tot_n', value: row.nodulos_total },
+                { el: 'pv_tot_a', value: row.abscesos_total },
+                { el: 'pv_tot_f', value: row.fistulas_total }
+            ];
+            pvTotals.forEach(function (item) {
+                var target = document.getElementById(item.el);
+                var value = String(item.value || '').trim();
+                // Total ausente en la fila guardada: se muestra vacío; la reexportación
+                // no debe convertir una medición histórica ausente en un cero registrado.
+                if (target) target.innerText = value;
+            });
+            var storedScore = String(row.ihs4_actual || '').trim();
+            var scoreEl = document.getElementById('pv_final_ihs4');
+            if (scoreEl) scoreEl.innerText = storedScore; // Ausente: '' (nunca 0 inventado)
+            applyIhs4ScoreStyle('pv_final_ihs4', getIhs4Level(storedScore));
+            var zonasNEl = document.getElementById('pv_active_zone_count');
+            var zonasListEl = document.getElementById('pv_active_zone_list');
+            var zonasDisplay = getPvStoredZonesDisplay(row);
+            if (zonasNEl) zonasNEl.innerText = zonasDisplay.count;
+            if (zonasListEl) zonasListEl.innerText = zonasDisplay.list;
+            // EVAs: valores ocultos + botones reconstruidos con el valor preseleccionado.
+            setPvFieldFromRow('pv_eva_dolor', row.eva_dolor);
+            setPvFieldFromRow('pv_eva_prurito', row.eva_prurito);
+            setPvFieldFromRow('pv_eva_supuracion', row.eva_supuracion);
+            setupEvaButtons('pv_eva_dolor', 'pv_eva_dolor_buttons');
+            setupEvaButtons('pv_eva_prurito', 'pv_eva_prurito_buttons');
+            setupEvaButtons('pv_eva_supuracion', 'pv_eva_supuracion_buttons');
+            // PROMs: solo los totales almacenados (nunca se reconstruyen las respuestas por ítem).
+            setPvFieldFromRow('pv_dlqi_display', row.dlqi_total);
+            applySemaphoreToInputById('pv_dlqi_display', getDlqiLevel(row.dlqi_total));
+            setPvFieldFromRow('pv_hads_a_display', row.hads_ansiedad_total);
+            applySemaphoreToInputById('pv_hads_a_display', getHadsLevel(row.hads_ansiedad_total));
+            setPvFieldFromRow('pv_hads_d_display', row.hads_depresion_total);
+            applySemaphoreToInputById('pv_hads_d_display', getHadsLevel(row.hads_depresion_total));
+            setPvFieldFromRow('pv_hsqol_display', row.hsqol24_total);
+            setPvFieldFromRow('pv_hsqol_interp', row.hsqol24_interpretacion);
+            applySemaphoreToInputById('pv_hsqol_display', getHsqolLevel(row.hsqol24_total, row.hsqol24_interpretacion));
+            restorePvEducacionFromRow(row.educacion_sanitaria_realizada);
+            setPvFieldFromRow('pv_derivaciones', row.necesidades_valorar_dermatologia);
+            setPvFieldFromRow('pv_prox_cita', row.proxima_cita_enfermeria);
+            setPvFieldFromRow('pv_notas', row.notas_enfermeria);
+            // Estado de reapertura + nota discreta + bloqueo del detalle no almacenado.
+            pvLoadedFromDbRow = row;
+            setPvHistoricalDetailControlsLocked(true);
+            showPvDbLoadNote(row.fecha_visita);
+            updatePvQuickView();
+            switchTab('pv');
+            showToast('Primera Visita guardada cargada desde la BD (fecha ' + (row.fecha_visita || 'NR') + ').', 'ok');
         }
 
         // Cerrar paneles con Escape

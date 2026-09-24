@@ -5,7 +5,7 @@
 **Estado:** beta operativa  
 **Uso:** piloto asistencial controlado  
 **Arquitectura:** HTML estático + Excel longitudinal + almacenamiento temporal de sesión  
-**Última fase:** dashboard piloto con filtros de cohorte y gráficos simples
+**Última fase:** Fase 9 — reapertura de Primera Visita guardada y tratamiento correcto de IHS4=0 (dashboard piloto con filtros y gráficos ya implantado)
 
 ---
 
@@ -25,7 +25,8 @@ Genera:
 - fila Excel longitudinal para pegar en `BD_VISITAS_HS`;
 - código HS pseudonimizado operativo para seguimiento y futura vinculación de PROMs remotos;
 - QuickView de la visita actual (PV/SG/CX) para revisar antes de copiar el informe;
-- resumen longitudinal del paciente desde la BD cargada, accesible desde la barra lateral.
+- resumen longitudinal del paciente desde la BD cargada, accesible desde la barra lateral;
+- reapertura de la Primera Visita guardada del paciente desde la BD cargada (botón **Abrir Primera Visita guardada** en la barra lateral), conservando su fecha y los datos almacenados;
 - dashboard piloto con filtros de cohorte (periodo, tipo visita, IHS4, tendencia, Hurley, tratamiento/seguridad y pendientes) y gráficos simples (distribución IHS4, tendencia, tipos de visita, tratamientos, alertas);
 - limpieza de filtros para volver a la cohorte completa.
 
@@ -38,12 +39,13 @@ Genera:
 3. Buscar paciente por `NUHSA` o `codigo_hs`.
 4. La herramienta reutiliza o genera automáticamente el `codigo_hs`.
 5. Si el paciente aparece en la base, revisar **Ver resumen longitudinal** desde la barra lateral para consultar su trayectoria.
-6. Elegir pestaña: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
-7. Completar la visita.
-8. Revisar la **QuickView de visita actual** antes de copiar el informe.
-9. Copiar informe.
-10. Copiar fila Excel y pegarla en `BD_VISITAS_HS`.
-11. Pulsar **Nuevo paciente / limpiar formulario** antes de pasar al siguiente paciente.
+6. Si el paciente tiene una Primera Visita guardada, abrirla con **Abrir Primera Visita guardada** desde la barra lateral para consultarla o continuarla (mantiene su fecha original).
+7. Elegir pestaña: **Primera Visita**, **Seguimiento** o **Cura Post-Qx**.
+8. Completar la visita.
+9. Revisar la **QuickView de visita actual** antes de copiar el informe.
+10. Copiar informe.
+11. Copiar fila Excel y pegarla en `BD_VISITAS_HS`.
+12. Pulsar **Nuevo paciente / limpiar formulario** antes de pasar al siguiente paciente.
 
 > [!IMPORTANT]
 > El `codigo_hs` se reserva durante la sesión, pero solo queda oficialmente registrado cuando se copia la fila Excel y se pega en `BD_VISITAS_HS`.
@@ -152,6 +154,8 @@ http://localhost:8000
 - [ ] Cargar base sintética completa.
 - [ ] Comprobar **QuickView de visita actual** en PV/SG/CX.
 - [ ] Comprobar botón **Ver resumen longitudinal** en la barra lateral.
+- [ ] Buscar un paciente con PV guardada, pulsar **Abrir Primera Visita guardada** y comprobar que se restauran los datos almacenados con su fecha original.
+- [ ] Comprobar tendencias IHS4 con valor 0: 8 → 0 muestra **Mejoría** y 0 → 0 muestra **Estable**.
 - [ ] Comprobar que el panel muestra NUHSA y Código HS correctos.
 - [ ] Comprobar que el informe TXT está ordenado por bloques.
 - [ ] Abrir **Ver dashboard piloto** y comprobar que se muestran tarjetas globales, tabla de pacientes y gráficos.
@@ -186,6 +190,7 @@ http://localhost:8000
 | Fase 7A2 | QuickView longitudinal de paciente desde BD cargada. |
 | Fase 8B | Dashboard v0 MVP con tarjetas globales, distribución IHS4 y tabla operativa. |
 | Fase 8C | Dashboard con filtros de cohorte y gráficos simples HTML/CSS. |
+| Fase 9 | Reapertura de Primera Visita guardada desde la BD cargada y corrección de IHS4=0 en rutas longitudinales. |
 
 </details>
 
