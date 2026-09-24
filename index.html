@@ -6227,10 +6227,15 @@
             document.getElementById('sg_active_zone_count').innerText = activeData.count;
             document.getElementById('sg_active_zone_list').innerText = activeData.list;
             // Compare with previous
-            var prev = Number(document.getElementById('sg_ihs4_previo').value);
+            var prevRaw = String(document.getElementById('sg_ihs4_previo').value || '').trim();
+            var prev = Number(prevRaw);
             var alertEl = document.getElementById('sg_ihs4-change');
-            if (Number.isFinite(prev) && prev > 0 && Number.isFinite(score)) {
-                var pct = ((score - prev) / prev * 100).toFixed(0);
+            // IHS4 previo 0 es un valor clínico válido: valorar cambio también desde 0.
+            // Un campo vacío no es 0: no hay comparador y la alerta no se muestra.
+            if (prevRaw && Number.isFinite(prev) && prev >= 0 && Number.isFinite(score)) {
+                // El porcentaje solo se calcula con previo > 0 (evitar división por cero);
+                // valor absoluto para coherencia con el informe TXT
+                var pct = prev > 0 ? Math.abs(((score - prev) / prev * 100).toFixed(0)) : 0;
                 var iconClass = '';
                 var comparisonLabel = '';
                 var comparisonText = '';
@@ -6243,7 +6248,9 @@
                     alertEl.className = 'alert-box alert-warning';
                     iconClass = 'fas fa-arrow-up';
                     comparisonLabel = 'Empeoramiento:';
-                    comparisonText = ' IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)';
+                    comparisonText = prev > 0
+                        ? ' IHS4 ' + prev + ' → ' + score + ' (+' + Math.abs(pct) + '%)'
+                        : ' IHS4 ' + prev + ' → ' + score + ' (+' + (score - prev) + ' puntos)';
                 } else {
                     alertEl.className = 'alert-box alert-success';
                     iconClass = 'fas fa-equals';
@@ -6414,11 +6421,15 @@
             var curaHoy = v('sg_cura_hoy');
             var ihs4Prev = parseFloat(v('sg_ihs4_previo'));
             var ihs4ChangeLine = '';
-            if (!isNaN(ihs4Prev) && ihs4Prev > 0 && !isNaN(ihs4Score)) {
+            // IHS4 previo 0 es un valor clínico válido: valorar cambio también desde 0
+            if (!isNaN(ihs4Prev) && ihs4Prev >= 0 && !isNaN(ihs4Score)) {
                 var diff = ihs4Score - ihs4Prev;
-                var pct = Math.abs(Math.round((diff / ihs4Prev) * 100));
+                // El porcentaje solo se calcula con previo > 0 (evitar división por cero)
+                var pct = ihs4Prev > 0 ? Math.abs(Math.round((diff / ihs4Prev) * 100)) : null;
                 if (diff < 0) ihs4ChangeLine = '\nCambio respecto a previo: Mejoría — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (' + pct + '%)';
-                else if (diff > 0) ihs4ChangeLine = '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + pct + '%)';
+                else if (diff > 0) ihs4ChangeLine = ihs4Prev > 0
+                    ? '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + pct + '%)'
+                    : '\nCambio respecto a previo: Empeoramiento — IHS4 ' + ihs4Prev + ' → ' + ihs4Score + ' (+' + diff + ' puntos)';
                 else ihs4ChangeLine = '\nCambio respecto a previo: Estable — IHS4 sin cambios (' + ihs4Score + ')';
             }
             var curaSection = '';
@@ -6712,11 +6723,16 @@
             var ihs4Prev = parseFloat(ihs4PrevRaw);
             var cambio = 'No valorable';
             var cambioClass = '';
-            if (!isNaN(ihs4Prev) && ihs4Prev > 0 && !isNaN(ihs4Score)) {
+            // IHS4 previo 0 es un valor clínico válido: valorar cambio también desde 0
+            if (!isNaN(ihs4Prev) && ihs4Prev >= 0 && !isNaN(ihs4Score)) {
                 var diff = ihs4Score - ihs4Prev;
-                var pct = Math.abs(Math.round((diff / ihs4Prev) * 100));
+                // El porcentaje solo se calcula con previo > 0 (evitar división por cero)
+                var pct = ihs4Prev > 0 ? Math.abs(Math.round((diff / ihs4Prev) * 100)) : null;
                 if (diff < 0) { cambio = 'Mejoría (' + pct + '%)'; cambioClass = 'mejoria'; }
-                else if (diff > 0) { cambio = 'Empeoramiento (+' + pct + '%)'; cambioClass = 'empeoramiento'; }
+                else if (diff > 0) {
+                    cambio = ihs4Prev > 0 ? 'Empeoramiento (+' + pct + '%)' : 'Empeoramiento (+' + diff + ' puntos)';
+                    cambioClass = 'empeoramiento';
+                }
                 else { cambio = 'Estable'; }
             }
             var activeZones = formatActiveZonesDetail(sg_ihsData, sg_regions);
@@ -7679,11 +7695,12 @@
             });
             var tipos = Object.keys(tiposSet).join(', ') || 'NR';
 
-            // IHS4 último y previo
+            // IHS4 último y previo (IHS4 = 0 es un valor clínico válido, no dato ausente)
             var lastIhs4 = '', prevIhs4 = '', foundLast = false;
             for (var i = rows.length - 1; i >= 0; i--) {
                 var v = String(rows[i].ihs4_actual || '').trim();
-                if (!v || v === '0') continue;
+                // Rechazar solo vacío/NR/inválidos; aceptar 0 como medición válida
+                if (parseDashboardIhs4(v) === null) continue;
                 if (!foundLast) { lastIhs4 = v; foundLast = true; }
                 else { prevIhs4 = v; break; }
             }
