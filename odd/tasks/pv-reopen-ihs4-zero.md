@@ -64,6 +64,7 @@ Branch: fix/pv-reopen-ihs4-zero-20260924
 
 ## Remaining
 
-- UNIT 3 audit scan en curso (gentle-ai-explore background mufhobkb-4-pmm1) -> escribir
-  docs/audits/AUDIT_ENFERMERIA_HS_20260924.md (REPORT-ONLY).
-- Native review lifecycle (RDD on).
+- Ninguno. UNIT 3 audit committed (894a488); native review lineage review-a40128a6a089ddaf
+  closed `approved` and acknowledged (authority burned, gentle-ai.review-acknowledged/v1).
+  Advisory non-blocking finding R3-001 (reliability, index.html:6030, informational) left as
+  later work per the closure advisory. Delivery untouched (no push/PR/merge per work order).
