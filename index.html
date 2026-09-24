@@ -4948,6 +4948,8 @@
             document.querySelectorAll('.tab-content .toggle-card.active, .tab-content .time-option.selected, .tab-content .hurley-card.active').forEach(function (item) {
                 item.classList.remove('active', 'selected', 'good', 'partial', 'bad');
             });
+            // Salir del modo histórico PV (si lo estaba): controles de detalle interactivos de nuevo.
+            setPvHistoricalDetailControlsLocked(false);
             if (typeof pv_ihsData !== 'undefined' && Array.isArray(pv_ihsData)) {
                 pv_ihsData.forEach(function (zone) { zone.n = 0; zone.a = 0; zone.f = 0; });
                 calcTotalIHS_pv();
@@ -8012,6 +8014,8 @@
             document.querySelectorAll('#tab-pv .toggle-card.active, #tab-pv .time-option.selected, #tab-pv .hurley-card.active, #tab-pv .eva-btn.active').forEach(function (item) {
                 item.classList.remove('active', 'selected', 'good', 'partial', 'bad');
             });
+            // Salir del modo histórico PV: los controles de detalle vuelven a ser interactivos.
+            setPvHistoricalDetailControlsLocked(false);
             if (typeof pv_ihsData !== 'undefined' && Array.isArray(pv_ihsData)) {
                 pv_ihsData.forEach(function (zone) { zone.n = 0; zone.a = 0; zone.f = 0; });
                 pv_regions.forEach(function (regionLabel, idx) {
@@ -8277,9 +8281,11 @@
             setPvFieldFromRow('pv_derivaciones', row.necesidades_valorar_dermatologia);
             setPvFieldFromRow('pv_prox_cita', row.proxima_cita_enfermeria);
             setPvFieldFromRow('pv_notas', row.notas_enfermeria);
-            // Estado de reapertura + nota discreta sobre el detalle no almacenado.
+            // Estado de reapertura + nota discreta + bloqueo del detalle no almacenado.
             pvLoadedFromDbRow = row;
+            setPvHistoricalDetailControlsLocked(true);
             showPvDbLoadNote(row.fecha_visita);
+            updatePvQuickView();
             switchTab('pv');
             showToast('Primera Visita guardada cargada desde la BD (fecha ' + (row.fecha_visita || 'NR') + ').', 'ok');
         }
