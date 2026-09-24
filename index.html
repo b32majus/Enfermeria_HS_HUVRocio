@@ -5666,6 +5666,19 @@
                 reportDetail: (list === 'Ninguna') ? 'Sin zonas activas (valor guardado).' : '- ' + list
             };
         }
+        // Representación en pantalla de las zonas activas de una fila guardada.
+        // NOT RECORDED no equivale a NO: si la fila no almacena ni count ni listado,
+        // se muestra una representación neutra (NR / No registrado), nunca 0/Ninguna
+        // como si hubiera sido valorado. Un 0 explícito sí es un cero válido.
+        function getPvStoredZonesDisplay(row) {
+            var storedCount = String((row && row.zonas_activas_n) || '').trim();
+            var storedList = String((row && row.zonas_activas_listado) || '').trim();
+            var displayList = storedList;
+            if (!displayList) {
+                displayList = (storedCount === '0') ? 'Ninguna' : 'No registrado';
+            }
+            return { count: storedCount || 'NR', list: displayList };
+        }
         function valueOf(id) {
             var el = document.getElementById(id);
             return el ? el.value : '';
@@ -8300,10 +8313,10 @@
             if (scoreEl) scoreEl.innerText = storedScore; // Ausente: '' (nunca 0 inventado)
             applyIhs4ScoreStyle('pv_final_ihs4', getIhs4Level(storedScore));
             var zonasNEl = document.getElementById('pv_active_zone_count');
-            var storedZonasN = String(row.zonas_activas_n || '').trim();
-            if (zonasNEl && storedZonasN) zonasNEl.innerText = storedZonasN;
             var zonasListEl = document.getElementById('pv_active_zone_list');
-            if (zonasListEl) zonasListEl.innerText = String(row.zonas_activas_listado || '').trim() || 'Ninguna';
+            var zonasDisplay = getPvStoredZonesDisplay(row);
+            if (zonasNEl) zonasNEl.innerText = zonasDisplay.count;
+            if (zonasListEl) zonasListEl.innerText = zonasDisplay.list;
             // EVAs: valores ocultos + botones reconstruidos con el valor preseleccionado.
             setPvFieldFromRow('pv_eva_dolor', row.eva_dolor);
             setPvFieldFromRow('pv_eva_prurito', row.eva_prurito);
