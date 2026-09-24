@@ -1,6 +1,6 @@
 # Feature: pv-reopen-safety-correction (corrective work order 2026-09-24)
 
-Status: IN_PROGRESS
+Status: COMPLETED (2026-09-24)
 Authority: docs/work-orders/2026-09-24-pv-reopen-safety-correction.md (EXECUTION_READY)
 Branch: fix/pv-reopen-ihs4-zero-20260924 (bounded corrective train, no push/PR/merge)
 
@@ -40,9 +40,23 @@ Branch: fix/pv-reopen-ihs4-zero-20260924 (bounded corrective train, no push/PR/m
        dashboard findings), ODD task statuses (this file + pv-reopen-ihs4-zero).
        — MANUAL y PLAN corregidos; README sin afirmación obsoleta (sin cambios);
        adenda D-01/D-02 en docs/audits/AUDIT_ENFERMERIA_HS_20260924.md.
-6. [ ] Native Gentle review lifecycle (RDD on): inspect -> start -> collect ->
+6. [x] Native Gentle review lifecycle (RDD on): inspect -> start -> collect ->
        acknowledge. No delivery actions.
-7. [ ] Final factual report: commits, files changed, verification evidence, clean tree.
+       — lineage review-43dc84d3f5b9b521 (medium, lente review-reliability). Resultado:
+       1 hallazgo CRITICAL R3-001 (reexportación de PV con totales IHS4 ausentes los
+       registraba como ceros). Corrección acotada aplicada y validada: commit 1bbb4ad.
+       Estado final approved; autoridad quemada (gentle-ai.review-acknowledged/v1).
+7. [x] Final factual report: commits, files changed, verification evidence, clean tree.
+
+## Review outcome (evidence)
+
+- R3-001 (CRITICAL, deterministic, introduced): restore solo sobrescribía totales/score
+  cuando el valor almacenado era no vacío; el 0 del reinicio quedaba y la reexportación
+  convertía mediciones históricas ausentes en ceros registrados.
+- Corrección (commit 1bbb4ad, 6+/6-): en openExistingPv, totales N/A/F y score ausentes
+  se muestran vacíos (export vacío), nunca ceros inventados.
+- Validación dirigida del proveedor: PASS (estado approved); acknowledgement quemó la
+  autoridad; delivery queda en política ordinaria del repositorio (sin push/PR/merge).
 
 ## Line-ending note
 
