@@ -584,3 +584,27 @@ Evolucionar el dashboard desde resumen MVP a analítica básica con filtros de c
 - Filtros avanzados (combinación cruzada, guardado de vista).
 - Exportación del dashboard (PDF/CSV).
 - Dashboard externo / Power BI si procede.
+
+---
+
+## Fase 9 — Reapertura de Primera Visita guardada y corrección IHS4=0
+
+### Estado: IMPLEMENTADA (2026-09-24)
+
+Orden de trabajo: `docs/work-orders/2026-09-24-pv-reopen-ihs4-zero-audit.md` (incidencia de uso real: necesidad de reabrir una PV ya exportada y tratamiento de IHS4=0).
+
+### Objetivo
+Permitir reabrir la Primera Visita almacenada de un paciente desde la base cargada y tratar IHS4=0 como valor clínico válido en las rutas longitudinales.
+
+### Alcance implementado
+- Botón **Abrir Primera Visita guardada** en la barra lateral (junto a **Ver resumen longitudinal**), visible cuando el paciente seleccionado tiene al menos una fila PV en la BD cargada y su `codigo_hs` no está duplicado.
+- Apertura determinista de la PV más reciente (última por `fecha_visita`; en caso de empate, la fila que aparece más tarde en el orden del Excel).
+- Restauración solo de los valores realmente almacenados en la fila, manteniendo la fecha de visita original (sin convertirla en visita nueva con fecha actual).
+- El detalle nunca almacenado en el Excel no se reconstruye (respuestas individuales de DLQI/HADS/HSQoL-24 y distribución regional N/A/F); nota discreta en la pestaña PV.
+- Aviso al reexportar una PV reabierta: la fila copiada actualiza/reemplaza la PV existente en `BD_VISITAS_HS` y no debe pegarse como segunda PV histórica (el reemplazo es un paso manual en Excel).
+- IHS4=0 tratado como valor válido en resumen longitudinal (IHS4 último/previo y tendencia), alerta SG en vivo, informe TXT SG y QuickView SG: 8 → 0 muestra "Mejoría"; 0 → 0 muestra "Estable"; valor previo vacío o NR sigue mostrando "No valorable" y sin alerta de cambio en vivo.
+- Dashboard ya trataba 0 correctamente (sin cambios).
+
+### Restricciones respetadas
+- Sin cambios de esquema en `BD_VISITAS_HS`, sin backend, sin localStorage, sin refactor modular.
+- Abrir una PV no crea paciente ni reserva `codigo_hs`; SG y CX permanecen sin cambios.

@@ -79,6 +79,8 @@ Pasos:
 
 Cuando se encuentra un paciente, la barra lateral muestra una **tarjeta de paciente activo** con NUHSA, código HS y última visita disponible. Desde esa tarjeta puede pulsarse **Ver resumen longitudinal** para abrir un panel flotante con la trayectoria completa del paciente (ver sección siguiente).
 
+Si el paciente tiene al menos una Primera Visita registrada en la base cargada, la barra lateral muestra también el botón **Abrir Primera Visita guardada** (ver sección 6).
+
 El botón **Ver resumen longitudinal** solo aparece cuando hay un paciente activo encontrado en la base. Se oculta al pulsar **Nuevo paciente / limpiar formulario** o al cerrar la sesión.
 
 ---
@@ -91,7 +93,7 @@ El **resumen longitudinal** es un panel flotante de solo lectura que muestra la 
 
 - **NUHSA y Código HS** — para verificar que el paciente es el correcto.
 - **Trayectoria** — número de visitas registradas, primera visita, última visita y tipos de visita disponibles.
-- **Actividad clínica** — Hurley basal, IHS4 último, IHS4 previo, tendencia y zonas activas registradas.
+- **Actividad clínica** — Hurley basal, IHS4 último, IHS4 previo, tendencia y zonas activas registradas. IHS4=0 se considera un valor clínico válido, no dato ausente: una tendencia 8 → 0 se muestra como "Mejoría" y 0 → 0 como "Estable"; si el valor previo está vacío o es NR, la tendencia sigue mostrando "No valorable".
 - **Tratamiento y seguridad** — tratamiento activo, suspensión prematura, efectos adversos y adherencia si constan en la base.
 - **Pendientes** — necesidades a valorar por Dermatología, próxima cita de Enfermería y cura activa si constan.
 - **Alertas suaves** — avisos no bloqueantes ante gravedad, empeoramiento, efectos adversos, suspensión, necesidades pendientes o complicaciones si esos datos están registrados.
@@ -160,6 +162,20 @@ Campos especialmente importantes:
 - IHS4.
 - EVAs.
 - Educación sanitaria.
+
+### Reabrir una Primera Visita guardada
+
+Si el paciente seleccionado tiene al menos una Primera Visita registrada en la base cargada y su `codigo_hs` no está duplicado, la barra lateral muestra el botón **Abrir Primera Visita guardada** (junto a **Ver resumen longitudinal**).
+
+Comportamiento:
+
+- Abre la Primera Visita más reciente del paciente. Si dos PV comparten la misma fecha de visita, se abre la que aparece más tarde en el orden de filas del Excel (criterio determinista y coherente con la selección de "última visita" usada en el resto de la herramienta).
+- Restaura únicamente los valores realmente almacenados en la fila Excel y mantiene la fecha de visita original: no convierte la PV reabierta en una visita nueva con la fecha de hoy.
+- El detalle que nunca se guardó en el Excel no se reconstruye: las respuestas individuales de DLQI, HADS y HSQoL-24 y la distribución regional N/A/F de lesiones. La pestaña PV muestra una nota discreta recordándolo.
+- Abrir una PV no crea un paciente nuevo ni reserva un `codigo_hs`; Seguimiento y Cura Post-Qx siguen disponibles y sin cambios.
+- Si se modifican los contadores regionales del IHS4, los totales se recalculan a partir de los contadores (el detalle regional debe reintroducirse).
+
+> **Aviso al reexportar:** si se copia la fila Excel de una PV reabierta, esa fila ACTUALIZA/REEMPLAZA la fila PV existente en `BD_VISITAS_HS` y no debe pegarse como una segunda PV histórica. El reemplazo sobre la fila anterior se realiza manualmente en el Excel.
 
 ---
 
@@ -233,6 +249,7 @@ La **QuickView de visita actual** es un resumen visual de lo que se está regist
 
 - No sustituye completar el formulario ni copiar la fila Excel.
 - Depende de los datos introducidos en la pestaña activa.
+- IHS4=0 es un valor clínico válido (no dato ausente): se clasifica como Leve y participa en las alertas de cambio respecto al valor previo; sin valor previo válido no se genera alerta de cambio.
 - Si se cambia de pestaña, la QuickView se actualiza al contenido de la nueva visita.
 
 ---
