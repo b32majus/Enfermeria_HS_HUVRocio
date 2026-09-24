@@ -8068,6 +8068,28 @@
             el.value = value;
         }
 
+        // Modo histórico PV: los selects con primera opción no vacía (p. ej. "No",
+        // "No afectado") no deben seleccionarla en silencio cuando el valor almacenado
+        // está ausente. NOT RECORDED no equivale a NO: sin selección, la exportación
+        // permanece vacía hasta que el usuario elige un valor explícitamente.
+        function setPvHistoricalSelectFromRow(fieldId, storedValue) {
+            var el = document.getElementById(fieldId);
+            if (!el || el.tagName !== 'SELECT') {
+                setPvFieldFromRow(fieldId, storedValue);
+                return;
+            }
+            var value = String(storedValue === undefined || storedValue === null ? '' : storedValue).trim();
+            if (value) {
+                var hasOption = Array.from(el.options).some(function (opt) { return opt.value === value; });
+                if (hasOption) {
+                    el.value = value;
+                    return;
+                }
+            }
+            // Ausente (o almacenado sin opción correspondiente): sin selección inventada.
+            el.selectedIndex = -1;
+        }
+
         function setPvFechaVisitaFromRow(storedValue) {
             var input = document.getElementById('pv_fechaVisita');
             if (!input) return;
@@ -8202,25 +8224,25 @@
             setPvFieldFromRow('pv_anio_dx', row.anio_diagnostico);
             setPvFieldFromRow('pv_retraso_dx', row.retraso_diagnostico);
             setPvFieldFromRow('pv_prof_dx', row.profesional_diagnostico);
-            setPvFieldFromRow('pv_antecedentes_familiares', row.antecedentes_familiares_hs);
+            setPvHistoricalSelectFromRow('pv_antecedentes_familiares', row.antecedentes_familiares_hs);
             setPvFieldFromRow('pv_brotes_ultimo_anio', row.brotes_ultimo_anio);
             setPvFieldFromRow('pv_n_medicos', row.n_medicos_previos);
-            setPvFieldFromRow('pv_fiebre', row.fiebre_brotes);
+            setPvHistoricalSelectFromRow('pv_fiebre', row.fiebre_brotes);
             setPvFieldFromRow('pv_n_urgencias', row.urgencias_hs_ultimo_anio);
             setPvFieldFromRow('pv_n_cirugias', row.cirugias_previas_hs);
-            setPvFieldFromRow('pv_bio_previo', row.biologico_previo);
+            setPvHistoricalSelectFromRow('pv_bio_previo', row.biologico_previo);
             setPvFieldFromRow('pv_tx_previos', row.tratamientos_previos_relevantes);
             setPvFieldFromRow('pv_gine_obst', row.gine_obst);
-            setPvFieldFromRow('pv_deseos_genesicos', row.deseos_genesicos);
-            setPvFieldFromRow('pv_tabaco', row.tabaco_estado);
+            setPvHistoricalSelectFromRow('pv_deseos_genesicos', row.deseos_genesicos);
+            setPvHistoricalSelectFromRow('pv_tabaco', row.tabaco_estado);
             toggleTabacoDetail_pv();
             setPvFieldFromRow('pv_cig_dia', row.cigarrillos_dia);
             setPvFieldFromRow('pv_anios_fumando', row.anios_fumando);
-            setPvFieldFromRow('pv_cesacion_previa', row.intentos_cesacion);
+            setPvHistoricalSelectFromRow('pv_cesacion_previa', row.intentos_cesacion);
             setPvFieldFromRow('pv_alcohol_ube_semana', row.alcohol_ube_semana);
             setPvFieldFromRow('pv_ejercicio', row.ejercicio);
             setPvFieldFromRow('pv_sueno', row.sueno);
-            setPvFieldFromRow('pv_material_entregado', row.material_educativo_entregado);
+            setPvHistoricalSelectFromRow('pv_material_entregado', row.material_educativo_entregado);
             setPvFieldFromRow('pv_peso', row.peso_kg);
             setPvFieldFromRow('pv_talla', row.talla_m);
             calcIMC_pv();
@@ -8232,8 +8254,8 @@
                 if (imcEl) imcEl.value = storedImc;
             }
             setPvFieldFromRow('pv_ta', row.ta);
-            setPvFieldFromRow('pv_sexual', row.impacto_sexual);
-            setPvFieldFromRow('pv_aislamiento', row.aislamiento_social);
+            setPvHistoricalSelectFromRow('pv_sexual', row.impacto_sexual);
+            setPvHistoricalSelectFromRow('pv_aislamiento', row.aislamiento_social);
             restorePvComorbFromRow(row);
             restorePvHurleyFromRow(row.hurley_enfermeria);
             // IHS4: solo se restauran los totales y el score almacenados.
