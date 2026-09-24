@@ -46,6 +46,12 @@ Branch: fix/pv-reopen-ihs4-zero-20260924 (bounded corrective train, no push/PR/m
        1 hallazgo CRITICAL R3-001 (reexportación de PV con totales IHS4 ausentes los
        registraba como ceros). Corrección acotada aplicada y validada: commit 1bbb4ad.
        Estado final approved; autoridad quemada (gentle-ai.review-acknowledged/v1).
+       — Segunda generación (tras el commit de cierre ODD 8d4e38a): lineage
+       review-149c342c31db5db0 (medium, review-reliability + refuter). Hallazgo CRITICAL
+       R3-001 (inferencial, behavior-activated): el listado de zonas de la fila guardada
+       pasaba al QuickView sin escapar. Corrección acotada aplicada y validada: commit
+       f7c5b6f (escape con dashboardEscapeHtml). Estado final approved; autoridad quemada
+       (gentle-ai.review-acknowledged/v1).
 7. [x] Final factual report: commits, files changed, verification evidence, clean tree.
 
 ## Review outcome (evidence)
@@ -57,6 +63,8 @@ Branch: fix/pv-reopen-ihs4-zero-20260924 (bounded corrective train, no push/PR/m
   se muestran vacíos (export vacío), nunca ceros inventados.
 - Validación dirigida del proveedor: PASS (estado approved); acknowledgement quemó la
   autoridad; delivery queda en política ordinaria del repositorio (sin push/PR/merge).
+- Segundo ciclo: hallazgo R3-001 escape QuickView histórico corregido en f7c5b6f
+  (3+/3-); validación dirigida PASS; approved + acknowledged (authority burned).
 
 ## Line-ending note
 
