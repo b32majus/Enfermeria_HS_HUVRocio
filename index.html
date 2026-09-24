@@ -6730,9 +6730,9 @@
                 ? (zoneSummary.list === 'Ninguna'
                     ? 'Sin zonas activas (valor guardado)'
                     : (zoneSummary.list
-                        ? zoneSummary.list + (zoneSummary.count ? ' — Total: ' + zoneSummary.count : '')
-                        : 'Zonas activas registradas: ' + (zoneSummary.count || 'NR') + ' (detalle no almacenado)'))
-                : zoneSummary.reportDetail;
+                        ? dashboardEscapeHtml(zoneSummary.list) + (zoneSummary.count ? ' — Total: ' + dashboardEscapeHtml(zoneSummary.count) : '')
+                        : 'Zonas activas registradas: ' + dashboardEscapeHtml(zoneSummary.count || 'NR') + ' (detalle no almacenado)'))
+                : zoneSummary.reportDetail; // Escape: el QuickView no escapa sus helpers (auditoría F-14)
             var edus = document.querySelectorAll('#tab-pv .edu-item.active');
             var coms = document.querySelectorAll('#tab-pv .c-item.active');
             var derivaciones = valueOf('pv_derivaciones');
