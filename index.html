@@ -1818,6 +1818,12 @@
             margin-top: 6px;
             font-size: 0.79rem;
         }
+        /* Modo histórico PV: controles de detalle no almacenado desactivados. */
+        #tab-pv .c-btn.historical-locked,
+        #tab-pv input[type="radio"].historical-locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
         @media (max-width: 640px) {
             .longitudinal-panel { width: 100vw; }
             .longitudinal-lbl { min-width: 100px; }
@@ -5876,6 +5882,9 @@
             dlqiBody.innerHTML += '<tr><td>' + q + '</td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="3" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="2" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="1" onchange="calcDLQI_pv()"></td><td class="radio-cell"><input type="radio" name="pv_d' + i + '" value="0" onchange="calcDLQI_pv()"></td></tr>';
         });
         function calcDLQI_pv() {
+            // Modo histórico PV: los totales almacenados son autoridad; las respuestas
+            // por ítem no se almacenaron y no pueden recalcular/sobrescribir el total.
+            if (isPvHistoricalMode()) return;
             var t = 0;
             for (var i = 0; i < 10; i++) {
                 document.getElementsByName('pv_d' + i).forEach(function (e) { if (e.checked) t += parseInt(e.value); });
@@ -5906,6 +5915,8 @@
             document.getElementById(x.t === 'A' ? 'pv_hads-a-table' : 'pv_hads-d-table').innerHTML += row;
         });
         function calcHADS_pv() {
+            // Modo histórico PV: totales almacenados como autoridad (ver calcDLQI_pv).
+            if (isPvHistoricalMode()) return;
             var a = 0, d = 0;
             hadsItems.forEach(function (x, i) {
                 document.getElementsByName('pv_h' + i).forEach(function (e) {
@@ -5962,6 +5973,8 @@
             hsqolPvBody.innerHTML += '<tr><td>' + item.q + (item.reverse ? ' <span style="color:#64748b;">(puntuación inversa)</span>' : '') + '</td>' + cells + '</tr>';
         });
         function updateHSQoL_pv() {
+            // Modo histórico PV: total almacenado como autoridad (ver calcDLQI_pv).
+            if (isPvHistoricalMode()) return;
             var sc = 0;
             for (var i = 0; i < hsqolPvItems.length; i++) {
                 document.getElementsByName('pv_qol' + i).forEach(function (e) {
@@ -8132,8 +8145,23 @@
         function showPvDbLoadNote(fechaVisita) {
             var note = document.getElementById('pv_db_load_note');
             if (!note) return;
-            note.textContent = 'Primera Visita cargada desde la BD (fecha ' + (fechaVisita || 'NR') + '). El detalle no almacenado en el Excel (respuestas de DLQI/HADS/HSQoL-24, distribución regional N/A/F) no se reconstruye; los totales mostrados provienen de la fila guardada.';
+            note.textContent = 'Primera Visita cargada desde la BD (fecha ' + (fechaVisita || 'NR') + '). El detalle no almacenado en el Excel (respuestas de DLQI/HADS/HSQoL-24, distribución regional N/A/F) no se reconstruye y sus controles quedan desactivados; los totales mostrados provienen de la fila guardada y son los valores de referencia.';
             note.style.display = 'block';
+        }
+
+        // Modo histórico PV: desactiva los controles de detalle no almacenado
+        // (contadores regionales IHS4 e ítems de cuestionarios PROM) para que no
+        // puedan recalcular/sobrescribir los totales históricos guardados.
+        function setPvHistoricalDetailControlsLocked(locked) {
+            var selectors = '#pv_regions-container .c-btn' +
+                ', #pv_dlqi-body input[type="radio"]' +
+                ', #pv_hads-a-table input[type="radio"]' +
+                ', #pv_hads-d-table input[type="radio"]' +
+                ', #pv_hsqol-body input[type="radio"]';
+            document.querySelectorAll(selectors).forEach(function (el) {
+                el.disabled = !!locked;
+                el.classList.toggle('historical-locked', !!locked);
+            });
         }
 
         function openExistingPv() {
