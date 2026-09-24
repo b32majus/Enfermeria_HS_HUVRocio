@@ -176,4 +176,3 @@ Auditoría generada como REPORT-ONLY el 2026-09-24. Ningún hallazgo de este inf
 ### D-02 · Seguimiento diferido — hallazgos de dashboard yes/no/actual-vs-histórico
 
 Observados de forma independiente en la misma revisión (no incluidos en el informe original): posibles inconsistencias en el dashboard entre indicadores yes/no y entre valores actuales vs históricos. **Se registran como seguimiento diferido; NO se corrigen en este train** y requieren su propia orden de trabajo con decisión de la responsable del proyecto.
-
