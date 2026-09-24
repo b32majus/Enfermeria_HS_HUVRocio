@@ -5624,6 +5624,40 @@
             });
             return lines.length ? lines.join('\n') : 'Sin zonas activas registradas.';
         }
+        // Resumen de zonas activas consciente del modo histórico PV. En modo histórico la
+        // fila guardada es autoridad: se conservan zonas_activas_n y zonas_activas_listado
+        // almacenados y NUNCA se infiere "Sin zonas activas" por el detalle regional ausente.
+        function getPvActiveZoneSummary() {
+            if (!isPvHistoricalMode()) {
+                var live = getActiveZoneData(pv_ihsData, pv_regions);
+                return {
+                    historical: false,
+                    count: live.count,
+                    list: live.list,
+                    reportDetail: formatActiveZonesDetail(pv_ihsData, pv_regions)
+                };
+            }
+            var row = pvLoadedFromDbRow || {};
+            var storedList = String(row.zonas_activas_listado || '').trim();
+            var storedCount = String(row.zonas_activas_n || '').trim();
+            var noneStored = !storedList || normalizeText(storedList) === 'ninguna' || normalizeText(storedList) === 'nr';
+            if (noneStored && storedCount !== '0') {
+                // El Excel no almacena el desglose: no se declara ausencia de zonas sin valor guardado.
+                return {
+                    historical: true,
+                    count: storedCount,
+                    list: storedList,
+                    reportDetail: 'No disponible en la fila guardada (zonas activas registradas: ' + (storedCount || 'NR') + ').'
+                };
+            }
+            var list = (normalizeText(storedList) === 'ninguna' || normalizeText(storedList) === 'nr') ? 'Ninguna' : storedList;
+            return {
+                historical: true,
+                count: storedCount || (noneStored ? '0' : 'NR'),
+                list: list,
+                reportDetail: (list === 'Ninguna') ? 'Sin zonas activas (valor guardado).' : '- ' + list
+            };
+        }
         function valueOf(id) {
             var el = document.getElementById(id);
             return el ? el.value : '';
@@ -5797,8 +5831,17 @@
                 '<div class="counter-row"><span class="c-label c-abs">A</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'a\',-1)">-</div><div class="c-val" id="pv_r' + i + 'a">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'a\',1)">+</div></div></div>' +
                 '<div class="counter-row"><span class="c-label c-fis">F</span><div class="counter-ctl"><div class="c-btn" onclick="updIHS_pv(' + i + ',\'f\',-1)">-</div><div class="c-val" id="pv_r' + i + 'f">0</div><div class="c-btn" onclick="updIHS_pv(' + i + ',\'f\',1)">+</div></div></div></div>';
         });
-        function updIHS_pv(i, t, d) { var v = pv_ihsData[i][t] + d; if (v < 0) v = 0; pv_ihsData[i][t] = v; document.getElementById('pv_r' + i + t).innerText = v; calcTotalIHS_pv(); }
+        function updIHS_pv(i, t, d) {
+            // Modo histórico PV: los contadores regionales no están almacenados y no pueden
+            // recalcular silenciosamente los totales/score guardados (autoridad de la fila).
+            if (isPvHistoricalMode()) return;
+            var v = pv_ihsData[i][t] + d; if (v < 0) v = 0; pv_ihsData[i][t] = v; document.getElementById('pv_r' + i + t).innerText = v; calcTotalIHS_pv();
+        }
+        function isPvHistoricalMode() { return !!pvLoadedFromDbRow; }
         function calcTotalIHS_pv() {
+            // Modo histórico PV: no recalcular desde pv_ihsData (mapa vacío); los valores
+            // mostrados son los almacenados y se restauran en openExistingPv.
+            if (isPvHistoricalMode()) return;
             var n = 0, a = 0, f = 0;
             pv_ihsData.forEach(function (o) { n += o.n; a += o.a; f += o.f; });
             document.getElementById('pv_tot_n').innerText = n;
@@ -5945,7 +5988,7 @@
             var comorbTexts = Array.from(document.querySelectorAll('#tab-pv .c-item.active')).map(function (e) { return e.innerText; });
             var coms = comorbTexts.join('; ');
             var edus = Array.from(document.querySelectorAll('#tab-pv .edu-item.active')).map(function (e) { return e.innerText.replace(/^.*?\s/, ''); }).join('; ');
-            var activeData = getActiveZoneData(pv_ihsData, pv_regions);
+            var zoneSummary = getPvActiveZoneSummary();
             function hasComorb(fragment) {
                 var normalizedFragment = normalizeText(fragment);
                 return comorbTexts.some(function (label) { return normalizeText(label).indexOf(normalizedFragment) >= 0; }) ? 'Si' : 'No';
@@ -6004,11 +6047,15 @@
                 hurley_enfermeria: valueOf('pv_hurley_val'),
                 ihs4_actual: ihs4Actual,
                 gravedad_ihs4: severityFromIhs4(ihs4Actual),
+                ihs4_actual: ihs4Actual,
+                gravedad_ihs4: severityFromIhs4(ihs4Actual),
                 nodulos_total: textOf('pv_tot_n'),
                 abscesos_total: textOf('pv_tot_a'),
                 fistulas_total: textOf('pv_tot_f'),
-                zonas_activas_n: activeData.count,
-                zonas_activas_listado: activeData.list,
+                // Modo histórico PV: se conservan exactamente los valores almacenados en
+                // la fila guardada; en PV nueva se calculan desde los contadores regionales.
+                zonas_activas_n: zoneSummary.count,
+                zonas_activas_listado: zoneSummary.list,
                 eva_dolor: valueOf('pv_eva_dolor'),
                 eva_prurito: valueOf('pv_eva_prurito'),
                 eva_supuracion: valueOf('pv_eva_supuracion'),
@@ -6044,7 +6091,14 @@
             var ihs4 = t('pv_final_ihs4');
             var ihs4Score = parseInt(ihs4, 10);
             var ihs4Sev = severityFromIhs4(ihs4).toUpperCase();
-            var activeZonesTxt = formatActiveZonesDetail(pv_ihsData, pv_regions);
+            // Modo histórico PV: zonas activas desde la fila guardada + nota discreta de
+            // que el desglose regional N/A/F no está almacenado en la base.
+            var zoneSummary = getPvActiveZoneSummary();
+            var activeZonesTxt = zoneSummary.reportDetail;
+            if (zoneSummary.historical) {
+                activeZonesTxt += (zoneSummary.count ? '\nZonas activas registradas: ' + zoneSummary.count : '') +
+                    '\n(Detalle regional N/A/F no almacenado en la base para esta visita; se conservan los valores guardados.)';
+            }
             var txt = 'PRIMERA VISITA — ENFERMERÍA HS\n' +
                 '\n=== 1. IDENTIFICACIÓN Y CONTEXTO ===' +
                 '\nEdad: ' + _f(v('pv_edad'), 'NR') + ' | Sexo al nacimiento: ' + _f(v('pv_sexo'), 'NR') +
@@ -6655,7 +6709,15 @@
         function buildPvQuickViewModel() {
             var ihs4Raw = textOf('pv_final_ihs4');
             var ihs4Sev = severityFromIhs4(ihs4Raw);
-            var activeZones = formatActiveZonesDetail(pv_ihsData, pv_regions);
+            // Modo histórico PV: resumen de zonas desde la fila guardada (nunca del mapa vacío).
+            var zoneSummary = getPvActiveZoneSummary();
+            var activeZones = zoneSummary.historical
+                ? (zoneSummary.list === 'Ninguna'
+                    ? 'Sin zonas activas (valor guardado)'
+                    : (zoneSummary.list
+                        ? zoneSummary.list + (zoneSummary.count ? ' — Total: ' + zoneSummary.count : '')
+                        : 'Zonas activas registradas: ' + (zoneSummary.count || 'NR') + ' (detalle no almacenado)'))
+                : zoneSummary.reportDetail;
             var edus = document.querySelectorAll('#tab-pv .edu-item.active');
             var coms = document.querySelectorAll('#tab-pv .c-item.active');
             var derivaciones = valueOf('pv_derivaciones');
