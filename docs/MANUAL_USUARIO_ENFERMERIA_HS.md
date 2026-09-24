@@ -172,8 +172,11 @@ Comportamiento:
 - Abre la Primera Visita más reciente del paciente. Si dos PV comparten la misma fecha de visita, se abre la que aparece más tarde en el orden de filas del Excel (criterio determinista y coherente con la selección de "última visita" usada en el resto de la herramienta).
 - Restaura únicamente los valores realmente almacenados en la fila Excel y mantiene la fecha de visita original: no convierte la PV reabierta en una visita nueva con la fecha de hoy.
 - El detalle que nunca se guardó en el Excel no se reconstruye: las respuestas individuales de DLQI, HADS y HSQoL-24 y la distribución regional N/A/F de lesiones. La pestaña PV muestra una nota discreta recordándolo.
+- **Los totales almacenados son la autoridad en la PV reabierta**: IHS4, N/A/F totales, zonas activas y totales de DLQI/HADS/HSQoL-24 se conservan exactamente como están en la fila guardada.
+- Los controles del detalle no almacenado (contadores regionales IHS4 e ítems de los cuestionarios) quedan **desactivados** en la PV reabierta: no pueden recalcular ni sobrescribir los totales históricos.
+- El QuickView, el informe TXT y la fila Excel de una PV reabierta conservan las zonas activas y los totales almacenados; el informe indica discretamente que el desglose regional N/A/F no está almacenado en la base.
 - Abrir una PV no crea un paciente nuevo ni reserva un `codigo_hs`; Seguimiento y Cura Post-Qx siguen disponibles y sin cambios.
-- Si se modifican los contadores regionales del IHS4, los totales se recalculan a partir de los contadores (el detalle regional debe reintroducirse).
+- Al cambiar de paciente, iniciar uno nuevo o limpiar formularios, el modo histórico se desactiva y una PV nueva vuelve a ser completamente interactiva.
 
 > **Aviso al reexportar:** si se copia la fila Excel de una PV reabierta, esa fila ACTUALIZA/REEMPLAZA la fila PV existente en `BD_VISITAS_HS` y no debe pegarse como una segunda PV histórica. El reemplazo sobre la fila anterior se realiza manualmente en el Excel.
 

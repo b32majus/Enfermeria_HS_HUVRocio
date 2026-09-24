@@ -1,6 +1,6 @@
 # Feature: pv-reopen-ihs4-zero (work order 2026-09-24)
 
-Status: IN_PROGRESS
+Status: COMPLETED (2026-09-24; corrección posterior de integridad en `pv-reopen-safety-correction.md`)
 Authority: docs/work-orders/2026-09-24-pv-reopen-ihs4-zero-audit.md (EXECUTION_READY)
 Branch: fix/pv-reopen-ihs4-zero-20260924
 
@@ -68,3 +68,7 @@ Branch: fix/pv-reopen-ihs4-zero-20260924
   closed `approved` and acknowledged (authority burned, gentle-ai.review-acknowledged/v1).
   Advisory non-blocking finding R3-001 (reliability, index.html:6030, informational) left as
   later work per the closure advisory. Delivery untouched (no push/PR/merge per work order).
+- Post-review: la revisión independiente detectó un defecto de integridad
+  agregado/detalle en la reapertura histórica (recalculo/sobrescritura de totales y
+  "Sin zonas activas" incorrecto). Corregido en el train correctivo
+  `odd/tasks/pv-reopen-safety-correction.md` (commits 163d6a2, d059423, 5ca9826).

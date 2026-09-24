@@ -161,3 +161,19 @@ Total: 0 BLOCKER confirmados, 2 ALTO, 6 MEDIO, 5 BAJO, 2 INFO.
 ## Cierre
 
 Auditoría generada como REPORT-ONLY el 2026-09-24. Ningún hallazgo de este informe fue corregido en este train. Los hallazgos con decisión de producto pendiente (F-02, F-03, F-04, F-05, F-07, F-09) requieren decisión de la responsable del proyecto antes de cualquier implementación.
+
+---
+
+## Adenda post-review — 2026-09-24 (orden correctiva `docs/work-orders/2026-09-24-pv-reopen-safety-correction.md`)
+
+### D-01 · ALTO — Defecto de integridad agregado/detalle en la reapertura de PV (ENCONTRADO Y CORREGIDO)
+
+- **Origen:** revisión independiente posterior al train de reapertura de PV (revisión nativa del commit `b76e873`). No formaba parte del informe REPORT-ONLY original.
+- **Evidencia:** la reapertura de PV (`openExistingPv`) restauraba correctamente los agregados almacenados (IHS4, N/A/F totales, zonas activas, DLQI/HADS/HSQoL-24), pero el detalle no persistido quedaba vacío e interactivo: `updIHS_pv`/`calcTotalIHS_pv` recalculaban desde `pv_ihsData` vacío (índice 5800-5817 del train anterior), `calcDLQI_pv`/`calcHADS_pv`/`updateHSQoL_pv` sobrescribían totales históricos desde respuestas parciales, y QuickView (`buildPvQuickViewModel`), informe (`copyReport_pv`) y exportación (`exportData_pv`) derivaban zonas activas del mapa vacío, llegando a mostrar/exportar "Sin zonas activas" contradictorio con la fila guardada.
+- **Impacto:** los informes, la exportación y el recálculo podían contradecir o sobrescribir los agregados históricos almacenados en `BD_VISITAS_HS`.
+- **Resolución:** corregido por la orden correctiva `docs/work-orders/2026-09-24-pv-reopen-safety-correction.md` (commits de la rama `fix/pv-reopen-ihs4-zero-20260924`): los agregados almacenados son autoridad en modo histórico PV; los controles de detalle no almacenado quedan desactivados; QuickView/informe/exportación conservan zonas y totales guardados con nota discreta; una PV nueva sigue siendo totalmente interactiva. Sin cambios de esquema Excel.
+
+### D-02 · Seguimiento diferido — hallazgos de dashboard yes/no/actual-vs-histórico
+
+Observados de forma independiente en la misma revisión (no incluidos en el informe original): posibles inconsistencias en el dashboard entre indicadores yes/no y entre valores actuales vs históricos. **Se registran como seguimiento diferido; NO se corrigen en este train** y requieren su propia orden de trabajo con decisión de la responsable del proyecto.
+
