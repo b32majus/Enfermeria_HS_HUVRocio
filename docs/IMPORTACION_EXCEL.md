@@ -62,7 +62,17 @@ No se precargan campos de actividad actual, por seguridad clínica:
 
 ## Reapertura de Primera Visita desde la base cargada
 
-Además de la precarga de Seguimiento, la base cargada permite reabrir la Primera Visita más reciente del paciente seleccionado desde la barra lateral (botón **Abrir Primera Visita guardada**), restaurando los valores almacenados en su fila PV y manteniendo su fecha de visita original. Ver el detalle en el [manual de usuario](MANUAL_USUARIO_ENFERMERIA_HS.md).
+Además de la precarga de Seguimiento, la base cargada permite reabrir la Primera Visita vigente del paciente seleccionado desde la barra lateral (botón **Abrir Primera Visita guardada**), restaurando los valores almacenados en su fila PV y manteniendo su fecha de visita original. Ver el detalle en el [manual de usuario](MANUAL_USUARIO_ENFERMERIA_HS.md).
+
+### Versiones de Primera Visita y corrección append-only
+
+Puede haber varias filas `tipo_visita = PV` del mismo paciente porque la Primera Visita se haya reabierto y corregido. Son **versiones** de la misma visita clínica, no visitas distintas.
+
+- La versión vigente (canónica) es la fila PV con `fecha_exportacion` válida más reciente. `fecha_visita` no decide qué revisión es la vigente.
+- Para corregir una PV, pegue la nueva fila **al final** de `BD_VISITAS_HS`. No elimine ni sobrescriba la fila anterior: se conserva como histórico y auditoría.
+- Las revisiones anteriores siguen en el Excel, pero no cuentan como visitas clínicas en el resumen longitudinal, la tendencia IHS4 ni los contadores del dashboard.
+- Compatibilidad con datos antiguos: si varias PV del paciente no tienen `fecha_exportacion` válida, la herramienta usa de forma determinista la última fila física del Excel y muestra un aviso no bloqueante al abrir la PV.
+- Seguimiento (SG) y Cura Post-Qx (CX) no se versionan ni se deduplican: cada fila SG/CX sigue contando como su propia visita.
 
 ## Seguridad y persistencia
 
