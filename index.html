@@ -7536,9 +7536,12 @@
         function buildDashboardModelFromRows(rows, filters) {
             var sourceRows = rows || [];
             var activeFilters = filters || getDashboardDefaultFilters();
-            var visitFilteredRows = applyDashboardVisitFilters(sourceRows, activeFilters);
-            var canonicalRows = filterCanonicalPvRows(visitFilteredRows);
-            var grouped = getDashboardPatientGroups(canonicalRows);
+            // Canonicalizar ANTES de filtrar: la PV vigente es propiedad de los datos
+            // del paciente, no del filtro activo; una revisión obsoleta nunca debe
+            // reaparecer como visita bajo ningún filtro.
+            var canonicalRows = filterCanonicalPvRows(sourceRows);
+            var visitFilteredRows = applyDashboardVisitFilters(canonicalRows, activeFilters);
+            var grouped = getDashboardPatientGroups(visitFilteredRows);
             var groups = grouped.groups;
             var patientIds = Object.keys(groups);
             var patients = [];
@@ -7549,7 +7552,7 @@
                 patients.push(pm);
                 includedPatientIds[patientId] = true;
             });
-            var includedRows = canonicalRows.filter(function (row) {
+            var includedRows = visitFilteredRows.filter(function (row) {
                 return includedPatientIds[normalizePatientId(row.nuhsa)];
             });
             var globalCards = getEmptyDashboardGlobalCards(includedRows.length);
