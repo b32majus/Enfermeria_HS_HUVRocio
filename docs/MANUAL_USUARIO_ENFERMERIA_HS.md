@@ -102,6 +102,7 @@ El **resumen longitudinal** es un panel flotante de solo lectura que muestra la 
 
 - Depende de la base Excel cargada: sin BD no hay resumen.
 - Se actualiza al cambiar de paciente o al recargar la base.
+- Cuenta una sola vez la Primera Visita vigente: las revisiones PV anteriores conservadas en el Excel no se muestran como visitas clínicas independientes.
 - No guarda datos ni modifica la herramienta.
 - **No sustituye la historia clínica oficial** ni la valoración profesional.
 - Sirve como orientación rápida antes y durante la visita.
@@ -169,8 +170,9 @@ Si el paciente seleccionado tiene al menos una Primera Visita registrada en la b
 
 Comportamiento:
 
-- Abre la Primera Visita más reciente del paciente. Si dos PV comparten la misma fecha de visita, se abre la que aparece más tarde en el orden de filas del Excel (criterio determinista y coherente con la selección de "última visita" usada en el resto de la herramienta).
+- Abre la Primera Visita **vigente** del paciente: la fila PV con `fecha_exportacion` válida más reciente. `fecha_visita` no decide qué revisión es la vigente, por lo que una corrección puede cambiar la fecha clínica y seguir siendo la versión vigente. Si el `fecha_exportacion` empata exactamente, se abre la fila que aparece más tarde en el orden del Excel.
 - Restaura únicamente los valores realmente almacenados en la fila Excel y mantiene la fecha de visita original: no convierte la PV reabierta en una visita nueva con la fecha de hoy.
+- Compatibilidad con datos antiguos: si ninguna PV del paciente tiene `fecha_exportacion` válida, se abre la última fila física del Excel y se muestra un aviso no bloqueante al abrirla (no se migran filas ni se inventan timestamps).
 - El detalle que nunca se guardó en el Excel no se reconstruye: las respuestas individuales de DLQI, HADS y HSQoL-24 y la distribución regional N/A/F de lesiones. La pestaña PV muestra una nota discreta recordándolo.
 - **Los totales almacenados son la autoridad en la PV reabierta**: IHS4, N/A/F totales, zonas activas y totales de DLQI/HADS/HSQoL-24 se conservan exactamente como están en la fila guardada.
 - Los controles del detalle no almacenado (contadores regionales IHS4 e ítems de los cuestionarios) quedan **desactivados** en la PV reabierta: no pueden recalcular ni sobrescribir los totales históricos.
@@ -178,7 +180,7 @@ Comportamiento:
 - Abrir una PV no crea un paciente nuevo ni reserva un `codigo_hs`; Seguimiento y Cura Post-Qx siguen disponibles y sin cambios.
 - Al cambiar de paciente, iniciar uno nuevo o limpiar formularios, el modo histórico se desactiva y una PV nueva vuelve a ser completamente interactiva.
 
-> **Aviso al reexportar:** si se copia la fila Excel de una PV reabierta, esa fila ACTUALIZA/REEMPLAZA la fila PV existente en `BD_VISITAS_HS` y no debe pegarse como una segunda PV histórica. El reemplazo sobre la fila anterior se realiza manualmente en el Excel.
+> **Aviso al reexportar (append-only):** al copiar la fila Excel de una PV reabierta, péguela **al final** de `BD_VISITAS_HS`. No elimine ni modifique la fila anterior: se conserva como histórico y auditoría. La plataforma reconocerá automáticamente la exportación con la `fecha_exportacion` válida más reciente como versión vigente de la Primera Visita, y la fila corregida no se considera una segunda visita clínica sino una nueva versión de la misma PV.
 
 ---
 
@@ -292,6 +294,7 @@ El botón **Limpiar filtros** restaura la vista completa de la cohorte sin ningu
 
 - El dashboard depende de la base Excel cargada: sin BD cargada no hay dashboard.
 - Los datos provienen de la BD cargada en sesión, no de la historia clínica oficial.
+- Las revisiones anteriores de una Primera Visita corregida no cuentan como visitas: el dashboard usa la versión vigente por `fecha_exportacion`.
 - IHS4=0 se considera válido y se clasifica como Leve.
 - Los campos vacíos o no registrados se muestran como NR (No Registrado), no como "No".
 - El dashboard no guarda datos, no modifica la herramienta ni sustituye la valoración profesional.
@@ -317,6 +320,7 @@ Reglas:
 - Pegar siempre en la siguiente fila libre.
 - No modificar cabeceras.
 - No reordenar columnas.
+- Corrección de una Primera Visita (modo append-only): pegar la nueva fila **al final** de `BD_VISITAS_HS`, sin borrar ni sobrescribir la fila anterior. La fila con `fecha_exportacion` válida más reciente es la versión vigente y las revisiones anteriores no cuentan como visitas clínicas. Este versionado no se aplica a Seguimiento ni a Cura Post-Qx.
 - Si la herramienta bloquea exportación por identificación, revisar NUHSA y código HS antes de continuar.
 
 > El código HS, la visita y la información recogida solo quedan oficialmente incorporados a la base cuando se pega la fila Excel en `BD_VISITAS_HS` y se guarda el archivo.
@@ -348,6 +352,7 @@ La acción:
 | Código HS histórico restaurado | El código introducido no correspondía al NUHSA activo. La herramienta restaura el histórico y exige volver a pulsar `Copiar fila Excel`. |
 | No se puede exportar código HS sin NUHSA asociado | Hay código pero falta NUHSA. Revisar identificación antes de exportar. |
 | El código pertenece a otro paciente | No usar ese código; buscar el paciente correcto o revisar la base. |
+| Varias filas PV antiguas sin `fecha_exportacion` válida | Compatibilidad con datos antiguos: se ha cargado la última fila física del Excel y se muestra un aviso no bloqueante al abrir la Primera Visita. |
 
 ---
 
@@ -372,6 +377,7 @@ La acción:
 - [ ] Aplicar filtro por severidad IHS4 y confirmar la reducción de cohorte.
 - [ ] Usar **Limpiar filtros** y comprobar que se restaura la vista completa.
 - [ ] Pulsar **Ver resumen** en una fila de la tabla y confirmar que abre el histórico longitudinal del paciente correcto.
+- [ ] Corregir una PV reabierta: pegar la nueva fila al final de `BD_VISITAS_HS` sin borrar la anterior y comprobar que sigue contando como una sola visita PV.
 
 ---
 

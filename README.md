@@ -5,7 +5,7 @@
 **Estado:** beta operativa  
 **Uso:** piloto asistencial controlado  
 **Arquitectura:** HTML estático + Excel longitudinal + almacenamiento temporal de sesión  
-**Última fase:** Fase 9 — reapertura de Primera Visita guardada y tratamiento correcto de IHS4=0 (dashboard piloto con filtros y gráficos ya implantado)
+**Última fase:** Fase 9.1 — corrección de Primera Visita en modo append-only con `fecha_exportacion` como autoridad de versión (sobre Fase 9: reapertura de PV guardada e IHS4=0; dashboard piloto con filtros y gráficos ya implantado)
 
 ---
 
@@ -26,7 +26,8 @@ Genera:
 - código HS pseudonimizado operativo para seguimiento y futura vinculación de PROMs remotos;
 - QuickView de la visita actual (PV/SG/CX) para revisar antes de copiar el informe;
 - resumen longitudinal del paciente desde la BD cargada, accesible desde la barra lateral;
-- reapertura de la Primera Visita guardada del paciente desde la BD cargada (botón **Abrir Primera Visita guardada** en la barra lateral), conservando su fecha y los datos almacenados;
+- reapertura de la Primera Visita vigente del paciente desde la BD cargada (botón **Abrir Primera Visita guardada** en la barra lateral), conservando su fecha y los datos almacenados;
+- corrección de una Primera Visita en modo **append-only**: la fila corregida se añade al final de `BD_VISITAS_HS` y la fila anterior se conserva como histórico; la versión vigente se determina por la `fecha_exportacion` válida más reciente y las revisiones anteriores no cuentan como visitas clínicas;
 - dashboard piloto con filtros de cohorte (periodo, tipo visita, IHS4, tendencia, Hurley, tratamiento/seguridad y pendientes) y gráficos simples (distribución IHS4, tendencia, tipos de visita, tratamientos, alertas);
 - limpieza de filtros para volver a la cohorte completa.
 
@@ -49,6 +50,9 @@ Genera:
 
 > [!IMPORTANT]
 > El `codigo_hs` se reserva durante la sesión, pero solo queda oficialmente registrado cuando se copia la fila Excel y se pega en `BD_VISITAS_HS`.
+
+> [!NOTE]
+> Para corregir una Primera Visita ya guardada, ábrala con **Abrir Primera Visita guardada** y pegue la nueva fila **al final** de `BD_VISITAS_HS`. No borre ni sobrescriba la fila anterior: la plataforma reconoce como versión vigente la fila con `fecha_exportacion` válida más reciente y las revisiones anteriores no cuentan como visitas clínicas. Seguimiento y Cura Post-Qx no se versionan por este mecanismo.
 
 ---
 
@@ -162,6 +166,9 @@ http://localhost:8000
 - [ ] Aplicar filtro por tipo de visita (PV/SG/CX) y verificar que la tabla se reduce.
 - [ ] Aplicar filtro por severidad IHS4 y verificar que la tabla se actualiza.
 - [ ] Usar **Limpiar filtros** y confirmar que se restaura la cohorte completa.
+- [ ] Reabrir una PV guardada, copiar su fila Excel y comprobar que el aviso indica añadirla al final, sin reemplazar la fila anterior.
+- [ ] Con varias PV del mismo paciente, comprobar que el resumen longitudinal y el dashboard cuentan una sola visita PV.
+- [ ] Con varias PV antiguas sin `fecha_exportacion` válida, comprobar el aviso no bloqueante al abrir la PV.
 
 ---
 
@@ -191,6 +198,7 @@ http://localhost:8000
 | Fase 8B | Dashboard v0 MVP con tarjetas globales, distribución IHS4 y tabla operativa. |
 | Fase 8C | Dashboard con filtros de cohorte y gráficos simples HTML/CSS. |
 | Fase 9 | Reapertura de Primera Visita guardada desde la BD cargada y corrección de IHS4=0 en rutas longitudinales. |
+| Fase 9.1 | Corrección de Primera Visita en modo append-only: `fecha_exportacion` como autoridad de versión, revisiones anteriores conservadas sin contar como visitas y fallback legacy de última fila física. |
 
 </details>
 

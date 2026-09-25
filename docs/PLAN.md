@@ -598,14 +598,38 @@ Permitir reabrir la Primera Visita almacenada de un paciente desde la base carga
 
 ### Alcance implementado
 - Botón **Abrir Primera Visita guardada** en la barra lateral (junto a **Ver resumen longitudinal**), visible cuando el paciente seleccionado tiene al menos una fila PV en la BD cargada y su `codigo_hs` no está duplicado.
-- Apertura determinista de la PV más reciente (última por `fecha_visita`; en caso de empate, la fila que aparece más tarde en el orden del Excel).
+- Apertura determinista de la PV vigente del paciente. En Fase 9 se abría por la última `fecha_visita` (con desempate por orden físico del Excel); desde Fase 9.1 la versión vigente se decide por la `fecha_exportacion` válida más reciente.
 - Restauración solo de los valores realmente almacenados en la fila, manteniendo la fecha de visita original (sin convertirla en visita nueva con fecha actual).
 - El detalle nunca almacenado en el Excel no se reconstruye (respuestas individuales de DLQI/HADS/HSQoL-24 y distribución regional N/A/F); nota discreta en la pestaña PV.
 - **Corrección de integridad (orden de trabajo `2026-09-24-pv-reopen-safety-correction.md`)**: en la PV reabierta, los agregados almacenados (IHS4, totales N/A/F, zonas activas, totales DLQI/HADS/HSQoL-24) son la autoridad. Los controles del detalle no almacenado quedan desactivados y no pueden recalcular/sobrescribir los totales históricos; QuickView, informe TXT y fila Excel conservan las zonas activas y totales guardados, con nota discreta de que el desglose regional N/A/F no está almacenado. Una PV nueva sigue siendo totalmente interactiva.
-- Aviso al reexportar una PV reabierta: la fila copiada actualiza/reemplaza la PV existente en `BD_VISITAS_HS` y no debe pegarse como segunda PV histórica (el reemplazo es un paso manual en Excel).
+- Aviso al reexportar una PV reabierta en modo **append-only**: la nueva fila se pega al final de `BD_VISITAS_HS`, la fila anterior se conserva como histórico y la plataforma reconoce como versión vigente la fila con `fecha_exportacion` válida más reciente (ver Fase 9.1).
 - IHS4=0 tratado como valor válido en resumen longitudinal (IHS4 último/previo y tendencia), alerta SG en vivo, informe TXT SG y QuickView SG: 8 → 0 muestra "Mejoría"; 0 → 0 muestra "Estable"; valor previo vacío o NR sigue mostrando "No valorable" y sin alerta de cambio en vivo.
 - Dashboard ya trataba 0 correctamente (sin cambios).
 
 ### Restricciones respetadas
 - Sin cambios de esquema en `BD_VISITAS_HS`, sin backend, sin localStorage, sin refactor modular.
 - Abrir una PV no crea paciente ni reserva `codigo_hs`; SG y CX permanecen sin cambios.
+
+---
+
+## Fase 9.1 — PV append-only con versión canónica
+
+### Estado: IMPLEMENTADA (2026-09-25)
+
+Orden de trabajo: `docs/work-orders/2026-09-25-pv-append-only-canonical-version.md` (incidencia de uso real: evitar borrar o sobrescribir filas de PV en Excel al corregir una Primera Visita).
+
+### Objetivo
+Permitir corregir una Primera Visita sin pedir a Enfermería que localice, borre o sobrescriba la fila anterior en `BD_VISITAS_HS`.
+
+### Alcance implementado
+- Corrección de PV en modo **append-only**: la nueva fila se pega al final de `BD_VISITAS_HS`; no se elimina ni sobrescribe la fila anterior, que queda como histórico y auditoría.
+- `fecha_exportacion` como autoridad de versión: la versión vigente (canónica) es la fila PV con `fecha_exportacion` válida más reciente. `fecha_visita` no decide qué revisión es la vigente, de modo que una corrección puede cambiar la fecha clínica y seguir siendo la versión vigente.
+- Empate exacto de `fecha_exportacion`: se usa la fila que aparece más tarde en el orden del Excel.
+- Compatibilidad legacy: si ninguna PV del paciente tiene `fecha_exportacion` válida, se usa de forma determinista la última fila física del Excel y se muestra un aviso no bloqueante al abrir la PV. No se migran filas ni se inventan timestamps.
+- Las revisiones anteriores de PV permanecen en el Excel pero no cuentan como visitas clínicas en el resumen longitudinal, la tendencia IHS4 ni los contadores del dashboard.
+- Seguimiento (SG) y Cura Post-Qx (CX) no se versionan ni se deduplican en este cambio.
+
+### Restricciones respetadas
+- Sin cambios de esquema en `BD_VISITAS_HS` ni columnas nuevas (`editado`, `revision`, `version`, `id_visita`).
+- Sin backend, sin localStorage clínico, sin telemetría, sin refactor modular.
+- `masterDb` no se muta: no se borran ni modifican filas cargadas.
