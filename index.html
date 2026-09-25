@@ -4789,7 +4789,80 @@
             return months + ' meses aprox.';
         }
 
-        function getPatientRecords(identifier) {
+        // === PV append-only: versión canónica ===
+        // Convierte un valor de fecha_exportacion a timestamp comparable.
+        // Devuelve null para vacío/'NR'/ilegible; nunca inventa una fecha.
+        function parseExportTimestamp(value) {
+            if (value === undefined || value === null) return null;
+            var raw = String(value).trim();
+            if (!raw) return null;
+            if (raw.toUpperCase() === 'NR') return null;
+            var parsed = parseVisitDate(raw);
+            if (!parsed || isNaN(parsed.getTime())) return null;
+            return parsed.getTime();
+        }
+
+        // fecha_exportacion tal cual está en la fila (recortada) o null si falta/vacía.
+        function rawExportDateOrNull(row) {
+            var raw = row ? row.fecha_exportacion : null;
+            if (raw === undefined || raw === null) return null;
+            var trimmed = String(raw).trim();
+            return trimmed ? trimmed : null;
+        }
+
+        function isPvRow(row) {
+            return normalizeVisitType(row && row.tipo_visita) === 'PV';
+        }
+
+        // Selecciona la revisión vigente (canónica) de las filas PV de un paciente.
+        // pvRows debe venir en el orden FÍSICO del Excel (masterDb). Reglas:
+        // 1 PV -> esa; varias con timestamp válido -> timestamp más reciente (empate
+        // exacto -> fila física posterior); válida vs inválida -> la válida; ninguna
+        // válida -> fila física posterior y usedLegacyFallback = true.
+        // Determinista: compara timestamps numéricos y desempata por índice físico.
+        // No muta las filas ni inventa timestamps.
+        function selectCanonicalPvVersion(pvRows) {
+            var rows = Array.isArray(pvRows) ? pvRows : [];
+            var versionCount = rows.length;
+            if (!versionCount) {
+                return { row: null, versionCount: 0, usedLegacyFallback: false, canonicalExportDate: null };
+            }
+            if (versionCount === 1) {
+                return {
+                    row: rows[0],
+                    versionCount: 1,
+                    usedLegacyFallback: false,
+                    canonicalExportDate: rawExportDateOrNull(rows[0])
+                };
+            }
+            var bestIndex = -1;
+            var bestTime = null;
+            for (var i = 0; i < rows.length; i++) {
+                var ts = parseExportTimestamp(rows[i] ? rows[i].fecha_exportacion : null);
+                if (ts === null) continue;
+                if (bestTime === null || ts >= bestTime) {
+                    bestTime = ts;
+                    bestIndex = i;
+                }
+            }
+            if (bestIndex === -1) {
+                return {
+                    row: rows[rows.length - 1],
+                    versionCount: versionCount,
+                    usedLegacyFallback: true,
+                    canonicalExportDate: null
+                };
+            }
+            return {
+                row: rows[bestIndex],
+                versionCount: versionCount,
+                usedLegacyFallback: false,
+                canonicalExportDate: rawExportDateOrNull(rows[bestIndex])
+            };
+        }
+
+        // Filas del paciente en el orden físico del Excel (sin ordenar por fecha clínica).
+        function getPatientRowsInExcelOrder(identifier) {
             var normalized = normalizePatientId(identifier);
             var normalizedHsIdentifier = /^HS\s*\d+$/i.test(String(identifier || '').trim()) ? normalizeHsCode(identifier) : '';
             if (isValidHsCode(normalizedHsIdentifier)) normalized = normalizedHsIdentifier;
@@ -4798,13 +4871,34 @@
                 var byNuhsa = normalizePatientId(record.nuhsa) === normalized;
                 var byCode = isValidHsCode(normalizedHsIdentifier) && normalizeHsCode(record.codigo_hs) === normalizedHsIdentifier;
                 return byNuhsa || byCode;
-            }).sort(function (a, b) {
+            });
+        }
+
+        // Orden clínico existente: fecha_visita ascendente (sin fecha -> primero).
+        function sortPatientRowsByVisitDate(rows) {
+            return rows.slice().sort(function (a, b) {
                 var da = parseVisitDate(a.fecha_visita);
                 var db = parseVisitDate(b.fecha_visita);
                 var ta = da ? da.getTime() : -1;
                 var tb = db ? db.getTime() : -1;
                 return ta - tb;
             });
+        }
+
+        // Vista canónica: todas las filas SG y CX, y exactamente UNA fila PV (la
+        // versión vigente). Conserva el orden clínico por fecha_visita como antes; el
+        // orden físico del Excel solo decide entre versiones PV.
+        function getCanonicalPatientRecords(identifier) {
+            var excelOrderRows = getPatientRowsInExcelOrder(identifier);
+            var canonicalPv = selectCanonicalPvVersion(excelOrderRows.filter(isPvRow));
+            var keptRows = excelOrderRows.filter(function (row) {
+                return !isPvRow(row) || row === canonicalPv.row;
+            });
+            return sortPatientRowsByVisitDate(keptRows);
+        }
+
+        function getPatientRecords(identifier) {
+            return getCanonicalPatientRecords(identifier);
         }
 
         function getLastPatientRecord(identifier, beforeDate) {
@@ -6120,10 +6214,7 @@
             });
             exportRowToClipboard(row);
             if (pvLoadedFromDbRow) {
-                var loadedCode = normalizeHsCode(pvLoadedFromDbRow.codigo_hs);
-                showToast('Atención: la fila copiada ACTUALIZA/REEMPLAZA la Primera Visita ya registrada en la BD (tipo_visita PV, fecha ' +
-                    (pvLoadedFromDbRow.fecha_visita || 'NR') + ', código HS ' + (isValidHsCode(loadedCode) ? loadedCode : 'NR') +
-                    '). No la añada como una segunda PV histórica.', 'warn', 8000);
+                showToast('Primera Visita actualizada. Copie esta fila y añádala al final de BD_VISITAS_HS. No elimine ni modifique la fila anterior. La plataforma reconocerá automáticamente esta exportación como la versión más reciente de la Primera Visita.', 'info', 8000);
             }
         }
 
@@ -7226,6 +7317,32 @@
             return { groups: groups, rowsWithoutIdentifier: rowsWithoutIdentifier };
         }
 
+        // Deduplica versiones PV en una lista de filas para el dashboard, sin tocar SG/CX.
+        // Agrupa por identidad normalizada igual que getDashboardPatientGroups (nuhsa;
+        // las filas sin nuhsa no se deduplican). Aplica el selector canónico dentro de
+        // las PV de cada grupo y devuelve las filas en su orden relativo original.
+        function filterCanonicalPvRows(rows) {
+            var list = Array.isArray(rows) ? rows : [];
+            var physicalPvByPatient = {};
+            list.forEach(function (row) {
+                if (!isPvRow(row)) return;
+                var nuhsa = normalizePatientId(row.nuhsa);
+                if (!nuhsa) return;
+                if (!physicalPvByPatient[nuhsa]) physicalPvByPatient[nuhsa] = [];
+                physicalPvByPatient[nuhsa].push(row);
+            });
+            var canonicalPvByPatient = {};
+            Object.keys(physicalPvByPatient).forEach(function (nuhsa) {
+                canonicalPvByPatient[nuhsa] = selectCanonicalPvVersion(physicalPvByPatient[nuhsa]).row;
+            });
+            return list.filter(function (row) {
+                if (!isPvRow(row)) return true;
+                var nuhsa = normalizePatientId(row.nuhsa);
+                if (!nuhsa) return true;
+                return row === canonicalPvByPatient[nuhsa];
+            });
+        }
+
         function getDashboardLatestVisit(rows) {
             if (!rows || !rows.length) return null;
             var best = null;
@@ -7420,7 +7537,8 @@
             var sourceRows = rows || [];
             var activeFilters = filters || getDashboardDefaultFilters();
             var visitFilteredRows = applyDashboardVisitFilters(sourceRows, activeFilters);
-            var grouped = getDashboardPatientGroups(visitFilteredRows);
+            var canonicalRows = filterCanonicalPvRows(visitFilteredRows);
+            var grouped = getDashboardPatientGroups(canonicalRows);
             var groups = grouped.groups;
             var patientIds = Object.keys(groups);
             var patients = [];
@@ -7431,7 +7549,7 @@
                 patients.push(pm);
                 includedPatientIds[patientId] = true;
             });
-            var includedRows = visitFilteredRows.filter(function (row) {
+            var includedRows = canonicalRows.filter(function (row) {
                 return includedPatientIds[normalizePatientId(row.nuhsa)];
             });
             var globalCards = getEmptyDashboardGlobalCards(includedRows.length);
@@ -8232,15 +8350,15 @@
                 showDuplicateHsCodeModal(selectedPatientLastRecord.codigo_hs, 'export');
                 return;
             }
-            var pvRows = getPatientRecords(selectedPatientIdentifier)
-                .filter(function (r) { return normalizeVisitType(r.tipo_visita) === 'PV'; });
-            if (!pvRows.length) {
+            // Las filas PV se obtienen en el orden físico del Excel para poder
+            // seleccionar la versión canónica (no la simple última por fecha clínica).
+            var pvRows = getPatientRowsInExcelOrder(selectedPatientIdentifier).filter(isPvRow);
+            var canonicalPv = selectCanonicalPvVersion(pvRows);
+            if (!canonicalPv.row) {
                 showToast('El paciente activo no tiene Primera Visita guardada en la base cargada.', 'warn');
                 return;
             }
-            // Política determinista: getPatientRecords ordena ascendente por fecha_visita;
-            // se toma la ÚLTIMA fila PV del paciente (la más reciente).
-            var row = pvRows[pvRows.length - 1];
+            var row = canonicalPv.row;
             if (pvTabHasEnteredData() && !window.confirm('La pestaña Primera Visita tiene datos sin guardar. Se sobrescribirán con la PV guardada en la BD (fecha ' + (row.fecha_visita || 'NR') + '). ¿Continuar?')) {
                 return;
             }
@@ -8343,6 +8461,9 @@
             updatePvQuickView();
             switchTab('pv');
             showToast('Primera Visita guardada cargada desde la BD (fecha ' + (row.fecha_visita || 'NR') + ').', 'ok');
+            if (canonicalPv.usedLegacyFallback && canonicalPv.versionCount > 1) {
+                showToast('Aviso: este paciente tiene varias filas PV antiguas sin fecha_exportacion válida; se ha cargado la última fila física por compatibilidad con datos antiguos.', 'warn', 8000);
+            }
         }
 
         // Cerrar paneles con Escape
